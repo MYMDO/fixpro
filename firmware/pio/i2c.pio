@@ -1,108 +1,66 @@
-; SPDX-License-Identifier: GPL-3.0-or-later
 ;
-; FiXPro I2C PIO State Machine
-; I2C master controller
+; Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
 ;
-; I2C is a synchronous serial protocol with:
-; - SDA (data) and SCL (clock) lines
-; - Open-drain outputs (wired-AND)
+; SPDX-License-Identifier: BSD-3-Clause
 ;
 
-.program i2c_master
-.side_set 2
+; FiXPro - I2C PIO State Machine
+; Official Pico SDK I2C implementation
+;
+.pio_version 0
 
-; I2C Master State Machine
-; Side-set: [0]=SCL, [1]=SDA
-; Pins: [0]=SCL, [1]=SDA
+.program i2c
+.side_set 1 opt pindirs
 
+; TX Encoding:
+; | 15:10 | 9     | 8:1  | 0   |
+; | Instr | Final | Data | NAK |
+;
+; Autopull threshold: 16
+; Autopush threshold: 8
+
+do_nack:
+    jmp y-- entry_point
+    irq wait 0 rel
+
+do_byte:
+    set x, 7
+bitloop:
+    out pindirs, 1         [7]
+    nop             side 1 [2]
+    wait 1 pin, 1          [4]
+    in pins, 1             [7]
+    jmp x-- bitloop side 0 [7]
+
+    out pindirs, 1         [7]
+    nop             side 1 [7]
+    wait 1 pin, 1          [7]
+    jmp pin do_nack side 0 [2]
+
+public entry_point:
 .wrap_target
-    pull block             ; Get command
-    out x, 8             ; X = command
-    
-cmd_loop:
-    jmp x-- cmd_loop     ; Wait for command processing
+    out x, 6
+    out y, 1
+    jmp !x do_byte
+    out null, 32
+do_exec:
+    out exec, 16
+    jmp x-- do_exec
 .wrap
 
-
-.program i2c_bit
-
+.program set_scl_sda
 .side_set 1 opt
 
-; Single bit I2C transfer
-; Outputs one bit and reads ACK
+; START/STOP/RSTART instruction table
 
-.wrap_target
-    pull block             ; Get bit value
-    out pins, 1          ; Output bit to SDA
-    
-    set pins, 1 [1]      ; Clock high
-    in pins, 1           ; Read SDA (ACK)
-    set pins, 0          ; Clock low
-.wrap
-
-
-.program i2c_start
-
-.side_set 1 opt
-
-; I2C START condition generator
-; SCL=pin 0, SDA=pin 1
-
-.wrap_target
-    set pins, 1           ; SDA high
-    set pins, 0           ; SCL high
-    set pins, 0           ; SDA low (START)
-    set pins, 0           ; SCL low
-.wrap
-
-
-.program i2c_stop
-
-.side_set 1 opt
-
-; I2C STOP condition generator
-; SCL=pin 0, SDA=pin 1
-
-.wrap_target
-    set pins, 0           ; SDA low
-    set pins, 1           ; SCL high
-    set pins, 1           ; SDA high (STOP)
-.wrap
-
-
-.program i2c_byte
-
-.side_set 1 opt
-
-; I2C Byte Transfer
-; SCL=pin 0, SDA=pin 1 (in/out)
-
-.wrap_target
-    pull block             ; Get byte
-    out x, 8              ; Bit counter
-    
-byte_loop:
-    out pins, 1           ; Output bit
-    set pins, 1 [1]       ; Clock high
-    set pins, 0           ; Clock low
-    jmp x-- byte_loop    ; Next bit
-    
-    in pins, 1            ; Read ACK
-    push block             ; Push ACK status
-.wrap
-
+    set pindirs, 0 side 0 [7]
+    set pindirs, 1 side 0 [7]
+    set pindirs, 0 side 1 [7]
+    set pindirs, 1 side 1 [7]
 
 % cjson {
     "name": "i2c",
-    "description": "I2C Master Controller",
-    "state_machines": ["i2c_master", "i2c_bit", "i2c_start", "i2c_stop", "i2c_byte"],
-    "pins": {
-        "i2c_master": {"scl": 0, "sda": 1},
-        "i2c_bit": {"scl": 0, "sda": 1},
-        "i2c_start": {"scl": 0, "sda": 1},
-        "i2c_stop": {"scl": 0, "sda": 1},
-        "i2c_byte": {"scl": 0, "sda": 1}
-    },
-    "max_frequency": 1000000,
-    "features": ["standard_mode", "fast_mode"]
+    "description": "I2C Master Controller (Official Pico SDK)",
+    "state_machines": ["i2c", "set_scl_sda"],
+    "features": ["master", "clock_stretching", "multi_speed"]
 }

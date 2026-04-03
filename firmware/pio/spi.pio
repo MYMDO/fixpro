@@ -1,135 +1,77 @@
-; SPDX-License-Identifier: GPL-3.0-or-later
 ;
-; FiXPro SPI PIO State Machine
-; High-performance SPI master controller
+; Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
 ;
-; RP2040 PIO (Programmable I/O)
+; SPDX-License-Identifier: BSD-3-Clause
 ;
 
-.program spi_tx
+; FiXPro - SPI PIO State Machine
+; Full-duplex SPI implementation from official Pico SDK
+;
+.pio_version 0
 
-.side_set 1 opt
-
-; SPI Transmit State Machine
-; Uses autopull, outputs MOSI and clock via side-set
-
-.wrap_target
-bit_loop:
-    out pins, 1            ; Output 1 bit to MOSI
-    out x, 1    [1]       ; Clock high with delay
-    out x, 1              ; Clock low (delay handled by side-set)
-    jmp x-- bit_loop      ; Continue until bit count exhausted
-.wrap
-
-
-.program spi_tx_fast
-
-.side_set 1 opt
-
-; Fast SPI TX with clock divider control
-
-.wrap_target
-    pull block             ; Get clock delay value
-    out x, 8              ; Store in X
-    
-tx_loop:
-    out pins, 1           ; Output bit
-    set pins, 1           ; CLK high
-    jmp x-- skip_low      ; Delay
-    set pins, 0           ; CLK low
-    jmp tx_loop
-    
-skip_low:
-    set pins, 0           ; CLK low
-    jmp tx_loop
-.wrap
-
-
-.program spi_rx
-
-.side_set 1 opt
-
-; SPI Receive State Machine
-; Samples MISO on clock edges
-
-.wrap_target
-    pull block             ; Wait for config
-    out x, 8              ; Get delay value
-    
-rx_loop:
-    set pins, 1           ; CLK high
-    in pins, 1           ; Sample MISO
-    jmp x-- d1            ; Delay
-d1:
-    set pins, 0           ; CLK low
-    jmp x-- d2            ; Delay
-d2:
-    jmp rx_loop
-.wrap
-
-
-.program spi_master
-
+.program spi_cpha0
 .side_set 1
 
-; Complete SPI Master (single SM)
-; Side-set pin = CLK
-; OUT pin = MOSI
-; IN pin = MISO
+; Clock phase = 0: data is captured on the leading edge
+; SCK is side-set pin 0, MOSI is OUT pin 0, MISO is IN pin 0
 
-; Command format:
-; [31:24] = delay cycles
-; [23:16] = bit count
-; [15:0] = data
+    out pins, 1 side 0 [1]
+    in pins, 1  side 1 [1]
 
-.wrap_target
-    pull block             ; Get command (blocking)
-    out x, 8              ; X = delay
-    out y, 8              ; Y = bit count
-    
-spi_loop:
-    out pins, 1           ; Output MOSI
-    set pins, 1 [1]      ; CLK high (with delay)
-    in pins, 1           ; Sample MISO
-    set pins, 0          ; CLK low
-    jmp y-- spi_loop      ; Decrement and loop
-    
-    push block             ; Push received data
-.wrap
+.program spi_cpha1
+.side_set 1
 
+; Clock phase = 1: data transitions on the leading edge
 
-.program spi_cs
+    out x, 1    side 0
+    mov pins, x side 1 [1]
+    in pins, 1  side 0
 
-.side_set 1 opt
+.program spi_cpha0_cs
+.side_set 2
 
-; Chip Select controller
+; SPI with Chip Select (CPHA=0)
 
 .wrap_target
-    pull block             ; Get command
-    out x, 8              ; X = state (0=high, 1=low)
-    jmp !x cs_high        ; If X=0, CS high
-    
-cs_low:
-    set pins, 0           ; CS active low
-    jmp cs_done
-    
-cs_high:
-    set pins, 1           ; CS inactive high
-    
-cs_done:
-    push block             ; Done
+bitloop:
+    out pins, 1        side 0x0 [1]
+    in pins, 1         side 0x1
+    jmp x-- bitloop    side 0x1
+
+    out pins, 1        side 0x0
+    mov x, y           side 0x0
+    in pins, 1         side 0x1
+    jmp !osre bitloop  side 0x1
+
+    nop                side 0x0 [1]
+public entry_point:
+    pull ifempty       side 0x2 [1]
 .wrap
 
+.program spi_cpha1_cs
+.side_set 2
+
+; SPI with Chip Select (CPHA=1)
+
+.wrap_target
+bitloop:
+    out pins, 1        side 0x1 [1]
+    in pins, 1         side 0x0
+    jmp x-- bitloop    side 0x0
+
+    out pins, 1        side 0x1
+    mov x, y           side 0x1
+    in pins, 1         side 0x0
+    jmp !osre bitloop  side 0x0
+
+public entry_point:
+    pull ifempty       side 0x2 [1]
+    nop                side 0x0 [1]
+.wrap
 
 % cjson {
     "name": "spi",
-    "description": "SPI Master Controller",
-    "state_machines": ["spi_tx", "spi_tx_fast", "spi_rx", "spi_master", "spi_cs"],
-    "pins": {
-        "spi_tx": {"mosi": 0, "clk": 1},
-        "spi_rx": {"miso": 0, "clk": 1},
-        "spi_master": {"mosi": 0, "miso": 1, "clk": 2, "cs": 3}
-    },
-    "max_frequency": "system_clock / 2",
-    "features": ["full_duplex", "msb_first", "lsb_first", "mode_0_3"]
+    "description": "SPI Master Controller (Official Pico SDK)",
+    "state_machines": ["spi_cpha0", "spi_cpha1", "spi_cpha0_cs", "spi_cpha1_cs"],
+    "features": ["full_duplex", "msb_first", "cpha_0_1", "chip_select"]
 }
