@@ -1,209 +1,108 @@
 ; SPDX-License-Identifier: GPL-3.0-or-later
 ;
-; OmniProg I2C PIO State Machine
-; I2C master controller with clock stretching support
+; FiXPro I2C PIO State Machine
+; I2C master controller
 ;
 ; I2C is a synchronous serial protocol with:
 ; - SDA (data) and SCL (clock) lines
 ; - Open-drain outputs (wired-AND)
-; - Acknowledge bits after each byte
-; - START and STOP conditions
 ;
-; This implementation supports:
-; - Standard mode (100 kHz)
-; - Fast mode (400 kHz)
-; - Fast mode+ (1 MHz) - limited by PIO clock
-;
-; Author: OmniProg Contributors
-; Version: 1.0.0
 
 .program i2c_master
-.side_set 2 opt
+.side_set 2
 
 ; I2C Master State Machine
-; Side-set pins: [0]=SCL, [1]=SDA
-; In/push pins: [0]=SDA (read)
-; Out/pop pins: [0]=SDA (write)
-
-; Commands via TX FIFO:
-; 7-bit command format:
-; [6:5] = Operation (00=start, 01=stop, 10=write bit, 11=read bit)
-; [4:0] = Data (7 bits for address, 1 bit for data)
-
-; Status via RX FIFO:
-; [0] = ACK received (0=ACK, 1=NACK)
-; [1] = Bus error flag
-
-; SDA/SCL are open-drain, driven low or released (high-Z)
+; Side-set: [0]=SCL, [1]=SDA
+; Pins: [0]=SCL, [1]=SDA
 
 .wrap_target
-start_cond:
-    set pindirs, 0b10       ; SDA output, SCL input (release SCL)
-    set pins, 1             ; Release SDA (SDA high)
-    wait 0 pin 0            ; Wait for SCL to be released
+    pull block             ; Get command
+    out x, 8             ; X = command
     
-    set pins, 0             ; SDA low (START condition)
-    set pindirs, 0b01       ; SCL output, SDA input (release SDA)
-    nop                     ; Small delay
-    jmp wrap_target
+cmd_loop:
+    jmp x-- cmd_loop     ; Wait for command processing
+.wrap
 
-stop_cond:
-    set pindirs, 0b10       ; SDA output, SCL input
-    set pins, 0             ; SDA low
-    nop                     ; Setup time
-    set pindirs, 0b11       ; Both outputs
-    set pins, 1             ; Release SCL (SCL high)
-    set pins, 1             ; Release SDA (STOP condition)
-    set pindirs, 0b00       ; Both inputs (idle)
-    push block
-    jmp wrap_target
 
-write_bit:
-    pull block              ; Get data bit
-    out pins, 1            ; Output bit to SDA
-    set pindirs, 0b01       ; SCL output, SDA input
-    set pins, 1            ; Clock high
-    wait 0 pin 0            ; Wait for slave to sample
-    set pins, 0             ; Clock low
-    set pindirs, 0b10       ; SDA output
+.program i2c_bit
+
+.side_set 1 opt
+
+; Single bit I2C transfer
+; Outputs one bit and reads ACK
+
+.wrap_target
+    pull block             ; Get bit value
+    out pins, 1          ; Output bit to SDA
     
-    in pins, 1              ; Read ACK bit
-    push block              ; Push status
-    jmp wrap_target
+    set pins, 1 [1]      ; Clock high
+    in pins, 1           ; Read SDA (ACK)
+    set pins, 0          ; Clock low
+.wrap
 
-read_bit:
-    set pindirs, 0b01       ; SCL output, SDA input
-    set pins, 1            ; Clock high
-    wait 0 pin 0            ; Wait for clock
-    in pins, 1              ; Sample SDA
-    set pins, 0             ; Clock low
-    push block              ; Push received bit
-    jmp wrap_target
 
+.program i2c_start
+
+.side_set 1 opt
+
+; I2C START condition generator
+; SCL=pin 0, SDA=pin 1
+
+.wrap_target
+    set pins, 1           ; SDA high
+    set pins, 0           ; SCL high
+    set pins, 0           ; SDA low (START)
+    set pins, 0           ; SCL low
+.wrap
+
+
+.program i2c_stop
+
+.side_set 1 opt
+
+; I2C STOP condition generator
+; SCL=pin 0, SDA=pin 1
+
+.wrap_target
+    set pins, 0           ; SDA low
+    set pins, 1           ; SCL high
+    set pins, 1           ; SDA high (STOP)
 .wrap
 
 
 .program i2c_byte
-.side_set 2
 
-; I2C Byte Transfer State Machine
-; Handles complete byte transactions including ACK/NACK
-;
-; TX FIFO input format:
-; Bit 7 = Write data MSB
-; Bits 6:0 = Write data
-;
-; RX FIFO output:
-; Bit 0 = ACK received (0=ACK, 1=NACK)
+.side_set 1 opt
 
-; Configuration registers (set via OUT):
-; Y = Clock delay (for different I2C speeds)
+; I2C Byte Transfer
+; SCL=pin 0, SDA=pin 1 (in/out)
 
 .wrap_target
-    pull block              ; Get byte to transmit
+    pull block             ; Get byte
+    out x, 8              ; Bit counter
     
-    set x, 8               ; Bit counter (8 bits)
-bit_loop:
-    out pins, 1            ; Output MSB to SDA
-    set pindirs, 0b01      ; SCL output, SDA input
-    set pins, 1 [1]        ; Clock high with setup delay
-    set pindirs, 0b10      ; SCL high-z, SDA input
-    wait 0 pin 0           ; Wait for clock low
-    set pins, 0            ; SCL low
-    set pindirs, 0b11      ; SDA output
-    jmp x-- bit_loop       ; Next bit
+byte_loop:
+    out pins, 1           ; Output bit
+    set pins, 1 [1]       ; Clock high
+    set pins, 0           ; Clock low
+    jmp x-- byte_loop    ; Next bit
     
-ack_check:
-    set pindirs, 0b01      ; SCL output, SDA input
-    set pins, 1            ; Clock high for ACK
-    in pins, 1             ; Sample SDA (ACK/NACK)
-    set pins, 0            ; Clock low
-    set pindirs, 0b00      ; Release bus
-    push block              ; Push ACK status
-.wrap
-
-
-.program i2c_repeated_start
-.side_set 2 opt
-
-; I2C Repeated START and Address Transfer
-; Handles I2C START condition, 7-bit address + R/W bit
-;
-; TX FIFO format:
-; Byte 0: I2C address (7 bits, MSB)
-; Byte 1: R/W bit (bit 0)
-;
-; RX FIFO output:
-; Bit 0 = ACK received
-
-.wrap_target
-    pull block              ; Get address
-    out x, 7               ; Extract 7-bit address
-    
-    set pindirs, 0b10      ; SDA output, SCL input
-    set pins, 1             ; Release SDA
-    wait 0 pin 0            ; Wait for SCL high
-    
-    set pins, 0             ; SDA low (START)
-    set pindirs, 0b01       ; SCL output, SDA input
-    set pins, 0             ; SCL low
-    
-    set pindirs, 0b11       ; Both outputs
-    out y, 7               ; Address to Y
-    set x, 7               ; Bit counter
-    
-addr_loop:
-    out pins, 1            ; Address bit to SDA
-    set pins, 1 [1]        ; Clock high
-    set pindirs, 0b01      ; SDA input (for clock stretch)
-    wait 0 pin 0           ; Wait for clock low
-    set pins, 0            ; Clock low
-    set pindirs, 0b11      ; SDA output
-    jmp x-- addr_loop      ; Next bit
-    
-    out pins, 1             ; R/W bit
-    set pins, 1 [1]        ; Clock high
-    set pindirs, 0b01      ; SDA input
-    in pins, 1             ; Sample ACK
-    set pins, 0            ; Clock low
-    push block              ; Push ACK status
-.wrap
-
-
-.program i2c_clock_stretch
-.side_set 2 opt
-
-; I2C Clock Stretching Monitor
-; Detects when slave stretches clock
-; Useful for slow I2C devices
-;
-; Monitors SCL line and reports if stuck low
-
-.wrap_target
-    set pindirs, 0b10      ; SCL input, SDA output
-    
-wait_high:
-    wait 1 pin 0           ; Wait for SCL high
-    mov x, pins            ; Read current state
-    jmp x-- timeout        ; If SCL goes low, timeout
-    
-    jmp wait_high           ; Continue monitoring
-    
-timeout:
-    in pins, 1             ; Report status
-    push block              ; Clock stretch detected
+    in pins, 1            ; Read ACK
+    push block             ; Push ACK status
 .wrap
 
 
 % cjson {
     "name": "i2c",
     "description": "I2C Master Controller",
-    "state_machines": ["i2c_master", "i2c_byte", "i2c_repeated_start", "i2c_clock_stretch"],
+    "state_machines": ["i2c_master", "i2c_bit", "i2c_start", "i2c_stop", "i2c_byte"],
     "pins": {
         "i2c_master": {"scl": 0, "sda": 1},
-        "i2c_byte": {"scl": 0, "sda": 1},
-        "i2c_repeated_start": {"scl": 0, "sda": 1}
+        "i2c_bit": {"scl": 0, "sda": 1},
+        "i2c_start": {"scl": 0, "sda": 1},
+        "i2c_stop": {"scl": 0, "sda": 1},
+        "i2c_byte": {"scl": 0, "sda": 1}
     },
     "max_frequency": 1000000,
-    "features": ["standard_mode", "fast_mode", "fast_mode_plus", "clock_stretching"]
+    "features": ["standard_mode", "fast_mode"]
 }

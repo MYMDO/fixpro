@@ -1,181 +1,123 @@
 ; SPDX-License-Identifier: GPL-3.0-or-later
 ;
-; OmniProg SPI PIO State Machine
+; FiXPro SPI PIO State Machine
 ; High-performance SPI master controller
 ;
-; This state machine handles SPI transactions with configurable:
-; - Clock frequency (up to system clock / 2)
-; - Bit order (MSB/LSB first)
-; - Clock polarity (CPOL) and phase (CPHA)
-; - Data width (1-8 bits per word)
+; RP2040 PIO (Programmable I/O)
 ;
-; RP2040 has 2 PIO blocks, each with 4 state machines
-; This implementation uses 2 state machines for full-duplex SPI
-;
-; PIO0 SM0: SPI TX (MOSI + Clock)
-; PIO0 SM1: SPI RX (MISO sampling)
-;
-; Author: OmniProg Contributors
-; Version: 1.0.0
 
 .program spi_tx
+
 .side_set 1 opt
 
 ; SPI Transmit State Machine
-; Output: MOSI on pin 0, CLK on pin 1 (side-set)
-; Auto-push after each byte
-
-; Y register usage:
-; Y[7:0] = data to transmit
-; Y[15:8] = clock configuration
-
-; ISR contains: bit count, auto-push enabled
-
-; Clock configuration in exec ctrl:
-; - autopush if bit count reached
-; - autopull if TX FIFO has data
+; Uses autopull, outputs MOSI and clock via side-set
 
 .wrap_target
-    pull block              ; Wait for data from CPU (blocking)
-    out x, 8               ; Get byte count (how many bits to send)
-    
 bit_loop:
-    out pins, 1            ; Output MSB to MOSI
-    set pins, 1   [1]       ; CLK high (half-period delay)
-    set pins, 0             ; CLK low
-    jmp x-- bit_loop        ; Decrement bit counter, loop if not zero
-    
-    jmp !osre end_frame     ; If TX FIFO empty, end frame
-    pull block              ; Wait for next byte
-    out x, 8               ; Get byte count
-    set pins, 1   [1]      ; CLK high for inter-byte gap
-    set pins, 0             ; CLK low
-    jmp x-- bit_loop        ; Continue with new byte
-    
-end_frame:
-    push block              ; Push status to RX FIFO
+    out pins, 1            ; Output 1 bit to MOSI
+    out x, 1    [1]       ; Clock high with delay
+    out x, 1              ; Clock low (delay handled by side-set)
+    jmp x-- bit_loop      ; Continue until bit count exhausted
 .wrap
 
 
 .program spi_tx_fast
+
 .side_set 1 opt
 
-; Optimized SPI Transmit with configurable clock divider
-; Uses Y register for clock delay
-
-    pull block              ; block until data available
-    out x, 8               ; clock divider (1-255)
-    
-tx_loop:
-    out pins, 1            ; Output 1 bit to MOSI
-    set pins, 1            ; CLK high
-    jmp x-- delay_h        ; delay loop
-delay_h:
-delay_l:
-    set pins, 0            ; CLK low
-    out x, 8               ; get next clock delay
-    jmp !osre tx_loop      ; if more data, continue
-    push block             ; else push to RX
+; Fast SPI TX with clock divider control
 
 .wrap_target
+    pull block             ; Get clock delay value
+    out x, 8              ; Store in X
+    
+tx_loop:
+    out pins, 1           ; Output bit
+    set pins, 1           ; CLK high
+    jmp x-- skip_low      ; Delay
+    set pins, 0           ; CLK low
+    jmp tx_loop
+    
+skip_low:
+    set pins, 0           ; CLK low
     jmp tx_loop
 .wrap
 
 
 .program spi_rx
+
 .side_set 1 opt
 
 ; SPI Receive State Machine
-; Input: MISO on pin 0
-; Output: CLK on pin 1 (side-set)
-
-; Clock configuration:
-; - In-ledder sampling for clean signals
-; - Configurable sample edge
+; Samples MISO on clock edges
 
 .wrap_target
-    pull block              ; Get clock edge configuration
-    out x, 8               ; Delay after clock (setup time)
+    pull block             ; Wait for config
+    out x, 8              ; Get delay value
     
-    set pins, 1            ; CLK high (start condition)
-    
-rx_byte:
-    in pins, 1             ; Sample MISO
-    set pins, 0   [1]      ; CLK low with delay
-    set pins, 1            ; CLK high
-    jmp !osre rx_byte       ; Continue until TX empty
-    
-    set pins, 0             ; CLK low (end condition)
-    push block              ; Push received data
+rx_loop:
+    set pins, 1           ; CLK high
+    in pins, 1           ; Sample MISO
+    jmp x-- d1            ; Delay
+d1:
+    set pins, 0           ; CLK low
+    jmp x-- d2            ; Delay
+d2:
+    jmp rx_loop
 .wrap
 
 
 .program spi_master
-.side_set 1 pindirs
 
-; Complete SPI Master with single state machine
-; Pins: [0]=MOSI, [1]=MISO, [2]=CLK, [3]=CS
-; Side-set: [0]=CLK
+.side_set 1
 
-; Command format via TX FIFO:
-; Byte 0: Control (mode, speed)
-; Byte 1: Length (bits to transfer)
-; Byte 2+: Data
+; Complete SPI Master (single SM)
+; Side-set pin = CLK
+; OUT pin = MOSI
+; IN pin = MISO
 
-; Autopush at 32 bits, autopull at 32 bits
-
-.entry_point bit_start, 0
-
-bit_start:
-    set pindirs, 0b0001     ; MOSI as output, others input
-    pull ifempty            ; Wait for data
-    
-bit_loop:
-    out pins, 1            ; Output to MOSI
-    set x, 0    [1]         ; Clock setup delay
-    set pins, 1             ; Clock high
-    in pins, 1              ; Sample MISO
-    set pins, 0             ; Clock low
-    jmp x-- bit_loop        ; Continue until done
-    
-    set pindirs, 0b0000     ; All inputs (hi-z)
-    push block              ; Push received data
+; Command format:
+; [31:24] = delay cycles
+; [23:16] = bit count
+; [15:0] = data
 
 .wrap_target
-    jmp entry_pin bit_start ; Jump if CS asserted
-    jmp bit_loop             ; Continue current transfer
+    pull block             ; Get command (blocking)
+    out x, 8              ; X = delay
+    out y, 8              ; Y = bit count
+    
+spi_loop:
+    out pins, 1           ; Output MOSI
+    set pins, 1 [1]      ; CLK high (with delay)
+    in pins, 1           ; Sample MISO
+    set pins, 0          ; CLK low
+    jmp y-- spi_loop      ; Decrement and loop
+    
+    push block             ; Push received data
 .wrap
 
 
 .program spi_cs
+
 .side_set 1 opt
 
-; Chip Select management state machine
-; Manages CS signal with proper timing
-
-; Instructions via TX FIFO:
-; 0x00 = CS high (deselect)
-; 0x01 = CS low (select)
-; Other = configurable delay
+; Chip Select controller
 
 .wrap_target
-    pull block              ; Wait for command
-    
-    out x, 1                ; Get CS state (0=high, 1=low)
-    jmp !x cs_high          ; If 0, set CS high
+    pull block             ; Get command
+    out x, 8              ; X = state (0=high, 1=low)
+    jmp !x cs_high        ; If X=0, CS high
     
 cs_low:
-    set pins, 0             ; CS low (active)
-    out x, 8                ; Get delay in cycles
-    jmp x-- $              ; Delay loop
-    push block              ; Signal complete
-    jmp wrap_target
+    set pins, 0           ; CS active low
+    jmp cs_done
     
 cs_high:
-    set pins, 1             ; CS high (inactive)
-    out x, 8                ; Get delay in cycles
-    jmp x-- $
-    push block              ; Signal complete
+    set pins, 1           ; CS inactive high
+    
+cs_done:
+    push block             ; Done
 .wrap
 
 
