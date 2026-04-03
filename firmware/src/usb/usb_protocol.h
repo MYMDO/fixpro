@@ -30,8 +30,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "pico/stdlib.h"
-#include "pico/async_context_poll.h"
 
 /*============================================================================
  * PROTOCOL CONSTANTS
@@ -220,9 +218,8 @@ void usb_protocol_deinit(void);
 
 /**
  * @brief Process incoming USB data
- * @param context Async context for polling
  */
-void usb_protocol_poll(async_context_t *context);
+void usb_protocol_poll(void);
 
 /**
  * @brief Send response packet

@@ -80,39 +80,39 @@ void hal_gpio_init(void);
  * @param pin Pin number
  * @param output true for output, false for input
  */
-void hal_gpio_set_dir(uint pin, bool output);
+void hal_gpio_set_dir(uint32_t pin, bool output);
 
 /**
  * @brief Write GPIO pin state
  * @param pin Pin number
  * @param value true for high, false for low
  */
-void hal_gpio_put(uint pin, bool value);
+void hal_gpio_put(uint32_t pin, bool value);
 
 /**
  * @brief Read GPIO pin state
  * @param pin Pin number
  * @return Pin state
  */
-bool hal_gpio_get(uint pin);
+bool hal_gpio_get(uint32_t pin);
 
 /**
  * @brief Enable pull-up on GPIO pin
  * @param pin Pin number
  */
-void hal_gpio_pull_up(uint pin);
+void hal_gpio_pull_up(uint32_t pin);
 
 /**
  * @brief Enable pull-down on GPIO pin
  * @param pin Pin number
  */
-void hal_gpio_pull_down(uint pin);
+void hal_gpio_pull_down(uint32_t pin);
 
 /**
  * @brief Disable pulls on GPIO pin
  * @param pin Pin number
  */
-void hal_gpio_pull_disable(uint pin);
+void hal_gpio_pull_disable(uint32_t pin);
 
 /*============================================================================
  * SPI FUNCTIONS (Hardware SPI + PIO)
@@ -138,7 +138,7 @@ typedef enum {
  * @param mode SPI mode (0-3)
  * @return true if initialization successful
  */
-bool hal_spi_init(uint mosi, uint miso, uint sck, uint cs,
+bool hal_spi_init(uint32_t mosi, uint32_t miso, uint32_t sck, uint32_t cs,
                   uint32_t frequency, hal_spi_mode_t mode);
 
 /**
@@ -184,13 +184,13 @@ uint8_t hal_spi_read_byte(void);
  * @brief Assert chip select
  * @param cs_pin Chip select pin
  */
-void hal_spi_cs_select(uint cs_pin);
+void hal_spi_cs_select(uint32_t cs_pin);
 
 /**
  * @brief Deassert chip select
  * @param cs_pin Chip select pin
  */
-void hal_spi_cs_release(uint cs_pin);
+void hal_spi_cs_release(uint32_t cs_pin);
 
 /*============================================================================
  * I2C FUNCTIONS
@@ -203,7 +203,7 @@ void hal_spi_cs_release(uint cs_pin);
  * @param frequency Clock frequency in Hz
  * @return true if initialization successful
  */
-bool hal_i2c_init(uint sda, uint scl, uint32_t frequency);
+bool hal_i2c_init(uint32_t sda, uint32_t scl, uint32_t frequency);
 
 /**
  * @brief Deinitialize I2C peripheral

@@ -8,7 +8,6 @@
 
 #include "usb_protocol.h"
 #include "tusb.h"
-#include "pico/async_context_poll.h"
 #include "pico/stdlib.h"
 #include <string.h>
 
@@ -16,7 +15,6 @@
  * PRIVATE VARIABLES
  *============================================================================*/
 
-static async_context_poll_t async_context;
 static bool usb_connected = false;
 static uint8_t rx_buffer[USB_MAX_PACKET_SIZE];
 static uint16_t rx_length = 0;
@@ -28,26 +26,17 @@ static bool response_pending = false;
  * TINYUSB CALLBACKS
  *============================================================================*/
 
-/**
- * @brief Invoked when device is mounted (configured)
- */
 void tud_mount_cb(void)
 {
     usb_connected = true;
     rx_length = 0;
 }
 
-/**
- * @brief Invoked when device is unmounted (bus reset/unplugged)
- */
 void tud_umount_cb(void)
 {
     usb_connected = false;
 }
 
-/**
- * @brief Invoked when cdc when line state changed (DTR, RTS)
- */
 void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts)
 {
     (void)itf;
@@ -58,9 +47,6 @@ void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts)
     }
 }
 
-/**
- * @brief Invoked when new data is received from CDC interface
- */
 void tud_cdc_rx_cb(uint8_t itf)
 {
     (void)itf;
@@ -79,11 +65,6 @@ void tud_cdc_rx_cb(uint8_t itf)
  * PACKET PARSING
  *============================================================================*/
 
-/**
- * @brief Find and validate packet in receive buffer
- * @param out_packet Output packet structure
- * @return true if valid packet found
- */
 static bool parse_packet(usb_packet_t *out_packet)
 {
     uint16_t i;
@@ -126,12 +107,6 @@ static bool parse_packet(usb_packet_t *out_packet)
  * PACKET TRANSMISSION
  *============================================================================*/
 
-/**
- * @brief Send raw data over CDC
- * @param data Data to send
- * @param len Length of data
- * @return true if all data sent
- */
 static bool send_raw(const uint8_t *data, uint16_t len)
 {
     uint16_t sent = 0;
@@ -190,9 +165,10 @@ bool usb_send_status(uint8_t status)
 bool usb_receive_packet(usb_packet_t *packet, uint32_t timeout_ms)
 {
     absolute_time_t start = get_absolute_time();
+    absolute_time_t deadline = delayed_by_ms(start, timeout_ms);
     
     while (!parse_packet(packet)) {
-        if (usb_timeout_expired(start, timeout_ms)) {
+        if (absolute_time_diff_us(start, get_absolute_time()) > (int64_t)(timeout_ms * 1000)) {
             return false;
         }
         tud_cdc_read_flush();
@@ -208,9 +184,6 @@ bool usb_receive_packet(usb_packet_t *packet, uint32_t timeout_ms)
 
 bool usb_protocol_init(void)
 {
-    memset(&async_context, 0, sizeof(async_context));
-    async_context_poll_init(&async_context, NULL);
-    
     tusb_init();
     
     rx_length = 0;
@@ -222,17 +195,10 @@ bool usb_protocol_init(void)
 
 void usb_protocol_deinit(void)
 {
-    async_context_poll_deinit(&async_context);
-    tusb_init();
 }
 
-/*============================================================================
- * POLLING
- *============================================================================*/
-
-void usb_protocol_poll(async_context_t *context)
+void usb_protocol_poll(void)
 {
-    (void)context;
     tud_task();
 }
 
@@ -259,10 +225,6 @@ uint16_t usb_get_rx_length(void)
  * COMMAND DISPATCHER
  *============================================================================*/
 
-/**
- * @brief Dispatch received command to appropriate handler
- * @param packet Received packet
- */
 void usb_protocol_dispatch(const usb_packet_t *packet)
 {
     const uint8_t *payload = packet->payload;
@@ -353,7 +315,7 @@ void usb_protocol_dispatch(const usb_packet_t *packet)
 }
 
 /*============================================================================
- * COMMAND HANDLERS - STUBS (implement in respective modules)
+ * COMMAND HANDLERS - STUBS
  *============================================================================*/
 
 void cmd_handle_ping(void)

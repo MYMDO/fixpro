@@ -47,32 +47,32 @@ void hal_gpio_init(void)
     }
 }
 
-void hal_gpio_set_dir(uint pin, bool output)
+void hal_gpio_set_dir(uint32_t pin, bool output)
 {
     gpio_set_dir(pin, output);
 }
 
-void hal_gpio_put(uint pin, bool value)
+void hal_gpio_put(uint32_t pin, bool value)
 {
     gpio_put(pin, value);
 }
 
-bool hal_gpio_get(uint pin)
+bool hal_gpio_get(uint32_t pin)
 {
     return gpio_get(pin);
 }
 
-void hal_gpio_pull_up(uint pin)
+void hal_gpio_pull_up(uint32_t pin)
 {
     gpio_pull_up(pin);
 }
 
-void hal_gpio_pull_down(uint pin)
+void hal_gpio_pull_down(uint32_t pin)
 {
     gpio_pull_down(pin);
 }
 
-void hal_gpio_pull_disable(uint pin)
+void hal_gpio_pull_disable(uint32_t pin)
 {
     gpio_disable_pulls(pin);
 }
@@ -81,7 +81,7 @@ void hal_gpio_pull_disable(uint pin)
  * SPI IMPLEMENTATION
  *============================================================================*/
 
-bool hal_spi_init(uint mosi, uint miso, uint sck, uint cs,
+bool hal_spi_init(uint32_t mosi, uint32_t miso, uint32_t sck, uint32_t cs,
                   uint32_t frequency, hal_spi_mode_t mode)
 {
     if (spi_initialized) {
@@ -152,12 +152,12 @@ uint8_t hal_spi_read_byte(void)
     return rx;
 }
 
-void hal_spi_cs_select(uint cs_pin)
+void hal_spi_cs_select(uint32_t cs_pin)
 {
     gpio_put(cs_pin, false);
 }
 
-void hal_spi_cs_release(uint cs_pin)
+void hal_spi_cs_release(uint32_t cs_pin)
 {
     gpio_put(cs_pin, true);
 }
@@ -166,7 +166,7 @@ void hal_spi_cs_release(uint cs_pin)
  * I2C IMPLEMENTATION
  *============================================================================*/
 
-bool hal_i2c_init(uint sda, uint scl, uint32_t frequency)
+bool hal_i2c_init(uint32_t sda, uint32_t scl, uint32_t frequency)
 {
     if (i2c_initialized) {
         hal_i2c_deinit();

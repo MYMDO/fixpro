@@ -74,4 +74,4 @@ public entry_point:
     "description": "SPI Master Controller (Official Pico SDK)",
     "state_machines": ["spi_cpha0", "spi_cpha1", "spi_cpha0_cs", "spi_cpha1_cs"],
     "features": ["full_duplex", "msb_first", "cpha_0_1", "chip_select"]
-}
+%}

@@ -63,4 +63,4 @@ do_exec:
     "description": "I2C Master Controller (Official Pico SDK)",
     "state_machines": ["i2c", "set_scl_sda"],
     "features": ["master", "clock_stretching", "multi_speed"]
-}
+%}
