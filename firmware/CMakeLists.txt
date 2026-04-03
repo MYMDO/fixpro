@@ -43,17 +43,8 @@ set(FIRMWARE_SOURCES
     src/flash/spi_flash.c
 )
 
-set(FIRMWARE_HEADERS
-    src/main.h
-    src/hal/hal.h
-    src/safety/safety.h
-    src/usb/usb_protocol.h
-    src/flash/spi_flash.h
-)
-
 add_executable(${FIRMWARE_NAME}
     ${FIRMWARE_SOURCES}
-    ${FIRMWARE_HEADERS}
 )
 
 pico_generate_pio_header(${FIRMWARE_NAME} PIO
