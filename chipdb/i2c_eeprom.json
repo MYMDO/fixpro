@@ -1,0 +1,456 @@
+{
+  "version": "1.0.0",
+  "description": "FiXPro I2C EEPROM Chip Database",
+  "last_updated": "2026-04-03",
+  "chips": [
+    {
+      "address": [0x50],
+      "name": "24C01",
+      "size": 128,
+      "page_size": 8,
+      "type": "I2C",
+      "manufacturer": "Generic"
+    },
+    {
+      "address": [0x50],
+      "name": "24C02",
+      "size": 256,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "Generic"
+    },
+    {
+      "address": [0x50],
+      "name": "24C04",
+      "size": 512,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "Generic"
+    },
+    {
+      "address": [0x50],
+      "name": "24C08",
+      "size": 1024,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "Generic"
+    },
+    {
+      "address": [0x50],
+      "name": "24C16",
+      "size": 2048,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "Generic"
+    },
+    {
+      "address": [0x50],
+      "name": "24C32",
+      "size": 4096,
+      "page_size": 32,
+      "type": "I2C",
+      "manufacturer": "Generic"
+    },
+    {
+      "address": [0x50],
+      "name": "24C64",
+      "size": 8192,
+      "page_size": 32,
+      "type": "I2C",
+      "manufacturer": "Generic"
+    },
+    {
+      "address": [0x50],
+      "name": "24C128",
+      "size": 16384,
+      "page_size": 64,
+      "type": "I2C",
+      "manufacturer": "Generic"
+    },
+    {
+      "address": [0x50],
+      "name": "24C256",
+      "size": 32768,
+      "page_size": 64,
+      "type": "I2C",
+      "manufacturer": "Generic"
+    },
+    {
+      "address": [0x50],
+      "name": "24C512",
+      "size": 65536,
+      "page_size": 128,
+      "type": "I2C",
+      "manufacturer": "Generic"
+    },
+    {
+      "address": [0x50],
+      "name": "24C1024",
+      "size": 131072,
+      "page_size": 256,
+      "type": "I2C",
+      "manufacturer": "Generic"
+    },
+    {
+      "jedec_id": [0x29, 0x01],
+      "name": "AT24C01",
+      "size": 128,
+      "page_size": 8,
+      "type": "I2C",
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec_id": [0x29, 0x02],
+      "name": "AT24C02",
+      "size": 256,
+      "page_size": 8,
+      "type": "I2C",
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec_id": [0x29, 0x04],
+      "name": "AT24C04",
+      "size": 512,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec_id": [0x29, 0x08],
+      "name": "AT24C08",
+      "size": 1024,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec_id": [0x29, 0x10],
+      "name": "AT24C16",
+      "size": 2048,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec_id": [0x29, 0x20],
+      "name": "AT24C32",
+      "size": 4096,
+      "page_size": 32,
+      "type": "I2C",
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec_id": [0x29, 0x40],
+      "name": "AT24C64",
+      "size": 8192,
+      "page_size": 32,
+      "type": "I2C",
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec_id": [0x29, 0x80],
+      "name": "AT24C128",
+      "size": 16384,
+      "page_size": 64,
+      "type": "I2C",
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec_id": [0x29, 0x00, 0x01],
+      "name": "AT24C256",
+      "size": 32768,
+      "page_size": 64,
+      "type": "I2C",
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec_id": [0x29, 0x00, 0x02],
+      "name": "AT24C512",
+      "size": 65536,
+      "page_size": 128,
+      "type": "I2C",
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec_id": [0x29, 0x00, 0x04],
+      "name": "AT24CM01",
+      "size": 131072,
+      "page_size": 256,
+      "type": "I2C",
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec_id": [0x29, 0x00, 0x08],
+      "name": "AT24CM02",
+      "size": 262144,
+      "page_size": 256,
+      "type": "I2C",
+      "manufacturer": "Atmel"
+    },
+    {
+      "name": "M24C01",
+      "size": 128,
+      "page_size": 8,
+      "type": "I2C",
+      "manufacturer": "STMicroelectronics"
+    },
+    {
+      "name": "M24C02",
+      "size": 256,
+      "page_size": 8,
+      "type": "I2C",
+      "manufacturer": "STMicroelectronics"
+    },
+    {
+      "name": "M24C04",
+      "size": 512,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "STMicroelectronics"
+    },
+    {
+      "name": "M24C08",
+      "size": 1024,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "STMicroelectronics"
+    },
+    {
+      "name": "M24C16",
+      "size": 2048,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "STMicroelectronics"
+    },
+    {
+      "name": "M24C32",
+      "size": 4096,
+      "page_size": 32,
+      "type": "I2C",
+      "manufacturer": "STMicroelectronics"
+    },
+    {
+      "name": "M24C64",
+      "size": 8192,
+      "page_size": 32,
+      "type": "I2C",
+      "manufacturer": "STMicroelectronics"
+    },
+    {
+      "name": "M24C128",
+      "size": 16384,
+      "page_size": 64,
+      "type": "I2C",
+      "manufacturer": "STMicroelectronics"
+    },
+    {
+      "name": "M24C256",
+      "size": 32768,
+      "page_size": 64,
+      "type": "I2C",
+      "manufacturer": "STMicroelectronics"
+    },
+    {
+      "name": "M24C512",
+      "size": 65536,
+      "page_size": 128,
+      "type": "I2C",
+      "manufacturer": "STMicroelectronics"
+    },
+    {
+      "name": "M24C1024",
+      "size": 131072,
+      "page_size": 256,
+      "type": "I2C",
+      "manufacturer": "STMicroelectronics"
+    },
+    {
+      "name": "FM24C01",
+      "size": 128,
+      "page_size": 8,
+      "type": "I2C",
+      "manufacturer": "Cypress"
+    },
+    {
+      "name": "FM24C02",
+      "size": 256,
+      "page_size": 8,
+      "type": "I2C",
+      "manufacturer": "Cypress"
+    },
+    {
+      "name": "FM24C04",
+      "size": 512,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "Cypress"
+    },
+    {
+      "name": "FM24C08",
+      "size": 1024,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "Cypress"
+    },
+    {
+      "name": "FM24C16",
+      "size": 2048,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "Cypress"
+    },
+    {
+      "name": "FM24C64",
+      "size": 8192,
+      "page_size": 32,
+      "type": "I2C",
+      "manufacturer": "Cypress"
+    },
+    {
+      "name": "FM24C256",
+      "size": 32768,
+      "page_size": 64,
+      "type": "I2C",
+      "manufacturer": "Cypress"
+    },
+    {
+      "name": "CAT24C01",
+      "size": 128,
+      "page_size": 8,
+      "type": "I2C",
+      "manufacturer": "ON Semiconductor"
+    },
+    {
+      "name": "CAT24C02",
+      "size": 256,
+      "page_size": 8,
+      "type": "I2C",
+      "manufacturer": "ON Semiconductor"
+    },
+    {
+      "name": "CAT24C04",
+      "size": 512,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "ON Semiconductor"
+    },
+    {
+      "name": "CAT24C08",
+      "size": 1024,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "ON Semiconductor"
+    },
+    {
+      "name": "CAT24C16",
+      "size": 2048,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "ON Semiconductor"
+    },
+    {
+      "name": "CAT24C32",
+      "size": 4096,
+      "page_size": 32,
+      "type": "I2C",
+      "manufacturer": "ON Semiconductor"
+    },
+    {
+      "name": "CAT24C64",
+      "size": 8192,
+      "page_size": 32,
+      "type": "I2C",
+      "manufacturer": "ON Semiconductor"
+    },
+    {
+      "name": "CAT24C128",
+      "size": 16384,
+      "page_size": 64,
+      "type": "I2C",
+      "manufacturer": "ON Semiconductor"
+    },
+    {
+      "name": "CAT24C256",
+      "size": 32768,
+      "page_size": 64,
+      "type": "I2C",
+      "manufacturer": "ON Semiconductor"
+    },
+    {
+      "name": "CAT24C512",
+      "size": 65536,
+      "page_size": 128,
+      "type": "I2C",
+      "manufacturer": "ON Semiconductor"
+    },
+    {
+      "name": "PCF8572",
+      "size": 256,
+      "page_size": 8,
+      "type": "I2C",
+      "manufacturer": "NXP"
+    },
+    {
+      "name": "PCF8582",
+      "size": 256,
+      "page_size": 8,
+      "type": "I2C",
+      "manufacturer": "NXP"
+    },
+    {
+      "name": "PCA8574",
+      "size": 0,
+      "type": "GPIO",
+      "manufacturer": "NXP"
+    },
+    {
+      "name": "BR24G01",
+      "size": 128,
+      "page_size": 8,
+      "type": "I2C",
+      "manufacturer": "Rohm"
+    },
+    {
+      "name": "BR24G02",
+      "size": 256,
+      "page_size": 8,
+      "type": "I2C",
+      "manufacturer": "Rohm"
+    },
+    {
+      "name": "BR24G04",
+      "size": 512,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "Rohm"
+    },
+    {
+      "name": "BR24G08",
+      "size": 1024,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "Rohm"
+    },
+    {
+      "name": "BR24G16",
+      "size": 2048,
+      "page_size": 16,
+      "type": "I2C",
+      "manufacturer": "Rohm"
+    },
+    {
+      "name": "BR24G32",
+      "size": 4096,
+      "page_size": 32,
+      "type": "I2C",
+      "manufacturer": "Rohm"
+    },
+    {
+      "name": "BR24G64",
+      "size": 8192,
+      "page_size": 32,
+      "type": "I2C",
+      "manufacturer": "Rohm"
+    }
+  ]
+}

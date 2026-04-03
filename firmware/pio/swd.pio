@@ -1,0 +1,31 @@
+;
+; FiXPro - SWD (Serial Wire Debug) PIO State Machine
+; Compact ARM SWD implementation
+;
+.pio_version 0
+
+.program swd
+.side_set 1 opt
+
+public reset:
+    set pins, 1 [7]
+    set pins, 1 [7]
+    set pins, 1 [7]
+    set pins, 1 [7]
+    set pins, 1 [7]
+    set pins, 1 [7]
+    set pins, 1 [7]
+    set pins, 1 [7]
+    set pins, 0 [1]
+
+public clock_bit:
+    out pins, 1
+    in pins, 1
+
+public read_bits:
+    pull ifempty
+    out x, 8
+read_loop:
+    out pins, 1
+    in pins, 1
+    jmp x-- read_loop

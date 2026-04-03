@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fixpro"
+version = "1.0.0"
+description = "FiXPro - Universal Hardware Programmer CLI Tool"
+readme = "README.md"
+license = {text = "GPL-3.0"}
+authors = [
+    {name = "FiXPro Contributors"}
+]
+keywords = ["flash", "programmer", "spi", "i2c", "eprom", "rp2040", "raspberry-pi-pico"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Embedded Systems",
+    "Topic :: System :: Hardware",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "pyserial>=3.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+    "pytest>=7.0.0",
+]
+
+[project.scripts]
+fixpro = "fixpro.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/MYMDO/fixpro"
+Documentation = "https://github.com/MYMDO/fixpro#readme"
+Repository = "https://github.com/MYMDO/fixpro"
+Issues = "https://github.com/MYMDO/fixpro/issues"
+
+[tool.setuptools.packages.find]
+where = ["host"]
+include = ["fixpro*"]
+
+[tool.setuptools.package-dir]
+"" = "host"
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]

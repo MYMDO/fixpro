@@ -58,6 +58,8 @@ target_compile_definitions(${FIRMWARE_NAME} PRIVATE
 
 pico_generate_pio_header(${FIRMWARE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/pio/spi.pio)
 pico_generate_pio_header(${FIRMWARE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/pio/i2c.pio)
+pico_generate_pio_header(${FIRMWARE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/pio/jtag.pio)
+pico_generate_pio_header(${FIRMWARE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/pio/swd.pio)
 
 target_link_libraries(${FIRMWARE_NAME}
     pico_stdlib

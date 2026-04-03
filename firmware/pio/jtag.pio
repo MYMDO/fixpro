@@ -1,0 +1,27 @@
+;
+; FiXPro - JTAG PIO State Machine
+; Minimal JTAG implementation for ARM debugging
+;
+.pio_version 0
+
+.program jtag
+.side_set 1 opt
+
+public reset:
+    set pins, 1 [7]
+    set pins, 0 [1]
+
+public shift:
+    pull ifempty
+    out x, 8
+    set pins, 1 [1]
+    out null, 1
+    out null, 1
+shift_loop:
+    out pins, 1
+    in pins, 1
+    jmp x-- shift_loop
+    set pins, 1 [1]
+    out null, 1
+    out null, 1
+    jmp reset
