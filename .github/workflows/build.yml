@@ -15,29 +15,27 @@ on:
         type: string
 
 env:
-  PICO_SDK_VERSION: "2.0.0"
   FW_VERSION: "1.0.0"
 
 jobs:
   build:
     name: Build Firmware
-    runs-on: ubuntu-22.04
-    
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install ARM toolchain
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-arm-none-eabi cmake make libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+      - name: Build Pico Firmware
+        id: build
+        uses: samyarsadat/Pico-Build-Action@v1
+        with:
+          source_dir: "firmware"
+          cmake_args: "-DCMAKE_BUILD_TYPE=Release"
 
-      - name: Clone Pico SDK
-        run: |
-          cd ..
-          git clone --recurse-submodules --depth 1 --branch ${{ env.PICO_SDK_VERSION }} https://github.com/raspberrypi/pico-sdk.git
-
-      - name: Get current version
+      - name: Get version
         id: version
         run: |
           if [[ "${{ github.event.inputs.version }}" != "" ]]; then
@@ -48,45 +46,28 @@ jobs:
             VERSION="build-${{ github.run_number }}"
           fi
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "FIRMWARE_NAME=FiXPro" >> $GITHUB_OUTPUT
           echo "Building FiXPro firmware version: $VERSION"
-
-      - name: Create build directory
-        run: mkdir -p firmware/build
-
-      - name: Configure CMake
-        working-directory: firmware/build
-        env:
-          PICO_SDK_PATH: ${{ github.workspace }}/../pico-sdk
-        run: |
-          cmake -DPICO_SDK_PATH="$PICO_SDK_PATH" -DCMAKE_BUILD_TYPE=Release ..
-
-      - name: Build firmware
-        working-directory: firmware/build
-        run: make -j$(nproc)
 
       - name: List build outputs
         run: |
-          ls -la firmware/build/*.uf2
-          ls -la firmware/build/*.bin
-          ls -la firmware/build/*.elf
+          ls -la ${{ steps.build.outputs.output_dir }}/
 
       - name: Upload firmware artifacts
         uses: actions/upload-artifact@v4
         with:
           name: firmware-${{ steps.version.outputs.VERSION }}
           path: |
-            firmware/build/*.uf2
-            firmware/build/*.bin
-            firmware/build/*.hex
-            firmware/build/*.elf
+            ${{ steps.build.outputs.output_dir }}/*.uf2
+            ${{ steps.build.outputs.output_dir }}/*.bin
+            ${{ steps.build.outputs.output_dir }}/*.hex
+            ${{ steps.build.outputs.output_dir }}/*.elf
           retention-days: 30
 
   release:
     name: Create Release
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
@@ -96,50 +77,41 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: firmware-${{ github.ref_name }}
+          path: firmware
 
       - name: Prepare release
         id: release
         run: |
           VERSION="${{ github.ref_name }}"
-          VERSION_NUM="${VERSION#v}"
-          
-          # Create release directory
           mkdir -p release
-          
-          # Copy firmware files
-          cp *.uf2 release/
-          cp *.bin release/
-          cp *.hex release/
-          cp *.elf release/
-          
-          # Create SHA256 checksums
+          cp firmware/*.uf2 release/ 2>/dev/null || true
+          cp firmware/*.bin release/ 2>/dev/null || true
+          cp firmware/*.hex release/ 2>/dev/null || true
+          cp firmware/*.elf release/ 2>/dev/null || true
           cd release
-          sha256sum *.uf2 *.bin *.hex > SHA256SUMS.txt
+          sha256sum *.{uf2,bin,hex,elf} 2>/dev/null > SHA256SUMS.txt || true
           cat SHA256SUMS.txt
-          
-          # Create firmware info
-          cat > firmware-info.txt << 'EOF'
+          cat > firmware-info.txt <<-EOF
           FiXPro Firmware Information
-          ===========================
+          ============================
           
           Version: $VERSION
           Build Date: $(date -I)
           Platform: Raspberry Pi RP2040
           
           Files included:
-          - FiXPro.uf2  - UF2 firmware file for drag-and-drop programming
-          - FiXPro.bin   - Raw binary firmware
-          - FiXPro.hex   - Intel HEX format
-          - FiXPro.elf   - ELF with debug symbols
+          - *.uf2  - UF2 firmware file for drag-and-drop programming
+          - *.bin   - Raw binary firmware
+          - *.hex   - Intel HEX format
+          - *.elf   - ELF with debug symbols
           
           Installation:
-          1. Connect Pico in BOOT mode
-          2. Copy FiXPro.uf2 to RPI-RP2 drive
+          1. Connect Pico in BOOT mode (hold BOOTSEL and press RESET)
+          2. Copy *.uf2 to RPI-RP2 drive
           3. Wait for Pico to reboot
           
           For more information visit: https://fx.in.ua
           EOF
-          cat firmware-info.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -153,7 +125,7 @@ jobs:
 
   pages:
     name: Deploy GitHub Pages
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       pages: write
