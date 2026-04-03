@@ -25,7 +25,6 @@ add_compile_options(
     -Wno-unused-parameter
     -Wno-missing-field-initializers
     -O2
-    -flto
 )
 
 add_definitions(-D_FIRMWARE_VERSION=\"${FIRMWARE_VERSION}\")
@@ -52,17 +51,14 @@ set(FIRMWARE_HEADERS
     src/flash/spi_flash.h
 )
 
-set(PIO_SOURCES
-    pio/spi.pio
-    pio/i2c.pio
-)
-
-pico_generate_pio_header(${FIRMWARE_NAME} ${PIO_SOURCES})
-
 add_executable(${FIRMWARE_NAME}
     ${FIRMWARE_SOURCES}
     ${FIRMWARE_HEADERS}
-    ${PIO_SOURCES}
+)
+
+pico_generate_pio_header(${FIRMWARE_NAME} PIO
+    ${CMAKE_CURRENT_SOURCE_DIR}/pio/spi.pio
+    ${CMAKE_CURRENT_SOURCE_DIR}/pio/i2c.pio
 )
 
 target_link_libraries(${FIRMWARE_NAME}
@@ -82,7 +78,6 @@ target_link_libraries(${FIRMWARE_NAME}
 
 pico_set_program_name(${FIRMWARE_NAME} "FiXPro")
 pico_set_program_version(${FIRMWARE_NAME} "${FIRMWARE_VERSION}")
-pico_set_bootrom_hint(${FIRMWARE_NAME} "none")
 
 pico_add_extra_outputs(${FIRMWARE_NAME})
 
