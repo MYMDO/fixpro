@@ -1,10 +1,10 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "FiXPro SPI Flash Chip Database",
   "last_updated": "2026-04-03",
   "chips": [
     {
-      "jedec": [0xEF, 0x40, 0x13],
+      "jedec": ["EF", "40", "13"],
       "name": "Winbond W25Q40",
       "size": 524288,
       "size_mb": 0.5,
@@ -16,7 +16,7 @@
       "manufacturer": "Winbond"
     },
     {
-      "jedec": [0xEF, 0x40, 0x14],
+      "jedec": ["EF", "40", "14"],
       "name": "Winbond W25Q80",
       "size": 1048576,
       "size_mb": 1,
@@ -28,7 +28,7 @@
       "manufacturer": "Winbond"
     },
     {
-      "jedec": [0xEF, 0x40, 0x15],
+      "jedec": ["EF", "40", "15"],
       "name": "Winbond W25Q16",
       "size": 2097152,
       "size_mb": 2,
@@ -40,7 +40,7 @@
       "manufacturer": "Winbond"
     },
     {
-      "jedec": [0xEF, 0x40, 0x16],
+      "jedec": ["EF", "40", "16"],
       "name": "Winbond W25Q32",
       "size": 4194304,
       "size_mb": 4,
@@ -52,7 +52,7 @@
       "manufacturer": "Winbond"
     },
     {
-      "jedec": [0xEF, 0x40, 0x17],
+      "jedec": ["EF", "40", "17"],
       "name": "Winbond W25Q64",
       "size": 8388608,
       "size_mb": 8,
@@ -64,7 +64,7 @@
       "manufacturer": "Winbond"
     },
     {
-      "jedec": [0xEF, 0x40, 0x18],
+      "jedec": ["EF", "40", "18"],
       "name": "Winbond W25Q128",
       "size": 16777216,
       "size_mb": 16,
@@ -76,7 +76,7 @@
       "manufacturer": "Winbond"
     },
     {
-      "jedec": [0xEF, 0x40, 0x19],
+      "jedec": ["EF", "40", "19"],
       "name": "Winbond W25Q256",
       "size": 33554432,
       "size_mb": 32,
@@ -88,7 +88,7 @@
       "manufacturer": "Winbond"
     },
     {
-      "jedec": [0xEF, 0x40, 0x1A],
+      "jedec": ["EF", "40", "1A"],
       "name": "Winbond W25Q512",
       "size": 67108864,
       "size_mb": 64,
@@ -100,7 +100,7 @@
       "manufacturer": "Winbond"
     },
     {
-      "jedec": [0xEF, 0x60, 0x17],
+      "jedec": ["EF", "60", "17"],
       "name": "Winbond W25Q64DW",
       "size": 8388608,
       "size_mb": 8,
@@ -113,7 +113,7 @@
       "features": ["dual_quad_spi"]
     },
     {
-      "jedec": [0xEF, 0x60, 0x18],
+      "jedec": ["EF", "60", "18"],
       "name": "Winbond W25Q128DW",
       "size": 16777216,
       "size_mb": 16,
@@ -126,7 +126,7 @@
       "features": ["dual_quad_spi"]
     },
     {
-      "jedec": [0xC2, 0x20, 0x15],
+      "jedec": ["C2", "20", "15"],
       "name": "Macronix MX25L1606",
       "size": 2097152,
       "size_mb": 2,
@@ -138,7 +138,7 @@
       "manufacturer": "Macronix"
     },
     {
-      "jedec": [0xC2, 0x20, 0x16],
+      "jedec": ["C2", "20", "16"],
       "name": "Macronix MX25L3206",
       "size": 4194304,
       "size_mb": 4,
@@ -150,7 +150,7 @@
       "manufacturer": "Macronix"
     },
     {
-      "jedec": [0xC2, 0x20, 0x17],
+      "jedec": ["C2", "20", "17"],
       "name": "Macronix MX25L6406",
       "size": 8388608,
       "size_mb": 8,
@@ -162,7 +162,7 @@
       "manufacturer": "Macronix"
     },
     {
-      "jedec": [0xC2, 0x20, 0x18],
+      "jedec": ["C2", "20", "18"],
       "name": "Macronix MX25L128",
       "size": 16777216,
       "size_mb": 16,
@@ -174,7 +174,7 @@
       "manufacturer": "Macronix"
     },
     {
-      "jedec": [0xC2, 0x20, 0x19],
+      "jedec": ["C2", "20", "19"],
       "name": "Macronix MX25L256",
       "size": 33554432,
       "size_mb": 32,
@@ -186,7 +186,7 @@
       "manufacturer": "Macronix"
     },
     {
-      "jedec": [0xC8, 0x40, 0x13],
+      "jedec": ["C8", "40", "13"],
       "name": "Gigadevice GD25Q40",
       "size": 524288,
       "size_mb": 0.5,
@@ -198,7 +198,7 @@
       "manufacturer": "Gigadevice"
     },
     {
-      "jedec": [0xC8, 0x40, 0x14],
+      "jedec": ["C8", "40", "14"],
       "name": "Gigadevice GD25Q80",
       "size": 1048576,
       "size_mb": 1,
@@ -210,7 +210,7 @@
       "manufacturer": "Gigadevice"
     },
     {
-      "jedec": [0xC8, 0x40, 0x15],
+      "jedec": ["C8", "40", "15"],
       "name": "Gigadevice GD25Q16",
       "size": 2097152,
       "size_mb": 2,
@@ -222,7 +222,7 @@
       "manufacturer": "Gigadevice"
     },
     {
-      "jedec": [0xC8, 0x40, 0x16],
+      "jedec": ["C8", "40", "16"],
       "name": "Gigadevice GD25Q32",
       "size": 4194304,
       "size_mb": 4,
@@ -234,7 +234,7 @@
       "manufacturer": "Gigadevice"
     },
     {
-      "jedec": [0xC8, 0x40, 0x17],
+      "jedec": ["C8", "40", "17"],
       "name": "Gigadevice GD25Q64",
       "size": 8388608,
       "size_mb": 8,
@@ -246,7 +246,7 @@
       "manufacturer": "Gigadevice"
     },
     {
-      "jedec": [0xC8, 0x40, 0x18],
+      "jedec": ["C8", "40", "18"],
       "name": "Gigadevice GD25Q128",
       "size": 16777216,
       "size_mb": 16,
@@ -258,7 +258,7 @@
       "manufacturer": "Gigadevice"
     },
     {
-      "jedec": [0xC8, 0x40, 0x19],
+      "jedec": ["C8", "40", "19"],
       "name": "Gigadevice GD25Q256",
       "size": 33554432,
       "size_mb": 32,
@@ -270,7 +270,7 @@
       "manufacturer": "Gigadevice"
     },
     {
-      "jedec": [0x20, 0xBA, 0x16],
+      "jedec": ["20", "BA", "16"],
       "name": "Micron N25Q32",
       "size": 4194304,
       "size_mb": 4,
@@ -282,7 +282,7 @@
       "manufacturer": "Micron"
     },
     {
-      "jedec": [0x20, 0xBA, 0x17],
+      "jedec": ["20", "BA", "17"],
       "name": "Micron N25Q64",
       "size": 8388608,
       "size_mb": 8,
@@ -294,7 +294,7 @@
       "manufacturer": "Micron"
     },
     {
-      "jedec": [0x20, 0xBA, 0x18],
+      "jedec": ["20", "BA", "18"],
       "name": "Micron N25Q128",
       "size": 16777216,
       "size_mb": 16,
@@ -306,7 +306,7 @@
       "manufacturer": "Micron"
     },
     {
-      "jedec": [0x9D, 0x40, 0x15],
+      "jedec": ["9D", "40", "15"],
       "name": "ISSI IS25LQ016",
       "size": 2097152,
       "size_mb": 2,
@@ -318,7 +318,7 @@
       "manufacturer": "ISSI"
     },
     {
-      "jedec": [0x9D, 0x40, 0x16],
+      "jedec": ["9D", "40", "16"],
       "name": "ISSI IS25LQ032",
       "size": 4194304,
       "size_mb": 4,
@@ -330,7 +330,7 @@
       "manufacturer": "ISSI"
     },
     {
-      "jedec": [0x9D, 0x40, 0x17],
+      "jedec": ["9D", "40", "17"],
       "name": "ISSI IS25LQ064",
       "size": 8388608,
       "size_mb": 8,
@@ -342,7 +342,7 @@
       "manufacturer": "ISSI"
     },
     {
-      "jedec": [0x9D, 0x40, 0x18],
+      "jedec": ["9D", "40", "18"],
       "name": "ISSI IS25LQ128",
       "size": 16777216,
       "size_mb": 16,
@@ -354,7 +354,7 @@
       "manufacturer": "ISSI"
     },
     {
-      "jedec": [0x1F, 0x84, 0x01],
+      "jedec": ["1F", "84", "01"],
       "name": "Atmel AT25SF041",
       "size": 524288,
       "size_mb": 0.5,
@@ -366,7 +366,7 @@
       "manufacturer": "Atmel"
     },
     {
-      "jedec": [0x1F, 0x84, 0x02],
+      "jedec": ["1F", "84", "02"],
       "name": "Atmel AT25SF081",
       "size": 1048576,
       "size_mb": 1,
@@ -378,7 +378,7 @@
       "manufacturer": "Atmel"
     },
     {
-      "jedec": [0x1F, 0x84, 0x04],
+      "jedec": ["1F", "84", "04"],
       "name": "Atmel AT25SF161",
       "size": 2097152,
       "size_mb": 2,
@@ -390,7 +390,7 @@
       "manufacturer": "Atmel"
     },
     {
-      "jedec": [0x1F, 0x84, 0x08],
+      "jedec": ["1F", "84", "08"],
       "name": "Atmel AT25SF321",
       "size": 4194304,
       "size_mb": 4,
@@ -402,7 +402,7 @@
       "manufacturer": "Atmel"
     },
     {
-      "jedec": [0x68, 0x34, 0x14],
+      "jedec": ["68", "34", "14"],
       "name": "Boya BY25Q80",
       "size": 1048576,
       "size_mb": 1,
@@ -414,7 +414,7 @@
       "manufacturer": "Boya"
     },
     {
-      "jedec": [0x68, 0x34, 0x15],
+      "jedec": ["68", "34", "15"],
       "name": "Boya BY25Q16",
       "size": 2097152,
       "size_mb": 2,
@@ -426,7 +426,7 @@
       "manufacturer": "Boya"
     },
     {
-      "jedec": [0x68, 0x34, 0x16],
+      "jedec": ["68", "34", "16"],
       "name": "Boya BY25Q32",
       "size": 4194304,
       "size_mb": 4,
@@ -438,7 +438,7 @@
       "manufacturer": "Boya"
     },
     {
-      "jedec": [0x68, 0x34, 0x17],
+      "jedec": ["68", "34", "17"],
       "name": "Boya BY25Q64",
       "size": 8388608,
       "size_mb": 8,
@@ -450,7 +450,7 @@
       "manufacturer": "Boya"
     },
     {
-      "jedec": [0x68, 0x34, 0x18],
+      "jedec": ["68", "34", "18"],
       "name": "Boya BY25Q128",
       "size": 16777216,
       "size_mb": 16,
@@ -462,7 +462,7 @@
       "manufacturer": "Boya"
     },
     {
-      "jedec": [0x01, 0x40, 0x14],
+      "jedec": ["01", "40", "14"],
       "name": "AMIC A25L080",
       "size": 1048576,
       "size_mb": 1,
@@ -474,7 +474,7 @@
       "manufacturer": "AMIC"
     },
     {
-      "jedec": [0x01, 0x40, 0x15],
+      "jedec": ["01", "40", "15"],
       "name": "AMIC A25L016",
       "size": 2097152,
       "size_mb": 2,
@@ -486,7 +486,7 @@
       "manufacturer": "AMIC"
     },
     {
-      "jedec": [0x01, 0x40, 0x16],
+      "jedec": ["01", "40", "16"],
       "name": "AMIC A25L032",
       "size": 4194304,
       "size_mb": 4,
@@ -498,7 +498,7 @@
       "manufacturer": "AMIC"
     },
     {
-      "jedec": [0x37, 0x40, 0x17],
+      "jedec": ["37", "40", "17"],
       "name": "XM25QH64",
       "size": 8388608,
       "size_mb": 8,
@@ -510,7 +510,7 @@
       "manufacturer": "XMC"
     },
     {
-      "jedec": [0x37, 0x40, 0x18],
+      "jedec": ["37", "40", "18"],
       "name": "XM25QH128",
       "size": 16777216,
       "size_mb": 16,
@@ -522,7 +522,7 @@
       "manufacturer": "XMC"
     },
     {
-      "jedec": [0x85, 0x60, 0x17],
+      "jedec": ["85", "60", "17"],
       "name": "PUYA P25Q64",
       "size": 8388608,
       "size_mb": 8,
@@ -534,7 +534,7 @@
       "manufacturer": "PUYA"
     },
     {
-      "jedec": [0x85, 0x60, 0x18],
+      "jedec": ["85", "60", "18"],
       "name": "PUYA P25Q128",
       "size": 16777216,
       "size_mb": 16,
@@ -544,6 +544,633 @@
       "max_freq": 80000000,
       "voltage": 3300,
       "manufacturer": "PUYA"
+    },
+    {
+      "jedec": ["EF", "40", "20"],
+      "name": "Winbond W25Q01",
+      "size": 134217728,
+      "size_mb": 128,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "Winbond"
+    },
+    {
+      "jedec": ["EF", "40", "21"],
+      "name": "Winbond W25Q02",
+      "size": 268435456,
+      "size_mb": 256,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "Winbond"
+    },
+    {
+      "jedec": ["EF", "70", "19"],
+      "name": "Winbond W25Q256JV-IQ",
+      "size": 33554432,
+      "size_mb": 32,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 133000000,
+      "voltage": 3300,
+      "manufacturer": "Winbond"
+    },
+    {
+      "jedec": ["EF", "80", "19"],
+      "name": "Winbond W25Q256JV-IM",
+      "size": 33554432,
+      "size_mb": 32,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 133000000,
+      "voltage": 3300,
+      "manufacturer": "Winbond",
+      "features": ["dual_quad_spi"]
+    },
+    {
+      "jedec": ["1C", "38", "15"],
+      "name": "ESMT F25L16PA",
+      "size": 2097152,
+      "size_mb": 2,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "ESMT"
+    },
+    {
+      "jedec": ["1C", "38", "16"],
+      "name": "ESMT F25L32PA",
+      "size": 4194304,
+      "size_mb": 4,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "ESMT"
+    },
+    {
+      "jedec": ["1F", "85", "01"],
+      "name": "Atmel AT25DF041A",
+      "size": 524288,
+      "size_mb": 0.5,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "85", "02"],
+      "name": "Atmel AT25DF081A",
+      "size": 1048576,
+      "size_mb": 1,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "85", "04"],
+      "name": "Atmel AT25DF161A",
+      "size": 2097152,
+      "size_mb": 2,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "85", "08"],
+      "name": "Atmel AT25DF321A",
+      "size": 4194304,
+      "size_mb": 4,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["20", "71", "16"],
+      "name": "Micron MT25QL128",
+      "size": 16777216,
+      "size_mb": 16,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "Micron"
+    },
+    {
+      "jedec": ["20", "71", "17"],
+      "name": "Micron MT25QL256",
+      "size": 33554432,
+      "size_mb": 32,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "Micron"
+    },
+    {
+      "jedec": ["C8", "60", "17"],
+      "name": "Gigadevice GD25Q127C",
+      "size": 16777216,
+      "size_mb": 16,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 120000000,
+      "voltage": 3300,
+      "manufacturer": "Gigadevice"
+    },
+    {
+      "jedec": ["C8", "60", "18"],
+      "name": "Gigadevice GD25Q256C",
+      "size": 33554432,
+      "size_mb": 32,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 120000000,
+      "voltage": 3300,
+      "manufacturer": "Gigadevice"
+    },
+    {
+      "jedec": ["9D", "60", "17"],
+      "name": "ISSI IS25LP256",
+      "size": 33554432,
+      "size_mb": 32,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 133000000,
+      "voltage": 3300,
+      "manufacturer": "ISSI"
+    },
+    {
+      "jedec": ["9D", "70", "18"],
+      "name": "ISSI IS25WP256",
+      "size": 33554432,
+      "size_mb": 32,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 133000000,
+      "voltage": 1800,
+      "manufacturer": "ISSI",
+      "features": ["low_voltage"]
+    },
+    {
+      "jedec": ["01", "60", "17"],
+      "name": "AMIC A25LQ256",
+      "size": 33554432,
+      "size_mb": 32,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "AMIC"
+    },
+    {
+      "jedec": ["68", "40", "19"],
+      "name": "Boya BY25Q256",
+      "size": 33554432,
+      "size_mb": 32,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "Boya"
+    },
+    {
+      "jedec": ["68", "40", "1A"],
+      "name": "Boya BY25Q512",
+      "size": 67108864,
+      "size_mb": 64,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "Boya"
+    },
+    {
+      "jedec": ["1F", "88", "01"],
+      "name": "Atmel AT25HP512",
+      "size": 65536,
+      "size_mb": 0.064,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "88", "02"],
+      "name": "Atmel AT25HP010",
+      "size": 131072,
+      "size_mb": 0.128,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "88", "03"],
+      "name": "Atmel AT25HP020",
+      "size": 262144,
+      "size_mb": 0.256,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "88", "04"],
+      "name": "Atmel AT25HP040",
+      "size": 524288,
+      "size_mb": 0.5,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "88", "05"],
+      "name": "Atmel AT25HP080",
+      "size": 1048576,
+      "size_mb": 1,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "89", "01"],
+      "name": "Atmel AT25DF021A",
+      "size": 262144,
+      "size_mb": 0.256,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "89", "02"],
+      "name": "Atmel AT25DF041A",
+      "size": 524288,
+      "size_mb": 0.5,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "89", "03"],
+      "name": "Atmel AT25DF081A",
+      "size": 1048576,
+      "size_mb": 1,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "89", "04"],
+      "name": "Atmel AT25DF161",
+      "size": 2097152,
+      "size_mb": 2,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "89", "05"],
+      "name": "Atmel AT25DF321",
+      "size": 4194304,
+      "size_mb": 4,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "89", "06"],
+      "name": "Atmel AT25DF641",
+      "size": 8388608,
+      "size_mb": 8,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["62", "16", "15"],
+      "name": "Numonyx N25Q032",
+      "size": 4194304,
+      "size_mb": 4,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "Numonyx"
+    },
+    {
+      "jedec": ["62", "16", "17"],
+      "name": "Numonyx N25Q128",
+      "size": 16777216,
+      "size_mb": 16,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "Numonyx"
+    },
+    {
+      "jedec": ["62", "16", "18"],
+      "name": "Numonyx N25Q256",
+      "size": 33554432,
+      "size_mb": 32,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "Numonyx"
+    },
+    {
+      "jedec": ["8C", "40", "15"],
+      "name": "Eon EN25F16",
+      "size": 2097152,
+      "size_mb": 2,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 75000000,
+      "voltage": 3300,
+      "manufacturer": "Eon"
+    },
+    {
+      "jedec": ["8C", "40", "16"],
+      "name": "Eon EN25F32",
+      "size": 4194304,
+      "size_mb": 4,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 75000000,
+      "voltage": 3300,
+      "manufacturer": "Eon"
+    },
+    {
+      "jedec": ["8C", "40", "17"],
+      "name": "Eon EN25F64",
+      "size": 8388608,
+      "size_mb": 8,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 75000000,
+      "voltage": 3300,
+      "manufacturer": "Eon"
+    },
+    {
+      "jedec": ["1C", "30", "15"],
+      "name": "Eon EN25Q16",
+      "size": 2097152,
+      "size_mb": 2,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "Eon"
+    },
+    {
+      "jedec": ["1C", "30", "16"],
+      "name": "Eon EN25Q32",
+      "size": 4194304,
+      "size_mb": 4,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "Eon"
+    },
+    {
+      "jedec": ["1C", "30", "17"],
+      "name": "Eon EN25Q64",
+      "size": 8388608,
+      "size_mb": 8,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "Eon"
+    },
+    {
+      "jedec": ["1C", "30", "18"],
+      "name": "Eon EN25Q128",
+      "size": 16777216,
+      "size_mb": 16,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "Eon"
+    },
+    {
+      "jedec": ["1F", "87", "01"],
+      "name": "Atmel AT26DF081A",
+      "size": 1048576,
+      "size_mb": 1,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "87", "02"],
+      "name": "Atmel AT26DF161A",
+      "size": 2097152,
+      "size_mb": 2,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "87", "03"],
+      "name": "Atmel AT26DF321",
+      "size": 4194304,
+      "size_mb": 4,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 50000000,
+      "voltage": 3300,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["04", "40", "13"],
+      "name": "NexFlash NX25P80",
+      "size": 1048576,
+      "size_mb": 1,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 75000000,
+      "voltage": 3300,
+      "manufacturer": "NexFlash"
+    },
+    {
+      "jedec": ["04", "40", "14"],
+      "name": "NexFlash NX25P16",
+      "size": 2097152,
+      "size_mb": 2,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 75000000,
+      "voltage": 3300,
+      "manufacturer": "NexFlash"
+    },
+    {
+      "jedec": ["1F", "82", "01"],
+      "name": "Atmel AT25F512",
+      "size": 65536,
+      "size_mb": 0.064,
+      "page_size": 256,
+      "sector_size": 32768,
+      "block_size": 32768,
+      "max_freq": 20000000,
+      "voltage": 5500,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "82", "02"],
+      "name": "Atmel AT25F1024",
+      "size": 131072,
+      "size_mb": 0.128,
+      "page_size": 256,
+      "sector_size": 32768,
+      "block_size": 32768,
+      "max_freq": 20000000,
+      "voltage": 5500,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "82", "03"],
+      "name": "Atmel AT25F2048",
+      "size": 262144,
+      "size_mb": 0.256,
+      "page_size": 256,
+      "sector_size": 32768,
+      "block_size": 32768,
+      "max_freq": 20000000,
+      "voltage": 5500,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["1F", "82", "04"],
+      "name": "Atmel AT25F4096",
+      "size": 524288,
+      "size_mb": 0.5,
+      "page_size": 256,
+      "sector_size": 32768,
+      "block_size": 32768,
+      "max_freq": 20000000,
+      "voltage": 5500,
+      "manufacturer": "Atmel"
+    },
+    {
+      "jedec": ["30", "40", "16"],
+      "name": "Toshiba TC58TEG5CDJ",
+      "size": 4194304,
+      "size_mb": 4,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "Toshiba"
+    },
+    {
+      "jedec": ["30", "40", "17"],
+      "name": "Toshiba TC58TEG6CDJ",
+      "size": 8388608,
+      "size_mb": 8,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 80000000,
+      "voltage": 3300,
+      "manufacturer": "Toshiba"
+    },
+    {
+      "jedec": ["1F", "86", "01"],
+      "name": "Atmel AT25SL128",
+      "size": 16777216,
+      "size_mb": 16,
+      "page_size": 256,
+      "sector_size": 4096,
+      "block_size": 65536,
+      "max_freq": 75000000,
+      "voltage": 1800,
+      "manufacturer": "Atmel",
+      "features": ["low_voltage", "dual_quad_spi"]
     }
   ]
 }

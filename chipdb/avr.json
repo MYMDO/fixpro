@@ -1,0 +1,507 @@
+{
+  "version": "1.0.0",
+  "description": "FiXPro AVR UPDI Target Database",
+  "last_updated": "2026-04-03",
+  "chips": [
+    {
+      "signature": ["1E", "92", "0A"],
+      "name": "ATtiny84A",
+      "flash_size": 8192,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-14",
+      "notes": "14-pin, 8KB Flash, UPDI programming"
+    },
+    {
+      "signature": ["1E", "93", "0C"],
+      "name": "ATtiny85",
+      "flash_size": 8192,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-8",
+      "notes": "8-pin, 8KB Flash, UPDI programming"
+    },
+    {
+      "signature": ["1E", "93", "0B"],
+      "name": "ATtiny84",
+      "flash_size": 8192,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-14",
+      "notes": "14-pin, 8KB Flash"
+    },
+    {
+      "signature": ["1E", "92", "09"],
+      "name": "ATtiny44A",
+      "flash_size": 4096,
+      "eeprom_size": 256,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-14",
+      "notes": "14-pin, 4KB Flash"
+    },
+    {
+      "signature": ["1E", "93", "08"],
+      "name": "ATtiny45",
+      "flash_size": 4096,
+      "eeprom_size": 256,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-8",
+      "notes": "8-pin, 4KB Flash"
+    },
+    {
+      "signature": ["1E", "92", "07"],
+      "name": "ATtiny24A",
+      "flash_size": 2048,
+      "eeprom_size": 128,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-14",
+      "notes": "14-pin, 2KB Flash"
+    },
+    {
+      "signature": ["1E", "93", "06"],
+      "name": "ATtiny25",
+      "flash_size": 2048,
+      "eeprom_size": 128,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-8",
+      "notes": "8-pin, 2KB Flash"
+    },
+    {
+      "signature": ["1E", "93", "0A"],
+      "name": "ATtiny861A",
+      "flash_size": 8192,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-20",
+      "notes": "20-pin, 8KB Flash"
+    },
+    {
+      "signature": ["1E", "93", "09"],
+      "name": "ATtiny461A",
+      "flash_size": 4096,
+      "eeprom_size": 256,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-20",
+      "notes": "20-pin, 4KB Flash"
+    },
+    {
+      "signature": ["1E", "93", "07"],
+      "name": "ATtiny261A",
+      "flash_size": 2048,
+      "eeprom_size": 128,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-20",
+      "notes": "20-pin, 2KB Flash"
+    },
+    {
+      "signature": ["1E", "96", "0A"],
+      "name": "ATmega4809",
+      "flash_size": 49152,
+      "eeprom_size": 256,
+      "manufacturer": "Microchip",
+      "series": "ATmega",
+      "package": "TQFP-32",
+      "notes": "Arduino Nano Every, 48KB Flash"
+    },
+    {
+      "signature": ["1E", "96", "09"],
+      "name": "ATmega3209",
+      "flash_size": 32768,
+      "eeprom_size": 1024,
+      "manufacturer": "Microchip",
+      "series": "ATmega",
+      "package": "TQFP-32",
+      "notes": "32KB Flash"
+    },
+    {
+      "signature": ["1E", "96", "08"],
+      "name": "ATmega1609",
+      "flash_size": 16384,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "ATmega",
+      "package": "TQFP-32",
+      "notes": "16KB Flash"
+    },
+    {
+      "signature": ["1E", "96", "07"],
+      "name": "ATmega809",
+      "flash_size": 8192,
+      "eeprom_size": 256,
+      "manufacturer": "Microchip",
+      "series": "ATmega",
+      "package": "TQFP-32",
+      "notes": "8KB Flash"
+    },
+    {
+      "signature": ["1E", "96", "06"],
+      "name": "ATmega4808",
+      "flash_size": 49152,
+      "eeprom_size": 256,
+      "manufacturer": "Microchip",
+      "series": "ATmega",
+      "package": "TQFP-32",
+      "notes": "48KB Flash"
+    },
+    {
+      "signature": ["1E", "96", "05"],
+      "name": "ATmega3208",
+      "flash_size": 32768,
+      "eeprom_size": 1024,
+      "manufacturer": "Microchip",
+      "series": "ATmega",
+      "package": "TQFP-32",
+      "notes": "32KB Flash"
+    },
+    {
+      "signature": ["1E", "96", "04"],
+      "name": "ATmega1608",
+      "flash_size": 16384,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "ATmega",
+      "package": "TQFP-32",
+      "notes": "16KB Flash"
+    },
+    {
+      "signature": ["1E", "96", "03"],
+      "name": "ATmega808",
+      "flash_size": 8192,
+      "eeprom_size": 256,
+      "manufacturer": "Microchip",
+      "series": "ATmega",
+      "package": "TQFP-32",
+      "notes": "8KB Flash"
+    },
+    {
+      "signature": ["1E", "97", "01"],
+      "name": "ATmega328P",
+      "flash_size": 32768,
+      "eeprom_size": 1024,
+      "manufacturer": "Microchip",
+      "series": "ATmega",
+      "package": "TQFP-32",
+      "notes": "Arduino Uno/Nano, 32KB Flash"
+    },
+    {
+      "signature": ["1E", "98", "01"],
+      "name": "ATmega2560",
+      "flash_size": 262144,
+      "eeprom_size": 4096,
+      "manufacturer": "Microchip",
+      "series": "ATmega",
+      "package": "TQFP-100",
+      "notes": "Arduino Mega 2560, 256KB Flash"
+    },
+    {
+      "signature": ["1E", "94", "06"],
+      "name": "ATmega324PA",
+      "flash_size": 32768,
+      "eeprom_size": 1024,
+      "manufacturer": "Microchip",
+      "series": "ATmega",
+      "package": "TQFP-44",
+      "notes": "32KB Flash"
+    },
+    {
+      "signature": ["1E", "94", "05"],
+      "name": "ATmega164PA",
+      "flash_size": 16384,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "ATmega",
+      "package": "TQFP-44",
+      "notes": "16KB Flash"
+    },
+    {
+      "signature": ["1E", "94", "03"],
+      "name": "ATmega644PA",
+      "flash_size": 65536,
+      "eeprom_size": 2048,
+      "manufacturer": "Microchip",
+      "series": "ATmega",
+      "package": "TQFP-44",
+      "notes": "64KB Flash"
+    },
+    {
+      "signature": ["1E", "95", "0F"],
+      "name": "ATmega1284P",
+      "flash_size": 131072,
+      "eeprom_size": 4096,
+      "manufacturer": "Microchip",
+      "series": "ATmega",
+      "package": "TQFP-44",
+      "notes": "128KB Flash"
+    },
+    {
+      "signature": ["1E", "93", "15"],
+      "name": "ATtiny1614",
+      "flash_size": 16384,
+      "eeprom_size": 256,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-14",
+      "notes": "14-pin, 16KB Flash, UPDI only"
+    },
+    {
+      "signature": ["1E", "93", "14"],
+      "name": "ATtiny1616",
+      "flash_size": 16384,
+      "eeprom_size": 256,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "TQFP-20",
+      "notes": "20-pin, 16KB Flash, UPDI only"
+    },
+    {
+      "signature": ["1E", "93", "0C"],
+      "name": "ATtiny1617",
+      "flash_size": 16384,
+      "eeprom_size": 256,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "TQFP-32",
+      "notes": "32-pin, 16KB Flash, UPDI only"
+    },
+    {
+      "signature": ["1E", "93", "0D"],
+      "name": "ATtiny1607",
+      "flash_size": 16384,
+      "eeprom_size": 256,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-8",
+      "notes": "8-pin, 16KB Flash, UPDI only"
+    },
+    {
+      "signature": ["1E", "93", "12"],
+      "name": "ATtiny814",
+      "flash_size": 8192,
+      "eeprom_size": 128,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-14",
+      "notes": "14-pin, 8KB Flash, UPDI only"
+    },
+    {
+      "signature": ["1E", "93", "10"],
+      "name": "ATtiny816",
+      "flash_size": 8192,
+      "eeprom_size": 128,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "TQFP-20",
+      "notes": "20-pin, 8KB Flash, UPDI only"
+    },
+    {
+      "signature": ["1E", "93", "11"],
+      "name": "ATtiny817",
+      "flash_size": 8192,
+      "eeprom_size": 128,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "TQFP-32",
+      "notes": "32-pin, 8KB Flash, UPDI only"
+    },
+    {
+      "signature": ["1E", "93", "0E"],
+      "name": "ATtiny804",
+      "flash_size": 8192,
+      "eeprom_size": 128,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-14",
+      "notes": "14-pin, 8KB Flash, UPDI only"
+    },
+    {
+      "signature": ["1E", "93", "0F"],
+      "name": "ATtiny806",
+      "flash_size": 8192,
+      "eeprom_size": 128,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "TQFP-20",
+      "notes": "20-pin, 8KB Flash, UPDI only"
+    },
+    {
+      "signature": ["1E", "93", "03"],
+      "name": "ATtiny807",
+      "flash_size": 8192,
+      "eeprom_size": 128,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "TQFP-32",
+      "notes": "32-pin, 8KB Flash, UPDI only"
+    },
+    {
+      "signature": ["1E", "93", "0B"],
+      "name": "ATtiny414",
+      "flash_size": 4096,
+      "eeprom_size": 128,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-14",
+      "notes": "14-pin, 4KB Flash, UPDI only"
+    },
+    {
+      "signature": ["1E", "93", "09"],
+      "name": "ATtiny416",
+      "flash_size": 4096,
+      "eeprom_size": 128,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "TQFP-20",
+      "notes": "20-pin, 4KB Flash, UPDI only"
+    },
+    {
+      "signature": ["1E", "93", "0A"],
+      "name": "ATtiny417",
+      "flash_size": 4096,
+      "eeprom_size": 128,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "TQFP-32",
+      "notes": "32-pin, 4KB Flash, UPDI only"
+    },
+    {
+      "signature": ["1E", "93", "07"],
+      "name": "ATtiny404",
+      "flash_size": 4096,
+      "eeprom_size": 128,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "SOIC-14",
+      "notes": "14-pin, 4KB Flash, UPDI only"
+    },
+    {
+      "signature": ["1E", "93", "05"],
+      "name": "ATtiny406",
+      "flash_size": 4096,
+      "eeprom_size": 128,
+      "manufacturer": "Microchip",
+      "series": "ATtiny",
+      "package": "TQFP-20",
+      "notes": "20-pin, 4KB Flash, UPDI only"
+    },
+    {
+      "signature": ["1E", "93", "02"],
+      "name": "AVR128DA28",
+      "flash_size": 131072,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "AVR-DA",
+      "package": "SOIC-28",
+      "notes": "28-pin, 128KB Flash, UPDI"
+    },
+    {
+      "signature": ["1E", "96", "0B"],
+      "name": "AVR128DA32",
+      "flash_size": 131072,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "AVR-DA",
+      "package": "TQFP-32",
+      "notes": "32-pin, 128KB Flash, UPDI"
+    },
+    {
+      "signature": ["1E", "96", "0C"],
+      "name": "AVR128DA48",
+      "flash_size": 131072,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "AVR-DA",
+      "package": "TQFP-48",
+      "notes": "48-pin, 128KB Flash, UPDI"
+    },
+    {
+      "signature": ["1E", "96", "0D"],
+      "name": "AVR128DA64",
+      "flash_size": 131072,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "AVR-DA",
+      "package": "TQFP-64",
+      "notes": "64-pin, 128KB Flash, UPDI"
+    },
+    {
+      "signature": ["1E", "97", "0B"],
+      "name": "AVR64DA28",
+      "flash_size": 65536,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "AVR-DA",
+      "package": "SOIC-28",
+      "notes": "28-pin, 64KB Flash, UPDI"
+    },
+    {
+      "signature": ["1E", "97", "0C"],
+      "name": "AVR64DA32",
+      "flash_size": 65536,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "AVR-DA",
+      "package": "TQFP-32",
+      "notes": "32-pin, 64KB Flash, UPDI"
+    },
+    {
+      "signature": ["1E", "97", "0D"],
+      "name": "AVR64DA48",
+      "flash_size": 65536,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "AVR-DA",
+      "package": "TQFP-48",
+      "notes": "48-pin, 64KB Flash, UPDI"
+    },
+    {
+      "signature": ["1E", "97", "0E"],
+      "name": "AVR64DA64",
+      "flash_size": 65536,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "AVR-DA",
+      "package": "TQFP-64",
+      "notes": "64-pin, 64KB Flash, UPDI"
+    },
+    {
+      "signature": ["1E", "98", "0B"],
+      "name": "AVR32DA28",
+      "flash_size": 32768,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "AVR-DA",
+      "package": "SOIC-28",
+      "notes": "28-pin, 32KB Flash, UPDI"
+    },
+    {
+      "signature": ["1E", "98", "0C"],
+      "name": "AVR32DA32",
+      "flash_size": 32768,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "AVR-DA",
+      "package": "TQFP-32",
+      "notes": "32-pin, 32KB Flash, UPDI"
+    },
+    {
+      "signature": ["1E", "98", "0D"],
+      "name": "AVR32DA48",
+      "flash_size": 32768,
+      "eeprom_size": 512,
+      "manufacturer": "Microchip",
+      "series": "AVR-DA",
+      "package": "TQFP-48",
+      "notes": "48-pin, 32KB Flash, UPDI"
+    }
+  ]
+}

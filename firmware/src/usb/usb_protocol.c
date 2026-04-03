@@ -13,6 +13,8 @@
 #include "pico/unique_id.h"
 #include "../safety/safety.h"
 #include "../hal/hal.h"
+#include "../hal/updi.h"
+#include "../hal/onewire.h"
 #include <string.h>
 
 #ifndef le16_to_cpu
@@ -423,6 +425,171 @@ void usb_protocol_dispatch(const usb_packet_t *packet)
             }
             break;
             
+        case CMD_JTAG_INIT:
+            cmd_handle_jtag_init();
+            break;
+            
+        case CMD_JTAG_DEINIT:
+            cmd_handle_jtag_deinit();
+            break;
+            
+        case CMD_JTAG_RESET:
+            cmd_handle_jtag_reset();
+            break;
+            
+        case CMD_JTAG_SHIFT:
+            if (len >= 2) {
+                uint16_t num_bits = *((uint16_t*)&payload[0]);
+                cmd_handle_jtag_shift(num_bits, &payload[2], len - 2);
+            } else {
+                usb_send_status(STAT_ERROR_PARAM);
+            }
+            break;
+            
+        case CMD_JTAG_READ_IDCODE:
+            cmd_handle_jtag_read_idcode();
+            break;
+            
+        case CMD_SWD_INIT:
+            cmd_handle_swd_init();
+            break;
+            
+        case CMD_SWD_DEINIT:
+            cmd_handle_swd_deinit();
+            break;
+            
+        case CMD_SWD_RESET:
+            cmd_handle_swd_reset();
+            break;
+            
+        case CMD_SWD_READ:
+            if (len >= 1) {
+                cmd_handle_swd_read(payload[0]);
+            } else {
+                usb_send_status(STAT_ERROR_PARAM);
+            }
+            break;
+            
+        case CMD_SWD_WRITE:
+            if (len >= 5) {
+                uint32_t value = *((uint32_t*)&payload[1]);
+                cmd_handle_swd_write(payload[0], value);
+            } else {
+                usb_send_status(STAT_ERROR_PARAM);
+            }
+            break;
+            
+        case CMD_UPDI_INIT:
+            if (len >= 4) {
+                uint32_t baud = *((uint32_t*)&payload[0]);
+                cmd_handle_updi_init(baud);
+            } else {
+                cmd_handle_updi_init(115200);
+            }
+            break;
+            
+        case CMD_UPDI_DEINIT:
+            cmd_handle_updi_deinit();
+            break;
+            
+        case CMD_UPDI_RESET:
+            cmd_handle_updi_reset();
+            break;
+            
+        case CMD_UPDI_READ_INFO:
+            cmd_handle_updi_read_info();
+            break;
+            
+        case CMD_UPDI_READ_FLASH:
+            if (len >= 4) {
+                uint16_t addr = *((uint16_t*)&payload[0]);
+                uint16_t read_len = *((uint16_t*)&payload[2]);
+                cmd_handle_updi_read_flash(addr, read_len);
+            } else {
+                usb_send_status(STAT_ERROR_PARAM);
+            }
+            break;
+            
+        case CMD_UPDI_WRITE_FLASH:
+            if (len >= 4) {
+                uint16_t addr = *((uint16_t*)&payload[0]);
+                cmd_handle_updi_write_flash(addr, &payload[2], len - 2);
+            } else {
+                usb_send_status(STAT_ERROR_PARAM);
+            }
+            break;
+            
+        case CMD_UPDI_READ_EEPROM:
+            if (len >= 4) {
+                uint16_t addr = *((uint16_t*)&payload[0]);
+                uint16_t read_len = *((uint16_t*)&payload[2]);
+                cmd_handle_updi_read_eeprom(addr, read_len);
+            } else {
+                usb_send_status(STAT_ERROR_PARAM);
+            }
+            break;
+            
+        case CMD_UPDI_WRITE_EEPROM:
+            if (len >= 4) {
+                uint16_t addr = *((uint16_t*)&payload[0]);
+                cmd_handle_updi_write_eeprom(addr, &payload[2], len - 2);
+            } else {
+                usb_send_status(STAT_ERROR_PARAM);
+            }
+            break;
+            
+        case CMD_UPDI_READ_FUSE:
+            if (len >= 1) {
+                cmd_handle_updi_read_fuse(payload[0]);
+            } else {
+                usb_send_status(STAT_ERROR_PARAM);
+            }
+            break;
+            
+        case CMD_UPDI_WRITE_FUSE:
+            if (len >= 2) {
+                cmd_handle_updi_write_fuse(payload[0], payload[1]);
+            } else {
+                usb_send_status(STAT_ERROR_PARAM);
+            }
+            break;
+            
+        case CMD_UPDI_ERASE_CHIP:
+            cmd_handle_updi_erase_chip();
+            break;
+            
+        case CMD_1WIRE_INIT:
+            cmd_handle_onewire_init();
+            break;
+            
+        case CMD_1WIRE_DEINIT:
+            cmd_handle_onewire_deinit();
+            break;
+            
+        case CMD_1WIRE_RESET:
+            cmd_handle_onewire_reset();
+            break;
+            
+        case CMD_1WIRE_SEARCH:
+            if (len >= 1) {
+                cmd_handle_onewire_search(payload[0]);
+            } else {
+                cmd_handle_onewire_search(16);
+            }
+            break;
+            
+        case CMD_1WIRE_READ_ROM:
+            cmd_handle_onewire_read_rom();
+            break;
+            
+        case CMD_1WIRE_READ_TEMP:
+            if (len >= 9) {
+                cmd_handle_onewire_read_temp(true, payload);
+            } else {
+                cmd_handle_onewire_read_temp(false, NULL);
+            }
+            break;
+            
         default:
             usb_send_status(STAT_ERROR_PARAM);
             break;
@@ -441,10 +608,10 @@ void cmd_handle_ping(void)
 void cmd_handle_get_info(void)
 {
     device_info_t info = {
-        .version_major = 1,
+        .version_major = 2,
         .version_minor = 0,
         .version_patch = 0,
-        .capabilities = CAP_SPI | CAP_I2C | CAP_FLASH_READ | CAP_FLASH_WRITE | CAP_SAFETY,
+        .capabilities = CAP_SPI | CAP_I2C | CAP_JTAG | CAP_SWD | CAP_UPDI | CAP_1WIRE | CAP_FLASH_READ | CAP_FLASH_WRITE | CAP_SAFETY,
         .hw_revision = 1,
         .serial = "FXP000001",
         .flash_size = 2048 * 1024,
@@ -539,4 +706,317 @@ void cmd_handle_safety_status(void)
     extern safety_status_t safety_get_status(void);
     safety_status_t status = safety_get_status();
     usb_send_response(STAT_OK_WITH_DATA, &status, sizeof(status));
+}
+
+void cmd_handle_jtag_init(void)
+{
+    extern bool hal_jtag_init(void);
+    if (hal_jtag_init()) {
+        usb_send_status(STAT_OK);
+    } else {
+        usb_send_status(STAT_ERROR);
+    }
+}
+
+void cmd_handle_jtag_deinit(void)
+{
+    extern void hal_jtag_deinit(void);
+    hal_jtag_deinit();
+    usb_send_status(STAT_OK);
+}
+
+void cmd_handle_jtag_reset(void)
+{
+    extern void hal_jtag_reset(void);
+    hal_jtag_reset();
+    usb_send_status(STAT_OK);
+}
+
+void cmd_handle_jtag_shift(uint16_t num_bits, const uint8_t *data, uint16_t len)
+{
+    extern bool hal_jtag_shift(const uint8_t *tdi_data, uint16_t num_bits, uint8_t *tdo_data);
+    
+    uint8_t tdo_data[USB_MAX_PACKET_SIZE];
+    uint16_t num_bytes = (num_bits + 7) / 8;
+    
+    if (num_bytes > USB_MAX_PACKET_SIZE) {
+        num_bytes = USB_MAX_PACKET_SIZE;
+    }
+    
+    if (hal_jtag_shift(data, num_bits, tdo_data)) {
+        usb_send_response(STAT_OK_WITH_DATA, tdo_data, num_bytes);
+    } else {
+        usb_send_status(STAT_ERROR);
+    }
+}
+
+void cmd_handle_jtag_read_idcode(void)
+{
+    extern uint32_t hal_jtag_read_idcode(void);
+    uint32_t idcode = hal_jtag_read_idcode();
+    usb_send_response(STAT_OK_WITH_DATA, &idcode, sizeof(idcode));
+}
+
+void cmd_handle_swd_init(void)
+{
+    extern bool hal_swd_init(void);
+    if (hal_swd_init()) {
+        usb_send_status(STAT_OK);
+    } else {
+        usb_send_status(STAT_ERROR);
+    }
+}
+
+void cmd_handle_swd_deinit(void)
+{
+    extern void hal_swd_deinit(void);
+    hal_swd_deinit();
+    usb_send_status(STAT_OK);
+}
+
+void cmd_handle_swd_reset(void)
+{
+    extern void hal_swd_reset(void);
+    hal_swd_reset();
+    usb_send_status(STAT_OK);
+}
+
+void cmd_handle_swd_read(uint8_t address)
+{
+    extern bool hal_swd_read(uint8_t apnzp, uint8_t reg, uint32_t *value);
+    
+    uint32_t value;
+    uint8_t apnzp = (address >> 4) & 1;
+    uint8_t reg = address & 0x0F;
+    
+    if (hal_swd_read(apnzp, reg, &value)) {
+        usb_send_response(STAT_OK_WITH_DATA, &value, sizeof(value));
+    } else {
+        usb_send_status(STAT_ERROR);
+    }
+}
+
+void cmd_handle_swd_write(uint8_t address, uint32_t value)
+{
+    extern bool hal_swd_write(uint8_t apnzp, uint8_t reg, uint32_t val);
+    
+    uint8_t apnzp = (address >> 4) & 1;
+    uint8_t reg = address & 0x0F;
+    
+    if (hal_swd_write(apnzp, reg, value)) {
+        usb_send_status(STAT_OK);
+    } else {
+        usb_send_status(STAT_ERROR);
+    }
+}
+
+/*============================================================================
+ * UPDI COMMAND HANDLERS
+ *============================================================================*/
+
+void cmd_handle_updi_init(uint32_t baud)
+{
+    extern bool hal_updi_init(uint32_t baud);
+    if (hal_updi_init(baud)) {
+        usb_send_status(STAT_OK);
+    } else {
+        usb_send_status(STAT_ERROR);
+    }
+}
+
+void cmd_handle_updi_deinit(void)
+{
+    extern void hal_updi_deinit(void);
+    hal_updi_deinit();
+    usb_send_status(STAT_OK);
+}
+
+void cmd_handle_updi_reset(void)
+{
+    extern bool hal_updi_reset(void);
+    if (hal_updi_reset()) {
+        usb_send_status(STAT_OK);
+    } else {
+        usb_send_status(STAT_ERROR);
+    }
+}
+
+void cmd_handle_updi_read_info(void)
+{
+    extern bool hal_updi_read_device_info(updi_device_info_t *info);
+    
+    updi_device_info_t info;
+    memset(&info, 0, sizeof(info));
+    
+    if (hal_updi_read_device_info(&info)) {
+        usb_send_response(STAT_OK_WITH_DATA, &info, sizeof(info));
+    } else {
+        usb_send_status(STAT_ERROR);
+    }
+}
+
+void cmd_handle_updi_read_flash(uint16_t address, uint16_t len)
+{
+    extern bool hal_updi_read_flash(uint16_t address, uint8_t *data, uint16_t len);
+    
+    uint8_t buf[USB_MAX_PACKET_SIZE];
+    
+    if (len > USB_MAX_PACKET_SIZE) {
+        len = USB_MAX_PACKET_SIZE;
+    }
+    
+    if (hal_updi_read_flash(address, buf, len)) {
+        usb_send_response(STAT_OK_WITH_DATA, buf, len);
+    } else {
+        usb_send_status(STAT_ERROR);
+    }
+}
+
+void cmd_handle_updi_write_flash(uint16_t address, const uint8_t *data, uint16_t len)
+{
+    extern bool hal_updi_write_flash(uint16_t address, const uint8_t *data, uint16_t len);
+    
+    if (hal_updi_write_flash(address, data, len)) {
+        usb_send_status(STAT_OK);
+    } else {
+        usb_send_status(STAT_ERROR);
+    }
+}
+
+void cmd_handle_updi_read_eeprom(uint16_t address, uint16_t len)
+{
+    extern bool hal_updi_read_eeprom(uint16_t address, uint8_t *data, uint16_t len);
+    
+    uint8_t buf[USB_MAX_PACKET_SIZE];
+    
+    if (len > USB_MAX_PACKET_SIZE) {
+        len = USB_MAX_PACKET_SIZE;
+    }
+    
+    if (hal_updi_read_eeprom(address, buf, len)) {
+        usb_send_response(STAT_OK_WITH_DATA, buf, len);
+    } else {
+        usb_send_status(STAT_ERROR);
+    }
+}
+
+void cmd_handle_updi_write_eeprom(uint16_t address, const uint8_t *data, uint16_t len)
+{
+    extern bool hal_updi_write_eeprom(uint16_t address, const uint8_t *data, uint16_t len);
+    
+    if (hal_updi_write_eeprom(address, data, len)) {
+        usb_send_status(STAT_OK);
+    } else {
+        usb_send_status(STAT_ERROR);
+    }
+}
+
+void cmd_handle_updi_read_fuse(uint8_t fuse)
+{
+    extern uint8_t hal_updi_read_fuse(uint8_t fuse);
+    uint8_t value = hal_updi_read_fuse(fuse);
+    usb_send_response(STAT_OK_WITH_DATA, &value, 1);
+}
+
+void cmd_handle_updi_write_fuse(uint8_t fuse, uint8_t value)
+{
+    extern bool hal_updi_write_fuse(uint8_t fuse, uint8_t value);
+    
+    if (hal_updi_write_fuse(fuse, value)) {
+        usb_send_status(STAT_OK);
+    } else {
+        usb_send_status(STAT_ERROR);
+    }
+}
+
+void cmd_handle_updi_erase_chip(void)
+{
+    extern bool hal_updi_erase_chip(void);
+    
+    if (hal_updi_erase_chip()) {
+        usb_send_status(STAT_OK);
+    } else {
+        usb_send_status(STAT_ERROR);
+    }
+}
+
+/*============================================================================
+ * 1-WIRE COMMAND HANDLERS
+ *============================================================================*/
+
+void cmd_handle_onewire_init(void)
+{
+    extern bool hal_onewire_init(void);
+    if (hal_onewire_init()) {
+        usb_send_status(STAT_OK);
+    } else {
+        usb_send_status(STAT_ERROR);
+    }
+}
+
+void cmd_handle_onewire_deinit(void)
+{
+    extern void hal_onewire_deinit(void);
+    hal_onewire_deinit();
+    usb_send_status(STAT_OK);
+}
+
+void cmd_handle_onewire_reset(void)
+{
+    extern bool hal_onewire_reset(void);
+    if (hal_onewire_reset()) {
+        usb_send_status(STAT_OK);
+    } else {
+        usb_send_status(STAT_ERROR_NO_DEVICE);
+    }
+}
+
+void cmd_handle_onewire_search(uint8_t max_devices)
+{
+    extern bool hal_onewire_search(onewire_device_t *devices, uint8_t max_devices, uint8_t *found);
+    
+    onewire_device_t devices[16];
+    uint8_t found;
+    
+    if (max_devices > 16) {
+        max_devices = 16;
+    }
+    
+    if (hal_onewire_search(devices, max_devices, &found)) {
+        usb_send_response(STAT_OK_WITH_DATA, devices, found * sizeof(onewire_device_t));
+    } else {
+        usb_send_status(STAT_ERROR_NO_DEVICE);
+    }
+}
+
+void cmd_handle_onewire_read_rom(void)
+{
+    extern bool hal_onewire_read_rom(uint8_t *rom);
+    
+    uint8_t rom[8];
+    if (hal_onewire_read_rom(rom)) {
+        usb_send_response(STAT_OK_WITH_DATA, rom, 8);
+    } else {
+        usb_send_status(STAT_ERROR_NO_DEVICE);
+    }
+}
+
+void cmd_handle_onewire_read_temp(bool has_rom, const uint8_t *rom)
+{
+    extern bool hal_ds18b20_read_temperature(uint8_t *rom, ds18b20_data_t *data);
+    
+    ds18b20_data_t data;
+    uint8_t rom_buf[8];
+    
+    if (has_rom && rom) {
+        memcpy(rom_buf, rom, 8);
+    } else {
+        rom_buf[0] = 0;
+    }
+    
+    if (hal_ds18b20_read_temperature(has_rom ? rom_buf : NULL, &data)) {
+        usb_send_response(STAT_OK_WITH_DATA, &data, sizeof(data));
+    } else {
+        usb_send_status(STAT_ERROR_NO_DEVICE);
+    }
 }

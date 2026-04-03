@@ -4,16 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fixpro"
-version = "1.0.0"
+version = "2.0.0"
 description = "FiXPro - Universal Hardware Programmer CLI Tool"
 readme = "README.md"
 license = {text = "GPL-3.0"}
 authors = [
     {name = "FiXPro Contributors"}
 ]
-keywords = ["flash", "programmer", "spi", "i2c", "eprom", "rp2040", "raspberry-pi-pico"]
+keywords = ["flash", "programmer", "spi", "i2c", "jtag", "swd", "eprom", "rp2040", "raspberry-pi-pico"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: End Users/Desktop",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
@@ -43,7 +43,7 @@ dev = [
 ]
 
 [project.scripts]
-fixpro = "fixpro.cli:main"
+fixpro = "fixpro.cli:main:main"
 
 [project.urls]
 Homepage = "https://github.com/MYMDO/fixpro"

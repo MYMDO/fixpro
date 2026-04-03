@@ -4,7 +4,7 @@
   "last_updated": "2026-04-03",
   "chips": [
     {
-      "address": [0x50],
+      "address": ["50"],
       "name": "24C01",
       "size": 128,
       "page_size": 8,
@@ -12,7 +12,7 @@
       "manufacturer": "Generic"
     },
     {
-      "address": [0x50],
+      "address": ["50"],
       "name": "24C02",
       "size": 256,
       "page_size": 16,
@@ -20,7 +20,7 @@
       "manufacturer": "Generic"
     },
     {
-      "address": [0x50],
+      "address": ["50"],
       "name": "24C04",
       "size": 512,
       "page_size": 16,
@@ -28,7 +28,7 @@
       "manufacturer": "Generic"
     },
     {
-      "address": [0x50],
+      "address": ["50"],
       "name": "24C08",
       "size": 1024,
       "page_size": 16,
@@ -36,7 +36,7 @@
       "manufacturer": "Generic"
     },
     {
-      "address": [0x50],
+      "address": ["50"],
       "name": "24C16",
       "size": 2048,
       "page_size": 16,
@@ -44,7 +44,7 @@
       "manufacturer": "Generic"
     },
     {
-      "address": [0x50],
+      "address": ["50"],
       "name": "24C32",
       "size": 4096,
       "page_size": 32,
@@ -52,7 +52,7 @@
       "manufacturer": "Generic"
     },
     {
-      "address": [0x50],
+      "address": ["50"],
       "name": "24C64",
       "size": 8192,
       "page_size": 32,
@@ -60,7 +60,7 @@
       "manufacturer": "Generic"
     },
     {
-      "address": [0x50],
+      "address": ["50"],
       "name": "24C128",
       "size": 16384,
       "page_size": 64,
@@ -68,7 +68,7 @@
       "manufacturer": "Generic"
     },
     {
-      "address": [0x50],
+      "address": ["50"],
       "name": "24C256",
       "size": 32768,
       "page_size": 64,
@@ -76,7 +76,7 @@
       "manufacturer": "Generic"
     },
     {
-      "address": [0x50],
+      "address": ["50"],
       "name": "24C512",
       "size": 65536,
       "page_size": 128,
@@ -84,7 +84,7 @@
       "manufacturer": "Generic"
     },
     {
-      "address": [0x50],
+      "address": ["50"],
       "name": "24C1024",
       "size": 131072,
       "page_size": 256,
@@ -92,7 +92,7 @@
       "manufacturer": "Generic"
     },
     {
-      "jedec_id": [0x29, 0x01],
+      "jedec_id": ["29", "01"],
       "name": "AT24C01",
       "size": 128,
       "page_size": 8,
@@ -100,7 +100,7 @@
       "manufacturer": "Atmel"
     },
     {
-      "jedec_id": [0x29, 0x02],
+      "jedec_id": ["29", "02"],
       "name": "AT24C02",
       "size": 256,
       "page_size": 8,
@@ -108,7 +108,7 @@
       "manufacturer": "Atmel"
     },
     {
-      "jedec_id": [0x29, 0x04],
+      "jedec_id": ["29", "04"],
       "name": "AT24C04",
       "size": 512,
       "page_size": 16,
@@ -116,7 +116,7 @@
       "manufacturer": "Atmel"
     },
     {
-      "jedec_id": [0x29, 0x08],
+      "jedec_id": ["29", "08"],
       "name": "AT24C08",
       "size": 1024,
       "page_size": 16,
@@ -124,7 +124,7 @@
       "manufacturer": "Atmel"
     },
     {
-      "jedec_id": [0x29, 0x10],
+      "jedec_id": ["29", "10"],
       "name": "AT24C16",
       "size": 2048,
       "page_size": 16,
@@ -132,7 +132,7 @@
       "manufacturer": "Atmel"
     },
     {
-      "jedec_id": [0x29, 0x20],
+      "jedec_id": ["29", "20"],
       "name": "AT24C32",
       "size": 4096,
       "page_size": 32,
@@ -140,7 +140,7 @@
       "manufacturer": "Atmel"
     },
     {
-      "jedec_id": [0x29, 0x40],
+      "jedec_id": ["29", "40"],
       "name": "AT24C64",
       "size": 8192,
       "page_size": 32,
@@ -148,7 +148,7 @@
       "manufacturer": "Atmel"
     },
     {
-      "jedec_id": [0x29, 0x80],
+      "jedec_id": ["29", "80"],
       "name": "AT24C128",
       "size": 16384,
       "page_size": 64,
@@ -156,7 +156,7 @@
       "manufacturer": "Atmel"
     },
     {
-      "jedec_id": [0x29, 0x00, 0x01],
+      "jedec_id": ["29", "00", "01"],
       "name": "AT24C256",
       "size": 32768,
       "page_size": 64,
@@ -164,7 +164,7 @@
       "manufacturer": "Atmel"
     },
     {
-      "jedec_id": [0x29, 0x00, 0x02],
+      "jedec_id": ["29", "00", "02"],
       "name": "AT24C512",
       "size": 65536,
       "page_size": 128,
@@ -172,7 +172,7 @@
       "manufacturer": "Atmel"
     },
     {
-      "jedec_id": [0x29, 0x00, 0x04],
+      "jedec_id": ["29", "00", "04"],
       "name": "AT24CM01",
       "size": 131072,
       "page_size": 256,
@@ -180,7 +180,7 @@
       "manufacturer": "Atmel"
     },
     {
-      "jedec_id": [0x29, 0x00, 0x08],
+      "jedec_id": ["29", "00", "08"],
       "name": "AT24CM02",
       "size": 262144,
       "page_size": 256,

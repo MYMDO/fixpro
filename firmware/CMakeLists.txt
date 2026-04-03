@@ -18,7 +18,7 @@ include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 pico_sdk_init()
 
 set(FIRMWARE_NAME FiXPro)
-set(FIRMWARE_VERSION 1.0.0)
+set(FIRMWARE_VERSION 2.0.0)
 
 add_compile_options(
     -Wall
@@ -42,6 +42,10 @@ include_directories(
 set(FIRMWARE_SOURCES
     src/main.c
     src/hal/hal.c
+    src/hal/jtag.c
+    src/hal/swd.c
+    src/hal/updi.c
+    src/hal/onewire.c
     src/safety/safety.c
     src/usb/usb_protocol.c
     src/flash/spi_flash.c
@@ -71,6 +75,8 @@ target_link_libraries(${FIRMWARE_NAME}
     hardware_clocks
     hardware_pll
     hardware_irq
+    hardware_pio
+    hardware_uart
     pico_multicore
     tinyusb_device
     tinyusb_board

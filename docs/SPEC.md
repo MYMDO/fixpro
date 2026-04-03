@@ -23,6 +23,14 @@ FiXPro is a universal hardware programmer built on Raspberry Pi RP2040. It commu
 | GP1 | SPI MISO | Configurable |
 | GP2 | SPI SCK / I2C SCL | Configurable |
 | GP3 | SPI CS | Configurable |
+| GP6 | JTAG TCK / SWD CLK | Configurable |
+| GP7 | JTAG TMS | Configurable |
+| GP8 | JTAG TDI | Configurable |
+| GP9 | JTAG TDO | Configurable |
+| GP10 | SWD CLK | Configurable |
+| GP11 | SWD DIO | Configurable |
+| GP12 | UPDI | AVR programming |
+| GP13 | 1-Wire | DS18B20 temperature |
 
 ## USB Communication
 
@@ -86,6 +94,54 @@ All communication uses binary packets with the following structure:
 | 0x21 | I2C_DEINIT | Deinitialize I2C | STAT_OK |
 | 0x22 | I2C_WRITE | Write data | STAT_OK / STAT_ERROR_NACK |
 | 0x23 | I2C_READ | Read data | STAT_OK_WITH_DATA |
+| 0x24 | I2C_SCAN | Scan I2C bus | STAT_OK_WITH_DATA |
+
+### JTAG Commands
+
+| CMD | Name | Description | Response |
+|-----|------|-------------|----------|
+| 0x30 | JTAG_INIT | Initialize JTAG | STAT_OK / STAT_ERROR |
+| 0x31 | JTAG_DEINIT | Deinitialize JTAG | STAT_OK |
+| 0x32 | JTAG_RESET | Reset JTAG chain | STAT_OK |
+| 0x33 | JTAG_SHIFT | Shift data | STAT_OK_WITH_DATA |
+| 0x34 | JTAG_READ_IDCODE | Read IDCODE | STAT_OK_WITH_DATA |
+
+### SWD Commands
+
+| CMD | Name | Description | Response |
+|-----|------|-------------|----------|
+| 0x40 | SWD_INIT | Initialize SWD | STAT_OK / STAT_ERROR |
+| 0x41 | SWD_DEINIT | Deinitialize SWD | STAT_OK |
+| 0x42 | SWD_RESET | Reset SWD line | STAT_OK |
+| 0x43 | SWD_READ | Read register | STAT_OK_WITH_DATA |
+| 0x44 | SWD_WRITE | Write register | STAT_OK / STAT_ERROR |
+
+### UPDI Commands (AVR Programming)
+
+| CMD | Name | Description | Response |
+|-----|------|-------------|----------|
+| 0x70 | UPDI_INIT | Initialize UPDI | STAT_OK / STAT_ERROR |
+| 0x71 | UPDI_DEINIT | Deinitialize UPDI | STAT_OK |
+| 0x72 | UPDI_RESET | Reset UPDI | STAT_OK / STAT_ERROR |
+| 0x73 | UPDI_READ_INFO | Read device info | STAT_OK_WITH_DATA |
+| 0x74 | UPDI_READ_FLASH | Read flash | STAT_OK_WITH_DATA |
+| 0x75 | UPDI_WRITE_FLASH | Write flash | STAT_OK / STAT_ERROR |
+| 0x76 | UPDI_READ_EEPROM | Read EEPROM | STAT_OK_WITH_DATA |
+| 0x77 | UPDI_WRITE_EEPROM | Write EEPROM | STAT_OK / STAT_ERROR |
+| 0x78 | UPDI_READ_FUSE | Read fuse | STAT_OK_WITH_DATA |
+| 0x79 | UPDI_WRITE_FUSE | Write fuse | STAT_OK / STAT_ERROR |
+| 0x7A | UPDI_ERASE_CHIP | Chip erase | STAT_OK / STAT_ERROR |
+
+### 1-Wire Commands
+
+| CMD | Name | Description | Response |
+|-----|------|-------------|----------|
+| 0x80 | 1WIRE_INIT | Initialize 1-Wire | STAT_OK / STAT_ERROR |
+| 0x81 | 1WIRE_DEINIT | Deinitialize 1-Wire | STAT_OK |
+| 0x82 | 1WIRE_RESET | Reset pulse | STAT_OK / STAT_ERROR_NO_DEVICE |
+| 0x83 | 1WIRE_SEARCH | Search devices | STAT_OK_WITH_DATA |
+| 0x84 | 1WIRE_READ_ROM | Read ROM | STAT_OK_WITH_DATA |
+| 0x85 | 1WIRE_READ_TEMP | Read DS18B20 temp | STAT_OK_WITH_DATA |
 
 ## Status Codes
 
@@ -122,8 +178,14 @@ struct device_info {
 |------|------|-------------|
 | BIT 0 | CAP_SPI | SPI support |
 | BIT 1 | CAP_I2C | I2C support |
+| BIT 2 | CAP_JTAG | JTAG support |
+| BIT 3 | CAP_SWD | SWD support |
+| BIT 4 | CAP_ISP | In-system programming |
+| BIT 5 | CAP_UPDI | AVR UPDI support |
+| BIT 6 | CAP_1WIRE | 1-Wire support |
 | BIT 8 | CAP_FLASH_READ | Flash read support |
 | BIT 9 | CAP_FLASH_WRITE | Flash write support |
+| BIT 15 | CAP_SAFETY | Safety monitoring |
 
 ## SPI Configuration
 
@@ -203,14 +265,20 @@ firmware/
 │   │   └── usb_protocol.c  # USB CDC + packet handling
 │   ├── hal/
 │   │   ├── hal.c       # Hardware abstraction
-│   │   └── hal.h       # HAL interface
+│   │   ├── hal.h       # HAL interface
+│   │   ├── jtag.c      # JTAG driver
+│   │   ├── swd.c       # SWD driver
+│   │   ├── updi.c       # UPDI driver
+│   │   └── onewire.c   # 1-Wire driver
 │   ├── safety/
 │   │   └── safety.c    # Safety monitoring
 │   └── flash/
 │       └── spi_flash.c # SPI Flash operations
 └── pio/
     ├── spi.pio         # SPI PIO state machine
-    └── i2c.pio         # I2C PIO state machine
+    ├── i2c.pio         # I2C PIO state machine
+    ├── jtag.pio        # JTAG PIO state machine
+    └── swd.pio         # SWD PIO state machine
 ```
 
 ## Timing
@@ -228,6 +296,26 @@ firmware/
 - Standard mode: 100 kHz
 - Fast mode: 400 kHz
 - Fast mode+: 1 MHz
+
+### JTAG Timing
+- Clock frequency: Up to 25 MHz (software bit-bang)
+- Setup time: 10 ns minimum
+- Hold time: 10 ns minimum
+
+### SWD Timing
+- Clock frequency: Up to 25 MHz
+- Turnaround time: Configurable
+- Line reset: 50+ idle clocks
+
+### UPDI Timing
+- UART baud rate: 115200 / 230400 / 460800
+- SYNCH character: 0x55
+- Character frame: 8N1
+
+### 1-Wire Timing
+- Reset pulse: 480 µs
+- Read/Write slot: 60-120 µs
+- Conversion time (DS18B20): 750 ms
 
 ## Error Handling
 

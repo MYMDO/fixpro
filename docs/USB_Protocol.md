@@ -240,6 +240,365 @@ CMD: STAT_OK_WITH_DATA (0x81)
 Payload: read bytes
 ```
 
+### JTAG Commands
+
+#### JTAG_INIT (0x30)
+Initialize JTAG interface.
+
+**Request**: No payload
+```python
+send_command(0x30)
+```
+
+**Response**:
+```
+CMD: STAT_OK (0x80) or STAT_ERROR (0xE0)
+```
+
+#### JTAG_RESET (0x32)
+Reset JTAG chain (set TMS high for 5+ clock cycles).
+
+**Request**: No payload
+```python
+send_command(0x32)
+```
+
+**Response**:
+```
+CMD: STAT_OK (0x80)
+```
+
+#### JTAG_SHIFT (0x33)
+Shift data through JTAG chain.
+
+**Request**:
+```
++------------+----------+
+| num_bits   | tdi_data|
++------------+----------+
+| 2 bytes    | N bytes |
++------------+----------+
+```
+
+**Response**:
+```
+CMD: STAT_OK_WITH_DATA (0x81)
+Payload: tdo_data (bytes read from TDO)
+```
+
+#### JTAG_READ_IDCODE (0x34)
+Read IDCODE from JTAG device.
+
+**Request**: No payload
+```python
+send_command(0x34)
+```
+
+**Response**:
+```
+CMD: STAT_OK_WITH_DATA (0x81)
+Payload: 4 bytes (32-bit IDCODE)
+```
+
+### SWD Commands
+
+#### SWD_INIT (0x40)
+Initialize SWD (Serial Wire Debug) interface.
+
+**Request**: No payload
+```python
+send_command(0x40)
+```
+
+**Response**:
+```
+CMD: STAT_OK (0x80) or STAT_ERROR (0xE0)
+```
+
+#### SWD_RESET (0x42)
+Reset SWD line (50+ clocks with SWDIO high).
+
+**Request**: No payload
+```python
+send_command(0x42)
+```
+
+**Response**:
+```
+CMD: STAT_OK (0x80)
+```
+
+#### SWD_READ (0x43)
+Read from SWD register.
+
+**Request**:
+```
++----------+
+| address  |
++----------+
+| 1 byte   |
++----------+
+```
+- `address[7:4]` = APnDP (0=DP, 1=AP)
+- `address[3:0]` = Register address (0-15)
+
+**Response**:
+```
+CMD: STAT_OK_WITH_DATA (0x81)
+Payload: 4 bytes (32-bit register value)
+```
+
+#### SWD_WRITE (0x44)
+Write to SWD register.
+
+**Request**:
+```
++----------+----------+
+| address  | value    |
++----------+----------+
+| 1 byte   | 4 bytes  |
++----------+----------+
+```
+
+**Response**:
+```
+CMD: STAT_OK (0x80) or STAT_ERROR (0xE0)
+```
+
+### UPDI Commands (AVR Programming)
+
+#### UPDI_INIT (0x70)
+Initialize UPDI interface.
+
+**Request**:
+```
++--------+
+| baud   |
++--------+
+| 4 bytes|
++--------+
+```
+- `baud`: UART baud rate (default 115200)
+
+**Response**:
+```
+CMD: STAT_OK (0x80) or STAT_ERROR (0xE0)
+```
+
+#### UPDI_READ_INFO (0x73)
+Read UPDI device information.
+
+**Request**: No payload
+```python
+send_command(0x73)
+```
+
+**Response**:
+```
+CMD: STAT_OK_WITH_DATA (0x81)
+Payload: updi_device_info_t (10 bytes)
+```
+
+#### UPDI_READ_FLASH (0x74)
+Read from AVR flash memory.
+
+**Request**:
+```
++--------+----------+
+| addr   | length   |
++--------+----------+
+| 2 bytes| 2 bytes  |
++--------+----------+
+```
+
+**Response**:
+```
+CMD: STAT_OK_WITH_DATA (0x81)
+Payload: read bytes
+```
+
+#### UPDI_WRITE_FLASH (0x75)
+Write to AVR flash memory.
+
+**Request**:
+```
++--------+----------+
+| addr   | data     |
++--------+----------+
+| 2 bytes| N bytes  |
++--------+----------+
+```
+
+**Response**:
+```
+CMD: STAT_OK (0x80) or STAT_ERROR (0xE0)
+```
+
+#### UPDI_READ_EEPROM (0x76)
+Read from AVR EEPROM.
+
+**Request**:
+```
++--------+----------+
+| addr   | length   |
++--------+----------+
+| 2 bytes| 2 bytes  |
++--------+----------+
+```
+
+**Response**:
+```
+CMD: STAT_OK_WITH_DATA (0x81)
+Payload: read bytes
+```
+
+#### UPDI_WRITE_EEPROM (0x77)
+Write to AVR EEPROM.
+
+**Request**:
+```
++--------+----------+
+| addr   | data     |
++--------+----------+
+| 2 bytes| N bytes  |
++--------+----------+
+```
+
+**Response**:
+```
+CMD: STAT_OK (0x80) or STAT_ERROR (0xE0)
+```
+
+#### UPDI_READ_FUSE (0x78)
+Read fuse value.
+
+**Request**:
+```
++------+
+| fuse |
++------+
+| 1    |
++------+
+```
+
+**Response**:
+```
+CMD: STAT_OK_WITH_DATA (0x81)
+Payload: 1 byte (fuse value)
+```
+
+#### UPDI_WRITE_FUSE (0x79)
+Write fuse value.
+
+**Request**:
+```
++------+-------+
+| fuse | value |
++------+-------+
+| 1    | 1     |
++------+-------+
+```
+
+**Response**:
+```
+CMD: STAT_OK (0x80) or STAT_ERROR (0xE0)
+```
+
+#### UPDI_ERASE_CHIP (0x7A)
+Perform chip erase via UPDI.
+
+**Request**: No payload
+```python
+send_command(0x7A)
+```
+
+**Response**:
+```
+CMD: STAT_OK (0x80) or STAT_ERROR (0xE0)
+```
+
+### 1-Wire Commands
+
+#### 1WIRE_INIT (0x80)
+Initialize 1-Wire interface.
+
+**Request**: No payload
+```python
+send_command(0x80)
+```
+
+**Response**:
+```
+CMD: STAT_OK (0x80) or STAT_ERROR (0xE0)
+```
+
+#### 1WIRE_RESET (0x82)
+Send 1-Wire reset pulse and detect presence.
+
+**Request**: No payload
+```python
+send_command(0x82)
+```
+
+**Response**:
+```
+CMD: STAT_OK (0x80) or STAT_ERROR_NO_DEVICE (0xE5)
+```
+
+#### 1WIRE_SEARCH (0x83)
+Search for 1-Wire devices on the bus.
+
+**Request**:
+```
++--------+
+| max    |
++--------+
+| 1 byte |
++--------+
+```
+- `max`: Maximum number of devices to find
+
+**Response**:
+```
+CMD: STAT_OK_WITH_DATA (0x81)
+Payload: onewire_device_t array (8 bytes per device + valid flag)
+```
+
+#### 1WIRE_READ_ROM (0x84)
+Read ROM code from single device (only when one device present).
+
+**Request**: No payload
+```python
+send_command(0x84)
+```
+
+**Response**:
+```
+CMD: STAT_OK_WITH_DATA (0x81)
+Payload: 8 bytes (ROM code)
+```
+
+#### 1WIRE_READ_TEMP (0x85)
+Start DS18B20 conversion and read temperature.
+
+**Request**:
+```
++--------+
+| ROM    |
++--------+
+| 8 bytes| (optional, skip ROM if not provided)
++--------+
+```
+
+**Response**:
+```
+CMD: STAT_OK_WITH_DATA (0x81)
+Payload: ds18b20_data_t
+- float temperature (4 bytes)
+- bool valid (1 byte)
+- uint8_t scratchpad[9] (9 bytes)
+```
+
 ## Status Codes
 
 | Code | Name | Description |

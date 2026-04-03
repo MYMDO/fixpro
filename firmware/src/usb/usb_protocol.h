@@ -77,22 +77,73 @@
 #define CMD_I2C_SET_FREQ        0x25
 /** @} */
 
+/** @name JTAG Commands
+ * @brief JTAG debugging commands
+ * @{ */
+#define CMD_JTAG_INIT           0x30
+#define CMD_JTAG_DEINIT         0x31
+#define CMD_JTAG_RESET          0x32
+#define CMD_JTAG_SHIFT          0x33
+#define CMD_JTAG_READ_IDCODE    0x34
+#define CMD_JTAG_SET_FREQ       0x35
+/** @} */
+
+/** @name SWD Commands
+ * @brief SWD (Serial Wire Debug) commands
+ * @{ */
+#define CMD_SWD_INIT            0x40
+#define CMD_SWD_DEINIT          0x41
+#define CMD_SWD_RESET           0x42
+#define CMD_SWD_READ            0x43
+#define CMD_SWD_WRITE           0x44
+#define CMD_SWD_CONNECT         0x45
+#define CMD_SWD_READ_DPBANKSEL  0x46
+#define CMD_SWD_WRITE_DPBANKSEL 0x47
+/** @} */
+
 /** @name Flash Commands
  * @brief On-chip flash operations (for device firmware updates)
  * @{ */
-#define CMD_FLASH_READ          0x30
-#define CMD_FLASH_WRITE         0x31
-#define CMD_FLASH_ERASE         0x32
-#define CMD_FLASH_VERIFY        0x33
+#define CMD_FLASH_READ          0x50
+#define CMD_FLASH_WRITE         0x51
+#define CMD_FLASH_ERASE         0x52
+#define CMD_FLASH_VERIFY        0x53
 /** @} */
 
 /** @name Safety Commands
  * @brief Safety monitoring and configuration
  * @{ */
-#define CMD_SAFETY_GET_STATUS   0x40
-#define CMD_SAFETY_SET_LIMITS   0x41
-#define CMD_SAFETY_READ_VOLTAGE 0x42
-#define CMD_SAFETY_READ_CURRENT 0x43
+#define CMD_SAFETY_GET_STATUS   0x60
+#define CMD_SAFETY_SET_LIMITS   0x61
+#define CMD_SAFETY_READ_VOLTAGE 0x62
+#define CMD_SAFETY_READ_CURRENT 0x63
+/** @} */
+
+/** @name UPDI Commands
+ * @brief AVR UPDI programming commands
+ * @{ */
+#define CMD_UPDI_INIT           0x70
+#define CMD_UPDI_DEINIT         0x71
+#define CMD_UPDI_RESET          0x72
+#define CMD_UPDI_READ_INFO      0x73
+#define CMD_UPDI_READ_FLASH     0x74
+#define CMD_UPDI_WRITE_FLASH    0x75
+#define CMD_UPDI_READ_EEPROM    0x76
+#define CMD_UPDI_WRITE_EEPROM   0x77
+#define CMD_UPDI_READ_FUSE      0x78
+#define CMD_UPDI_WRITE_FUSE     0x79
+#define CMD_UPDI_ERASE_CHIP     0x7A
+/** @} */
+
+/** @name 1-Wire Commands
+ * @brief 1-Wire devices (DS18B20, etc.)
+ * @{ */
+#define CMD_1WIRE_INIT          0x80
+#define CMD_1WIRE_DEINIT        0x81
+#define CMD_1WIRE_RESET         0x82
+#define CMD_1WIRE_SEARCH        0x83
+#define CMD_1WIRE_READ_ROM     0x84
+#define CMD_1WIRE_READ_TEMP     0x85
 /** @} */
 
 /*============================================================================
@@ -307,9 +358,175 @@ void cmd_handle_i2c_write(uint8_t address, const uint8_t *data, uint16_t len);
 void cmd_handle_i2c_read(uint8_t address, uint16_t len);
 
 /**
+ * @brief Handle JTAG initialization command
+ */
+void cmd_handle_jtag_init(void);
+
+/**
+ * @brief Handle JTAG deinitialization command
+ */
+void cmd_handle_jtag_deinit(void);
+
+/**
+ * @brief Handle JTAG reset command
+ */
+void cmd_handle_jtag_reset(void);
+
+/**
+ * @brief Handle JTAG shift command
+ * @param num_bits Number of bits to shift
+ * @param data TDI data to shift out
+ * @param len Length of data buffer
+ */
+void cmd_handle_jtag_shift(uint16_t num_bits, const uint8_t *data, uint16_t len);
+
+/**
+ * @brief Handle JTAG read IDCODE command
+ */
+void cmd_handle_jtag_read_idcode(void);
+
+/**
+ * @brief Handle SWD initialization command
+ */
+void cmd_handle_swd_init(void);
+
+/**
+ * @brief Handle SWD deinitialization command
+ */
+void cmd_handle_swd_deinit(void);
+
+/**
+ * @brief Handle SWD reset command
+ */
+void cmd_handle_swd_reset(void);
+
+/**
+ * @brief Handle SWD read command
+ * @param address SWD register address
+ */
+void cmd_handle_swd_read(uint8_t address);
+
+/**
+ * @brief Handle SWD write command
+ * @param address SWD register address
+ * @param value 32-bit value to write
+ */
+void cmd_handle_swd_write(uint8_t address, uint32_t value);
+
+/**
  * @brief Handle safety status command
  */
 void cmd_handle_safety_status(void);
+
+/*============================================================================
+ * UPDI COMMAND HANDLERS
+ *============================================================================*/
+
+/**
+ * @brief Handle UPDI initialization command
+ * @param baud UART baud rate
+ */
+void cmd_handle_updi_init(uint32_t baud);
+
+/**
+ * @brief Handle UPDI deinitialization command
+ */
+void cmd_handle_updi_deinit(void);
+
+/**
+ * @brief Handle UPDI reset command
+ */
+void cmd_handle_updi_reset(void);
+
+/**
+ * @brief Handle UPDI read device info command
+ */
+void cmd_handle_updi_read_info(void);
+
+/**
+ * @brief Handle UPDI read flash command
+ * @param address Flash address
+ * @param len Number of bytes to read
+ */
+void cmd_handle_updi_read_flash(uint16_t address, uint16_t len);
+
+/**
+ * @brief Handle UPDI write flash command
+ * @param address Flash address
+ * @param data Pointer to data to write
+ * @param len Number of bytes to write
+ */
+void cmd_handle_updi_write_flash(uint16_t address, const uint8_t *data, uint16_t len);
+
+/**
+ * @brief Handle UPDI read EEPROM command
+ * @param address EEPROM address
+ * @param len Number of bytes to read
+ */
+void cmd_handle_updi_read_eeprom(uint16_t address, uint16_t len);
+
+/**
+ * @brief Handle UPDI write EEPROM command
+ * @param address EEPROM address
+ * @param data Pointer to data to write
+ * @param len Number of bytes to write
+ */
+void cmd_handle_updi_write_eeprom(uint16_t address, const uint8_t *data, uint16_t len);
+
+/**
+ * @brief Handle UPDI read fuse command
+ * @param fuse Fuse number
+ */
+void cmd_handle_updi_read_fuse(uint8_t fuse);
+
+/**
+ * @brief Handle UPDI write fuse command
+ * @param fuse Fuse number
+ * @param value Fuse value
+ */
+void cmd_handle_updi_write_fuse(uint8_t fuse, uint8_t value);
+
+/**
+ * @brief Handle UPDI chip erase command
+ */
+void cmd_handle_updi_erase_chip(void);
+
+/*============================================================================
+ * 1-WIRE COMMAND HANDLERS
+ *============================================================================*/
+
+/**
+ * @brief Handle 1-Wire initialization command
+ */
+void cmd_handle_onewire_init(void);
+
+/**
+ * @brief Handle 1-Wire deinitialization command
+ */
+void cmd_handle_onewire_deinit(void);
+
+/**
+ * @brief Handle 1-Wire reset command
+ */
+void cmd_handle_onewire_reset(void);
+
+/**
+ * @brief Handle 1-Wire search devices command
+ * @param max_devices Maximum number of devices to find
+ */
+void cmd_handle_onewire_search(uint8_t max_devices);
+
+/**
+ * @brief Handle 1-Wire read ROM command
+ */
+void cmd_handle_onewire_read_rom(void);
+
+/**
+ * @brief Handle 1-Wire read temperature command
+ * @param has_rom true if ROM is provided, false for skip ROM
+ * @param rom ROM code (8 bytes, only used if has_rom is true)
+ */
+void cmd_handle_onewire_read_temp(bool has_rom, const uint8_t *rom);
 
 #endif /* OMNIPROG_USB_PROTOCOL_H */
 
