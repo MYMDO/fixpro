@@ -1,0 +1,23 @@
+[config]
+    remote = origin
+    repository = https://github.com/fxpro-project/fixpro
+
+[user]
+    name = FiXPro
+    email = fixpro@fx.in.ua
+
+[init]
+    defaultBranch = main
+
+[alias]
+    lg = log --oneline --graph --decorate
+    st = status
+    co = checkout
+    br = branch
+    ci = commit
+
+[pull]
+    rebase = false
+
+[push]
+    default = current

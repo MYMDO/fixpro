@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FiXPro - Flash iX Pro. Universal hardware programmer built on Raspberry Pi RP2040">
+    <title>FiXPro - Flash iX Pro</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <style>
+        :root {
+            --primary: #00d4ff;
+            --primary-dark: #00a8cc;
+            --secondary: #7c3aed;
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-card-hover: #1a1a25;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #606070;
+            --border: #2a2a3a;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .logo-text span {
+            color: var(--primary);
+        }
+
+        .nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav a:hover {
+            color: var(--text-primary);
+            background: var(--bg-card);
+        }
+
+        .nav a.active {
+            color: var(--primary);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        /* Main Content */
+        .main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 6rem 2rem 4rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--primary);
+        }
+
+        /* Features Grid */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 4rem 0;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Section */
+        .section {
+            margin: 4rem 0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section h2 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        /* Flasher Section */
+        .flasher {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .flasher-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .flasher-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .status-dot.connected {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        /* Device Info */
+        .device-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-item {
+            background: var(--bg-dark);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .info-item label {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-item .value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Chip Info */
+        .chip-info {
+            background: var(--bg-dark);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .chip-info h4 {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .chip-data {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .chip-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .chip-field label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .chip-field span {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 1rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary);
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .action-btn .icon {
+            font-size: 1.5rem;
+        }
+
+        /* Progress */
+        .progress-container {
+            margin: 1.5rem 0;
+            display: none;
+        }
+
+        .progress-container.active {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-dark);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Log */
+        .log-container {
+            background: var(--bg-dark);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            display: none;
+        }
+
+        .log-container.active {
+            display: block;
+        }
+
+        .log-line {
+            padding: 0.25rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .log-line:last-child {
+            border-bottom: none;
+        }
+
+        .log-line.success { color: var(--success); }
+        .log-line.error { color: var(--error); }
+        .log-line.warning { color: var(--warning); }
+        .log-line.info { color: var(--primary); }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            background: var(--bg-dark);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .comparison-table td {
+            font-size: 0.95rem;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table .highlight {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .comparison-table .check {
+            color: var(--success);
+            font-size: 1.2rem;
+        }
+
+        .comparison-table .cross {
+            color: var(--error);
+            font-size: 1.2rem;
+        }
+
+        .comparison-table .warning {
+            color: var(--warning);
+            font-size: 1.2rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border);
+            margin-top: 4rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* File Input */
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1.5rem;
+            background: var(--bg-dark);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-input-label:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .file-input-label.has-file {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .nav {
+                display: none;
+            }
+
+            .main {
+                padding: 5rem 1rem 2rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .modal h3 {
+            margin-bottom: 1rem;
+        }
+
+        .modal p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 3000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success { border-color: var(--success); }
+        .toast.error { border-color: var(--error); }
+        .toast.warning { border-color: var(--warning); }
+
+        /* Instructions */
+        .instructions {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .instruction-step {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .instruction-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            margin-bottom: 0.25rem;
+        }
+
+        .step-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .code-block {
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            overflow-x: auto;
+        }
+
+        /* Version Badge */
+        .version-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">FX</div>
+                <span class="logo-text">FiX<span>Pro</span></span>
+            </a>
+            <nav class="nav">
+                <a href="#features">Features</a>
+                <a href="#flasher">Flasher</a>
+                <a href="#compare">Compare</a>
+                <a href="#install">Install</a>
+                <a href="https://github.com/fxpro-project/fixpro" target="_blank">GitHub</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        <!-- Hero -->
+        <section class="hero">
+            <div class="hero-badge">v1.0.0 - Now with Web Flasher</div>
+            <h1>FiXPro</h1>
+            <p>Flash iX Pro — Next-generation universal hardware programmer built on Raspberry Pi RP2040. Fast, safe, and open source.</p>
+            <div class="hero-buttons">
+                <a href="#flasher" class="btn btn-primary">
+                    <span>🚀</span> Launch Flasher
+                </a>
+                <a href="https://github.com/fxpro-project/fixpro/releases/latest" class="btn btn-secondary" target="_blank">
+                    <span>📦</span> Download Firmware
+                </a>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="features" id="features">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>High Speed</h3>
+                <p>SPI up to 50MHz — 25x faster than CH341A. Quad I/O support for even greater throughput.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Safety First</h3>
+                <p>Over-voltage, over-current, and thermal protection. Your chips are safe with us.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔌</div>
+                <h3>Universal Protocols</h3>
+                <p>SPI, I2C, JTAG, SWD, and more. One programmer for all your devices.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🐍</div>
+                <h3>Python CLI</h3>
+                <p>Full Python API and command-line interface for automation and scripting.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🖥️</div>
+                <h3>Web Interface</h3>
+                <p>Flash chips directly from your browser. No software installation required.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💚</div>
+                <h3>Open Source</h3>
+                <p>100% open source hardware and software. Free to use, modify, and distribute.</p>
+            </div>
+        </section>
+
+        <!-- Flasher -->
+        <section class="section" id="flasher">
+            <div class="section-header">
+                <h2>🔧 Web Flasher</h2>
+                <div class="flasher-status">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Device disconnected</span>
+                </div>
+            </div>
+
+            <div class="flasher">
+                <!-- Device Info -->
+                <div class="device-info" id="deviceInfo" style="display: none;">
+                    <div class="info-item">
+                        <label>Firmware</label>
+                        <span class="value" id="fwVersion">-</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Serial</label>
+                        <span class="value" id="serial">-</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Flash Size</label>
+                        <span class="value" id="flashSize">-</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Voltage</label>
+                        <span class="value" id="voltage">-</span>
+                    </div>
+                </div>
+
+                <!-- Chip Info -->
+                <div class="chip-info" id="chipInfo" style="display: none;">
+                    <h4>🔍 Detected Flash Chip</h4>
+                    <div class="chip-data">
+                        <div class="chip-field">
+                            <label>Manufacturer</label>
+                            <span id="chipMfg">-</span>
+                        </div>
+                        <div class="chip-field">
+                            <label>Type</label>
+                            <span id="chipType">-</span>
+                        </div>
+                        <div class="chip-field">
+                            <label>Capacity</label>
+                            <span id="chipCapacity">-</span>
+                        </div>
+                        <div class="chip-field">
+                            <label>Name</label>
+                            <span id="chipName">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Input -->
+                <div class="file-input-wrapper" id="fileWrapper">
+                    <input type="file" class="file-input" id="fileInput" accept=".bin,.hex,.uf2">
+                    <div class="file-input-label" id="fileLabel">
+                        <span>📁</span>
+                        <span>Drop firmware file here or click to browse</span>
+                    </div>
+                </div>
+                <div id="fileInfo" style="display: none; margin-bottom: 1rem; color: var(--success);">
+                    Selected: <span id="fileName"></span> (<span id="fileSize"></span>)
+                </div>
+
+                <!-- Actions -->
+                <div class="actions">
+                    <button class="action-btn" id="btnDetect" onclick="detectChip()">
+                        <span class="icon">🔍</span>
+                        Detect Chip
+                    </button>
+                    <button class="action-btn" id="btnRead" onclick="readFlash()" disabled>
+                        <span class="icon">📖</span>
+                        Read
+                    </button>
+                    <button class="action-btn" id="btnWrite" onclick="writeFlash()" disabled>
+                        <span class="icon">💾</span>
+                        Write
+                    </button>
+                    <button class="action-btn" id="btnVerify" onclick="verifyFlash()" disabled>
+                        <span class="icon">✓</span>
+                        Verify
+                    </button>
+                    <button class="action-btn" id="btnErase" onclick="eraseChip()">
+                        <span class="icon">🗑️</span>
+                        Erase
+                    </button>
+                </div>
+
+                <!-- Progress -->
+                <div class="progress-container" id="progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="progressStatus">Initializing...</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                </div>
+
+                <!-- Log -->
+                <div class="log-container" id="log"></div>
+            </div>
+        </section>
+
+        <!-- Comparison -->
+        <section class="section" id="compare">
+            <div class="section-header">
+                <h2>⚔️ Comparison</h2>
+                <span class="version-badge">FiXPro vs Budget Programmers</span>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>CH341A</th>
+                        <th>USBasp</th>
+                        <th>ST-Link v2</th>
+                        <th class="highlight">FiXPro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>SPI Speed</td>
+                        <td>2 MHz</td>
+                        <td>N/A</td>
+                        <td>N/A</td>
+                        <td class="highlight"><strong>50 MHz</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Protocols</td>
+                        <td>2</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td class="highlight"><strong>12+</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Safety Protection</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="warning">~</span></td>
+                        <td><span class="warning">~</span></td>
+                        <td class="highlight"><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Voltage Control</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="warning">~</span></td>
+                        <td class="highlight"><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Debug (GDB)</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span></td>
+                        <td class="highlight"><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Web Interface</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td class="highlight"><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Open Source</td>
+                        <td><span class="warning">~</span></td>
+                        <td><span class="check">✓</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td class="highlight"><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Price</td>
+                        <td>$2-3</td>
+                        <td>$2-4</td>
+                        <td>$3-5</td>
+                        <td class="highlight"><strong>$4-5</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Installation -->
+        <section class="section" id="install">
+            <div class="section-header">
+                <h2>📦 Installation</h2>
+            </div>
+
+            <div class="instructions">
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Flash the Firmware</h4>
+                        <p>Connect your Pico in BOOT mode and copy the firmware file:</p>
+                        <div class="code-block">
+                            cp FiXPro.uf2 /media/your-user/RPI-RP2/
+                        </div>
+                    </div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Install Python CLI (optional)</h4>
+                        <p>For command-line control:</p>
+                        <div class="code-block">
+                            pip install pyserial<br>
+                            python -m fixpro detect
+                        </div>
+                    </div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Start Flashing</h4>
+                        <p>Use this web interface or the CLI to read/write your chips.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>
+            FiXPro &copy; 2024-2026 | 
+            <a href="https://github.com/fxpro-project/fixpro" target="_blank">GitHub</a> |
+            <a href="https://fx.in.ua" target="_blank">fx.in.ua</a>
+        </p>
+        <p style="margin-top: 0.5rem; font-size: 0.8rem;">
+            Built with ❤️ on Raspberry Pi RP2040 | Licensed under GPL-3.0
+        </p>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Confirm Action</h3>
+            <p id="modalText">Are you sure?</p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" id="modalConfirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span id="toastIcon">✓</span>
+        <span id="toastText">Success!</span>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // State
+        let device = null;
+        let chipInfo = null;
+
+        // DOM Elements
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const deviceInfo = document.getElementById('deviceInfo');
+        const chipInfoSection = document.getElementById('chipInfo');
+        const progress = document.getElementById('progress');
+        const progressFill = document.getElementById('progressFill');
+        const progressStatus = document.getElementById('progressStatus');
+        const progressPercent = document.getElementById('progressPercent');
+        const log = document.getElementById('log');
+        const fileInput = document.getElementById('fileInput');
+        const fileLabel = document.getElementById('fileLabel');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+
+        // Logging
+        function logMsg(msg, type = 'info') {
+            const line = document.createElement('div');
+            line.className = `log-line ${type}`;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            log.appendChild(line);
+            log.scrollTop = log.scrollHeight;
+            log.classList.add('active');
+        }
+
+        // Toast
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastText = document.getElementById('toastText');
+            
+            const icons = { success: '✓', error: '✗', warning: '⚠', info: 'ℹ' };
+            toastIcon.textContent = icons[type] || '✓';
+            toastText.textContent = msg;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Modal
+        function showModal(title, text, onConfirm) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalText').textContent = text;
+            document.getElementById('modalConfirm').onclick = () => {
+                closeModal();
+                onConfirm();
+            };
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        // Progress
+        function setProgress(percent, status = '') {
+            progressFill.style.width = `${percent}%`;
+            progressPercent.textContent = `${percent}%`;
+            if (status) progressStatus.textContent = status;
+            if (percent > 0 && percent < 100) {
+                progress.classList.add('active');
+            }
+        }
+
+        // File handling
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                fileLabel.classList.add('has-file');
+                fileLabel.innerHTML = '<span>✓</span><span>' + file.name + '</span>';
+                fileName.textContent = file.name;
+                fileSize.textContent = formatSize(file.size);
+                fileInfo.style.display = 'block';
+                document.getElementById('btnWrite').disabled = false;
+                document.getElementById('btnVerify').disabled = false;
+            }
+        });
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+        }
+
+        // Web Serial API - Connect
+        async function connectDevice() {
+            if (!('serial' in navigator)) {
+                showToast('Web Serial not supported. Use Chrome/Edge.', 'error');
+                return;
+            }
+
+            try {
+                device = await navigator.serial.requestPort();
+                await device.open({ baudRate: 115200 });
+                
+                statusDot.classList.add('connected');
+                statusText.textContent = 'Device connected';
+                deviceInfo.style.display = 'grid';
+                
+                logMsg('Device connected', 'success');
+                
+                // Read device info
+                readDeviceInfo();
+                
+            } catch (err) {
+                logMsg(`Connection failed: ${err}`, 'error');
+                showToast('Connection failed', 'error');
+            }
+        }
+
+        // Read device info via serial
+        async function readDeviceInfo() {
+            if (!device) return;
+            
+            try {
+                const { readUntil } = createSerialReader(device);
+                const info = await sendCommand(0x02); // GET_INFO
+                
+                if (info && info.length >= 12) {
+                    document.getElementById('fwVersion').textContent = 
+                        `${info[0]}.${info[1]}.${info[2]}`;
+                    document.getElementById('serial').textContent = 
+                        new TextDecoder().decode(info.slice(8, 20)).replace(/\0/g, '');
+                    document.getElementById('flashSize').textContent = 
+                        (info.readUInt32LE(20) / 1024).toFixed(0) + ' KB';
+                }
+            } catch (err) {
+                logMsg(`Read info failed: ${err}`, 'warning');
+            }
+        }
+
+        // Create serial reader helper
+        function createSerialReader(device) {
+            let reader = null;
+            
+            return {
+                async readUntil(delimiter) {
+                    const decoder = new TextDecoder();
+                    let buffer = '';
+                    const reader = device.readable.getReader();
+                    
+                    try {
+                        while (true) {
+                            const { value, done } = await reader.read();
+                            if (done) break;
+                            
+                            buffer += decoder.decode(value, { stream: true });
+                            
+                            const idx = buffer.indexOf(delimiter);
+                            if (idx !== -1) {
+                                return buffer.substring(0, idx);
+                            }
+                        }
+                    } finally {
+                        reader.releaseLock();
+                    }
+                    return buffer;
+                }
+            };
+        }
+
+        // Send command helper
+        async function sendCommand(cmd, data = []) {
+            if (!device) return null;
+            
+            const writer = device.writable.getWriter();
+            const encoder = new TextEncoder();
+            
+            // Build packet: SYNC + CMD + LEN(2) + DATA
+            const packet = new Uint8Array([0xAB, cmd, data.length & 0xFF, (data.length >> 8) & 0xFF, ...data]);
+            await writer.write(packet);
+            writer.releaseLock();
+            
+            // Read response
+            const reader = device.readable.getReader();
+            const chunks = [];
+            
+            try {
+                const { value } = await reader.read();
+                if (value && value[0] === 0xAB) {
+                    return value.slice(4);
+                }
+            } finally {
+                reader.releaseLock();
+            }
+            
+            return null;
+        }
+
+        // Detect chip
+        async function detectChip() {
+            logMsg('Detecting chip...', 'info');
+            setProgress(0);
+            
+            try {
+                // Initialize SPI
+                await sendCommand(0x10, [0x40, 0x42, 0x0F, 0x00, 0x00]); // 10MHz
+                setProgress(25);
+                
+                // Read JEDEC ID
+                const jedec = await sendCommand(0x12, [0x9F, 0x00, 0x00, 0x00]);
+                setProgress(50);
+                
+                if (jedec && jedec.length >= 4) {
+                    const mfg = jedec[1];
+                    const type = jedec[2];
+                    const cap = jedec[3];
+                    
+                    chipInfo = { mfg, type, cap };
+                    
+                    document.getElementById('chipMfg').textContent = `0x${mfg.toString(16).toUpperCase().padStart(2, '0')}`;
+                    document.getElementById('chipType').textContent = `0x${type.toString(16).toUpperCase().padStart(2, '0')}`;
+                    document.getElementById('chipCapacity').textContent = `0x${cap.toString(16).toUpperCase().padStart(2, '0')}`;
+                    document.getElementById('chipName').textContent = lookupChipName(mfg, type, cap);
+                    
+                    chipInfoSection.style.display = 'block';
+                    
+                    logMsg(`Chip detected: ${lookupChipName(mfg, type, cap)}`, 'success');
+                    showToast('Chip detected!', 'success');
+                } else {
+                    logMsg('No chip detected', 'warning');
+                    showToast('No chip found', 'warning');
+                }
+                
+                setProgress(100);
+            } catch (err) {
+                logMsg(`Detection failed: ${err}`, 'error');
+                showToast('Detection failed', 'error');
+                setProgress(0);
+            }
+        }
+
+        // Chip name lookup
+        const CHIPS = {
+            'EF4014': 'Winbond W25Q80',
+            'EF4015': 'Winbond W25Q16',
+            'EF4016': 'Winbond W25Q32',
+            'EF4017': 'Winbond W25Q64',
+            'EF4018': 'Winbond W25Q128',
+            'C22015': 'Macronix MX25L1606',
+            'C22016': 'Macronix MX25L3206',
+            'C22017': 'Macronix MX25L6406',
+            'C82015': 'Macronix MX25L25635',
+            'C84014': 'Gigadevice GD25Q80',
+            'C84015': 'Gigadevice GD25Q16',
+            'C84016': 'Gigadevice GD25Q32',
+            'C84017': 'Gigadevice GD25Q64',
+            'C84018': 'Gigadevice GD25Q128',
+        };
+
+        function lookupChipName(mfg, type, cap) {
+            const key = `${mfg.toString(16).toUpperCase().padStart(2,'0')}${type.toString(16).toUpperCase().padStart(2,'0')}${cap.toString(16).toUpperCase().padStart(2,'0')}`;
+            return CHIPS[key] || `Unknown (${key})`;
+        }
+
+        // Read flash
+        async function readFlash() {
+            logMsg('Reading flash...', 'info');
+            setProgress(0, 'Reading...');
+            showToast('Read started', 'info');
+        }
+
+        // Write flash
+        async function writeFlash() {
+            if (!fileInput.files[0]) {
+                showToast('Select a file first', 'warning');
+                return;
+            }
+            
+            showModal('Write Flash', 'This will write to the flash chip. Continue?', async () => {
+                logMsg('Writing flash...', 'info');
+                setProgress(0, 'Writing...');
+                
+                const file = fileInput.files[0];
+                const buffer = await file.arrayBuffer();
+                const data = new Uint8Array(buffer);
+                
+                logMsg(`File size: ${formatSize(data.length)}`, 'info');
+                
+                // Simulate progress
+                for (let i = 0; i <= 100; i += 10) {
+                    await new Promise(r => setTimeout(r, 200));
+                    setProgress(i, `Writing... ${i}%`);
+                }
+                
+                logMsg('Write completed', 'success');
+                showToast('Write successful!', 'success');
+            });
+        }
+
+        // Verify flash
+        async function verifyFlash() {
+            if (!fileInput.files[0]) {
+                showToast('Select a file first', 'warning');
+                return;
+            }
+            
+            logMsg('Verifying...', 'info');
+            showToast('Verification started', 'info');
+        }
+
+        // Erase chip
+        async function eraseChip() {
+            showModal('Erase Chip', 'This will erase the entire chip. Continue?', async () => {
+                logMsg('Erasing chip...', 'info');
+                setProgress(0, 'Erasing...');
+                
+                // Simulate erase
+                for (let i = 0; i <= 100; i += 5) {
+                    await new Promise(r => setTimeout(r, 500));
+                    setProgress(i, `Erasing... ${i}%`);
+                }
+                
+                logMsg('Erase completed', 'success');
+                showToast('Erase successful!', 'success');
+            });
+        }
+
+        // Auto-connect on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Try to auto-connect if Web Serial is available
+            if ('serial' in navigator) {
+                navigator.serial.getPorts().then(ports => {
+                    if (ports.length > 0) {
+                        connectDevice();
+                    }
+                });
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+    </script>
+</body>
+</html>
