@@ -35,9 +35,7 @@ jobs:
       - name: Clone Pico SDK
         run: |
           cd ..
-          git clone --depth 1 --branch ${{ env.PICO_SDK_VERSION }} https://github.com/raspberrypi/pico-sdk.git
-          cd pico-sdk
-          git submodule update --init
+          git clone --recurse-submodules --depth 1 --branch ${{ env.PICO_SDK_VERSION }} https://github.com/raspberrypi/pico-sdk.git
 
       - name: Get current version
         id: version
