@@ -22,11 +22,15 @@ jobs:
   build:
     name: Build Firmware
     runs-on: ubuntu-latest
-    container: ghcr.io/pico-sdk/python:latest
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Install ARM toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi cmake make libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
 
       - name: Clone Pico SDK
         run: |
@@ -54,8 +58,10 @@ jobs:
 
       - name: Configure CMake
         working-directory: firmware/build
+        env:
+          PICO_SDK_PATH: ${{ github.workspace }}/../pico-sdk
         run: |
-          cmake -DPICO_SDK_PATH=/pico-sdk -DCMAKE_BUILD_TYPE=Release ..
+          cmake -DPICO_SDK_PATH="$PICO_SDK_PATH" -DCMAKE_BUILD_TYPE=Release ..
 
       - name: Build firmware
         working-directory: firmware/build
