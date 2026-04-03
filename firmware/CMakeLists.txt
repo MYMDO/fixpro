@@ -7,15 +7,12 @@ project(FiXPro C CXX ASM)
 
 set(PICO_BOARD pico CACHE STRING "Pico board variant")
 
-list(APPEND CMAKE_MODULE_PATH ${PICO_SDK_PATH}/cmake)
-
-include(pico_sdk_import.cmake)
-
-if (PICO_SDK_PATH)
-    message(STATUS "Pico SDK found: ${PICO_SDK_PATH}")
-else()
-    message(FATAL_ERROR "Pico SDK not found. Set PICO_SDK_PATH environment variable.")
+if (NOT PICO_SDK_PATH)
+    message(FATAL_ERROR "PICO_SDK_PATH not set. Set it with -DPICO_SDK_PATH=/path/to/sdk")
 endif()
+
+message(STATUS "Pico SDK path: ${PICO_SDK_PATH}")
+include(${PICO_SDK_PATH}/cmake/pico_sdk_import.cmake)
 
 pico_sdk_init()
 
