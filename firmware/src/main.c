@@ -25,6 +25,7 @@
 #include "pico/unique_id.h"
 #include "hardware/clocks.h"
 #include "hardware/pll.h"
+#include "hardware/structs/clocks.h"
 
 #include "usb/usb_protocol.h"
 #include "safety/safety.h"
@@ -53,6 +54,11 @@
  */
 #define CORE1_STACK_SIZE 2048
 
+/**
+ * @brief Core1 stack (must be 8-byte aligned)
+ */
+static uint32_t core1_stack[CORE1_STACK_SIZE / sizeof(uint32_t)];
+
 /*============================================================================
  * PRIVATE VARIABLES
  *============================================================================*/
@@ -66,11 +72,6 @@ static char device_serial[13];
  * @brief Firmware version string
  */
 static const char firmware_version[] = "1.0.0";
-
-/**
- * @brief Core1 stack
- */
-static uint8_t core1_stack[CORE1_STACK_SIZE];
 
 /**
  * @brief Flag indicating device is ready
@@ -132,13 +133,9 @@ static void system_clock_init(void)
 {
     set_sys_clock_khz(SYS_CLK_KHZ, true);
     
-    uint f_pll_sys = frequency_count_khz(PLL_SYS_FREQ_KHZ);
-    uint f_pll_usb = frequency_count_khz(PLL_USB_FREQ_KHZ);
-    uint f_clk_sys = frequency_count_khz(CLK_SYS);
+    uint32_t f_clk_sys = clock_get_hz(clk_sys) / 1000;
     
-    printf("[SYS] System clock: %u kHz\n", f_clk_sys);
-    printf("[SYS] PLL SYS: %u kHz\n", f_pll_sys);
-    printf("[SYS] PLL USB: %u kHz\n", f_pll_usb);
+    printf("[SYS] System clock: %u kHz\n", (unsigned int)f_clk_sys);
 }
 
 /**

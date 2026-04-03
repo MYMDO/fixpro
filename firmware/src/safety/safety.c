@@ -9,6 +9,7 @@
 #include "safety.h"
 #include "../hal/hal.h"
 #include "pico/time.h"
+#include "hardware/gpio.h"
 #include <string.h>
 
 /*============================================================================
@@ -60,7 +61,7 @@ static volatile bool fault_condition = false;
 static void power_hw_init(void)
 {
     gpio_init(20);
-    gpio_set_dir(20, GPIO_OUT);
+    gpio_set_dir(20, true);
     gpio_put(20, false);
 }
 

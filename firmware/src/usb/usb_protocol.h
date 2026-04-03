@@ -189,18 +189,6 @@ typedef struct __attribute__((packed)) {
     uint8_t  address;        /**< I2C device address */
 } i2c_config_t;
 
-/**
- * @brief Safety status structure
- */
-typedef struct __attribute__((packed)) {
-    uint16_t voltage_mv;     /**< Target voltage in millivolts */
-    uint16_t current_ma;     /**< Current draw in milliamps */
-    uint8_t  temp_celsius;   /**< Temperature in Celsius */
-    uint8_t  status;        /**< Safety status flags */
-    uint16_t voltage_limit;  /**< Max allowed voltage */
-    uint16_t current_limit; /**< Max allowed current */
-} safety_status_t;
-
 /*============================================================================
  * FUNCTION DECLARATIONS
  *============================================================================*/
@@ -262,6 +250,12 @@ const uint8_t* usb_get_rx_buffer(void);
  * @return Number of bytes in receive buffer
  */
 uint16_t usb_get_rx_length(void);
+
+/**
+ * @brief Dispatch command packet to handler
+ * @param packet Pointer to received packet
+ */
+void usb_protocol_dispatch(const usb_packet_t *packet);
 
 /*============================================================================
  * COMMAND HANDLERS (to be implemented in protocol handlers)

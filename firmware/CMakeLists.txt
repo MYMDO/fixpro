@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 project(FiXPro C CXX ASM)
 
 set(PICO_BOARD pico CACHE STRING "Pico board variant")
+set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 
 if (NOT PICO_SDK_PATH)
     message(FATAL_ERROR "PICO_SDK_PATH not set. Set it with -DPICO_SDK_PATH=/path/to/sdk")
@@ -27,12 +28,15 @@ add_compile_options(
     -O2
 )
 
-add_definitions(-D_FIRMWARE_VERSION=\"${FIRMWARE_VERSION}\")
+add_definitions(
+    -D_FIRMWARE_VERSION=\"${FIRMWARE_VERSION}\"
+)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/pio
     ${PICO_SDK_PATH}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 set(FIRMWARE_SOURCES
@@ -45,6 +49,11 @@ set(FIRMWARE_SOURCES
 
 add_executable(${FIRMWARE_NAME}
     ${FIRMWARE_SOURCES}
+)
+
+target_compile_definitions(${FIRMWARE_NAME} PRIVATE
+    CFG_TUD_ENABLED=1
+    CFG_TUD_CDC=1
 )
 
 pico_generate_pio_header(${FIRMWARE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/pio/spi.pio)
@@ -70,11 +79,9 @@ pico_set_program_version(${FIRMWARE_NAME} "${FIRMWARE_VERSION}")
 
 pico_add_extra_outputs(${FIRMWARE_NAME})
 
+add_custom_command(TARGET ${FIRMWARE_NAME} POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${FIRMWARE_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/${FIRMWARE_NAME}.hex
+)
+
 pico_enable_stdio_uart(${FIRMWARE_NAME} 0)
 pico_enable_stdio_usb(${FIRMWARE_NAME} 1)
-
-add_custom_command(TARGET ${FIRMWARE_NAME} POST_BUILD
-    COMMAND ${CMAKE_OBJCOPY} -O binary ${FIRMWARE_NAME}.elf ${FIRMWARE_NAME}.bin
-    COMMAND ${CMAKE_OBJCOPY} -O ihex ${FIRMWARE_NAME}.elf ${FIRMWARE_NAME}.hex
-    COMMAND echo "Firmware built: ${CMAKE_CURRENT_BINARY_DIR}/${FIRMWARE_NAME}.uf2"
-)

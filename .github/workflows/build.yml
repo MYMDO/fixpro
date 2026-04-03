@@ -1,12 +1,12 @@
-name: Build and Release
+name: Build FiXPro Firmware
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, develop]
     tags:
       - 'v*'
   pull_request:
-    branches: [main, master]
+    branches: [main, master, develop]
   workflow_dispatch:
     inputs:
       version:
@@ -20,8 +20,8 @@ env:
 
 jobs:
   build:
-    name: Build Firmware
-    runs-on: ubuntu-24.04-arm
+    name: Build Firmware (RP2040)
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
 
@@ -29,16 +29,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install ARM toolchain
+      - name: Install ARM toolchain and dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi cmake make libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+          sudo apt-get install -y \
+            gcc-arm-none-eabi binutils-arm-none-eabi \
+            cmake make g++ ninja-build \
+            libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
 
       - name: Clone Pico SDK
         run: |
           git clone --depth 1 --branch ${{ env.PICO_SDK_VERSION }} https://github.com/raspberrypi/pico-sdk.git
           cd pico-sdk
-          git submodule update --init
+          git submodule update --init --depth 1
 
       - name: Get version
         id: version
@@ -53,30 +56,41 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "Building FiXPro firmware version: $VERSION"
 
-      - name: Create build directory
-        run: mkdir -p firmware/build
-
       - name: Configure CMake
-        working-directory: firmware/build
+        working-directory: firmware
         env:
           PICO_SDK_PATH: ${{ github.workspace }}/pico-sdk
         run: |
-          cmake -DPICO_SDK_PATH="$PICO_SDK_PATH" -DCMAKE_BUILD_TYPE=Release ..
+          cmake -S . -B build \
+            -DCMAKE_TOOLCHAIN_FILE=$PICO_SDK_PATH/cmake/preload/toolchains/pico_arm_cortex_m0plus_gcc.cmake \
+            -DPICO_SDK_PATH=$PICO_SDK_PATH \
+            -DPICO_BOARD=pico \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=arm-none-eabi-gcc \
+            -DCMAKE_CXX_COMPILER=arm-none-eabi-g++
 
       - name: Build firmware
+        working-directory: firmware
+        run: cmake --build build -j$(nproc)
+
+      - name: Rename output files
         working-directory: firmware/build
-        run: make -j$(nproc)
+        run: |
+          mv FiXPro.elf.bin FiXPro.bin 2>/dev/null || true
+          mv FiXPro.elf.uf2 FiXPro.uf2 2>/dev/null || true
+          mv FiXPro.elf.dis FiXPro.dis 2>/dev/null || true
+          mv FiXPro.elf.map FiXPro.map 2>/dev/null || true
 
       - name: List build outputs
+        working-directory: firmware/build
         run: |
-          ls -la firmware/build/*.uf2
-          ls -la firmware/build/*.bin
-          ls -la firmware/build/*.elf
+          echo "=== Firmware Artifacts ==="
+          ls -lh FiXPro.* 2>/dev/null || ls -lh *.uf2 *.bin *.elf *.hex 2>/dev/null
 
       - name: Upload firmware artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: firmware-${{ steps.version.outputs.VERSION }}
+          name: FiXPro-firmware-${{ steps.version.outputs.VERSION }}
           path: |
             firmware/build/*.uf2
             firmware/build/*.bin
@@ -89,6 +103,8 @@ jobs:
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
       - name: Checkout code
@@ -97,20 +113,15 @@ jobs:
       - name: Download firmware artifacts
         uses: actions/download-artifact@v4
         with:
-          name: firmware-${{ github.ref_name }}
-          path: firmware
+          name: FiXPro-firmware-${{ github.ref_name }}
+          path: release
 
       - name: Prepare release
-        id: release
+        working-directory: release
         run: |
-          VERSION="${{ github.ref_name }}"
-          mkdir -p release
-          cp firmware/*.uf2 release/ 2>/dev/null || true
-          cp firmware/*.bin release/ 2>/dev/null || true
-          cp firmware/*.hex release/ 2>/dev/null || true
-          cp firmware/*.elf release/ 2>/dev/null || true
-          cd release
-          sha256sum *.{uf2,bin,hex,elf} 2>/dev/null > SHA256SUMS.txt || true
+          echo "=== Release Contents ==="
+          ls -lh
+          sha256sum *.{uf2,bin,hex,elf} > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
       - name: Create Release
@@ -122,31 +133,3 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  pages:
-    name: Deploy GitHub Pages
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: 'docs'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4

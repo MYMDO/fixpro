@@ -10,6 +10,7 @@
 #include "../hal/hal.h"
 #include "../safety/safety.h"
 #include <string.h>
+#include <stdio.h>
 
 /*============================================================================
  * PRIVATE VARIABLES
@@ -32,40 +33,40 @@ typedef struct {
  */
 static const chip_entry_t chip_database[] = {
     /* Winbond W25Q series */
-    {{0xEF, 0x40, 0x14}, {"Winbond W25Q80",    1*1024*1024,   256, 4096,   65536, 80000000, false, false}},
-    {{0xEF, 0x40, 0x15}, {"Winbond W25Q16",    2*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
-    {{0xEF, 0x40, 0x16}, {"Winbond W25Q32",    4*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
-    {{0xEF, 0x40, 0x17}, {"Winbond W25Q64",    8*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
-    {{0xEF, 0x40, 0x18}, {"Winbond W25Q128",  16*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
-    {{0xEF, 0x40, 0x19}, {"Winbond W25Q256",  32*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
-    {{0xEF, 0x60, 0x17}, {"Winbond W25Q64DW",  8*1024*1024,   256, 4096,   65536, 80000000, true,  true}},
-    {{0xEF, 0x60, 0x18}, {"Winbond W25Q128DV",16*1024*1024,   256, 4096,   65536, 80000000, true,  true}},
+    {{0xEF, 0x40, 0x14}, {.jedec_id={0xEF,0x40,0x14}, .name="Winbond W25Q80",    .size=1*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=false, .supports_dual=false}},
+    {{0xEF, 0x40, 0x15}, {.jedec_id={0xEF,0x40,0x15}, .name="Winbond W25Q16",    .size=2*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
+    {{0xEF, 0x40, 0x16}, {.jedec_id={0xEF,0x40,0x16}, .name="Winbond W25Q32",    .size=4*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
+    {{0xEF, 0x40, 0x17}, {.jedec_id={0xEF,0x40,0x17}, .name="Winbond W25Q64",    .size=8*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
+    {{0xEF, 0x40, 0x18}, {.jedec_id={0xEF,0x40,0x18}, .name="Winbond W25Q128",   .size=16*1024*1024U, .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
+    {{0xEF, 0x40, 0x19}, {.jedec_id={0xEF,0x40,0x19}, .name="Winbond W25Q256",   .size=32*1024*1024U, .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
+    {{0xEF, 0x60, 0x17}, {.jedec_id={0xEF,0x60,0x17}, .name="Winbond W25Q64DW",  .size=8*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=true}},
+    {{0xEF, 0x60, 0x18}, {.jedec_id={0xEF,0x60,0x18}, .name="Winbond W25Q128DV", .size=16*1024*1024U, .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=true}},
     
     /* Macronix MX25 series */
-    {{0xC2, 0x20, 0x15}, {"Macronix MX25L1606",  2*1024*1024,   256, 4096,   65536, 80000000, false, false}},
-    {{0xC2, 0x20, 0x16}, {"Macronix MX25L3206",  4*1024*1024,   256, 4096,   65536, 80000000, false, false}},
-    {{0xC2, 0x20, 0x17}, {"Macronix MX25L6406",  8*1024*1024,   256, 4096,   65536, 80000000, false, false}},
-    {{0xC2, 0x20, 0x18}, {"Macronix MX25L128,", 16*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
-    {{0xC2, 0x26, 0x19}, {"Macronix MX25L256,", 32*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
+    {{0xC2, 0x20, 0x15}, {.jedec_id={0xC2,0x20,0x15}, .name="Macronix MX25L1606",  .size=2*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=false, .supports_dual=false}},
+    {{0xC2, 0x20, 0x16}, {.jedec_id={0xC2,0x20,0x16}, .name="Macronix MX25L3206",  .size=4*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=false, .supports_dual=false}},
+    {{0xC2, 0x20, 0x17}, {.jedec_id={0xC2,0x20,0x17}, .name="Macronix MX25L6406",  .size=8*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=false, .supports_dual=false}},
+    {{0xC2, 0x20, 0x18}, {.jedec_id={0xC2,0x20,0x18}, .name="Macronix MX25L128",  .size=16*1024*1024U, .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
+    {{0xC2, 0x26, 0x19}, {.jedec_id={0xC2,0x26,0x19}, .name="Macronix MX25L256",  .size=32*1024*1024U, .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
     
     /* Gigadevice GD25Q series */
-    {{0xC8, 0x40, 0x14}, {"Gigadevice GD25Q80",  1*1024*1024,   256, 4096,   65536, 80000000, false, false}},
-    {{0xC8, 0x40, 0x15}, {"Gigadevice GD25Q16",  2*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
-    {{0xC8, 0x40, 0x16}, {"Gigadevice GD25Q32",  4*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
-    {{0xC8, 0x40, 0x17}, {"Gigadevice GD25Q64",  8*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
-    {{0xC8, 0x40, 0x18}, {"Gigadevice GD25Q128",16*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
+    {{0xC8, 0x40, 0x14}, {.jedec_id={0xC8,0x40,0x14}, .name="Gigadevice GD25Q80",  .size=1*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=false, .supports_dual=false}},
+    {{0xC8, 0x40, 0x15}, {.jedec_id={0xC8,0x40,0x15}, .name="Gigadevice GD25Q16",  .size=2*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
+    {{0xC8, 0x40, 0x16}, {.jedec_id={0xC8,0x40,0x16}, .name="Gigadevice GD25Q32",  .size=4*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
+    {{0xC8, 0x40, 0x17}, {.jedec_id={0xC8,0x40,0x17}, .name="Gigadevice GD25Q64",  .size=8*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
+    {{0xC8, 0x40, 0x18}, {.jedec_id={0xC8,0x40,0x18}, .name="Gigadevice GD25Q128", .size=16*1024*1024U, .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
     
     /* Micron N25Q series */
-    {{0x20, 0xBA, 0x16}, {"Micron N25Q32",      4*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
-    {{0x20, 0xBA, 0x17}, {"Micron N25Q64",      8*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
-    {{0x20, 0xBA, 0x18}, {"Micron N25Q128",    16*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
+    {{0x20, 0xBA, 0x16}, {.jedec_id={0x20,0xBA,0x16}, .name="Micron N25Q32",      .size=4*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
+    {{0x20, 0xBA, 0x17}, {.jedec_id={0x20,0xBA,0x17}, .name="Micron N25Q64",      .size=8*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
+    {{0x20, 0xBA, 0x18}, {.jedec_id={0x20,0xBA,0x18}, .name="Micron N25Q128",     .size=16*1024*1024U, .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
     
     /* ISSI IS25LQ series */
-    {{0x9D, 0x40, 0x14}, {"ISSI IS25LQ80",      1*1024*1024,   256, 4096,   65536, 80000000, false, false}},
-    {{0x9D, 0x40, 0x15}, {"ISSI IS25LQ016",     2*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
-    {{0x9D, 0x40, 0x16}, {"ISSI IS25LQ032",     4*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
-    {{0x9D, 0x40, 0x17}, {"ISSI IS25LQ064",     8*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
-    {{0x9D, 0x40, 0x18}, {"ISSI IS25LQ128",    16*1024*1024,   256, 4096,   65536, 80000000, true,  false}},
+    {{0x9D, 0x40, 0x14}, {.jedec_id={0x9D,0x40,0x14}, .name="ISSI IS25LQ80",      .size=1*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=false, .supports_dual=false}},
+    {{0x9D, 0x40, 0x15}, {.jedec_id={0x9D,0x40,0x15}, .name="ISSI IS25LQ016",     .size=2*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
+    {{0x9D, 0x40, 0x16}, {.jedec_id={0x9D,0x40,0x16}, .name="ISSI IS25LQ032",     .size=4*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
+    {{0x9D, 0x40, 0x17}, {.jedec_id={0x9D,0x40,0x17}, .name="ISSI IS25LQ064",     .size=8*1024*1024U,  .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
+    {{0x9D, 0x40, 0x18}, {.jedec_id={0x9D,0x40,0x18}, .name="ISSI IS25LQ128",    .size=16*1024*1024U, .page_size=256, .sector_size=4096, .block_size=65536, .max_freq=80000000, .supports_quad=true,  .supports_dual=false}},
 };
 
 #define CHIP_DATABASE_SIZE (sizeof(chip_database) / sizeof(chip_entry_t))
@@ -519,10 +520,13 @@ bool spi_flash_lookup_jedec(const jedec_id_t *jedec, flash_info_t *info)
 const char* spi_flash_get_chip_name(const jedec_id_t *jedec)
 {
     static char unknown[] = "Unknown";
+    static char result[32];
     flash_info_t info;
     
     if (spi_flash_lookup_jedec(jedec, &info)) {
-        return info.name;
+        strncpy(result, info.name, sizeof(result) - 1);
+        result[sizeof(result) - 1] = '\0';
+        return result;
     }
     
     return unknown;
