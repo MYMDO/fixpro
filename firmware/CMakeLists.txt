@@ -47,10 +47,8 @@ add_executable(${FIRMWARE_NAME}
     ${FIRMWARE_SOURCES}
 )
 
-pico_generate_pio_header(${FIRMWARE_NAME} PIO
-    ${CMAKE_CURRENT_SOURCE_DIR}/pio/spi.pio
-    ${CMAKE_CURRENT_SOURCE_DIR}/pio/i2c.pio
-)
+pico_generate_pio_header(${FIRMWARE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/pio/spi.pio)
+pico_generate_pio_header(${FIRMWARE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/pio/i2c.pio)
 
 target_link_libraries(${FIRMWARE_NAME}
     pico_stdlib
