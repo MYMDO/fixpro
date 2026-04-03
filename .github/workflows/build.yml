@@ -17,12 +17,11 @@ on:
 env:
   FW_VERSION: "1.0.0"
   PICO_SDK_VERSION: "2.0.0"
-  PICO_SDK_PATH: "/github/workspace/pico-sdk"
 
 jobs:
   build:
     name: Build Firmware
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
 
@@ -30,19 +29,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install ARM toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi cmake make libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+
       - name: Clone Pico SDK
         run: |
-          git clone --depth 1 --branch ${{ env.PICO_SDK_VERSION }} \
-            https://github.com/raspberrypi/pico-sdk.git ./pico-sdk
+          git clone --depth 1 --branch ${{ env.PICO_SDK_VERSION }} https://github.com/raspberrypi/pico-sdk.git
           cd pico-sdk
           git submodule update --init
-
-      - name: Build Pico Firmware
-        id: build
-        uses: samyarsadat/Pico-Build-Action@v1
-        with:
-          source_dir: "firmware"
-          cmake_args: "-DCMAKE_BUILD_TYPE=Release -DPICO_SDK_PATH=${{ env.PICO_SDK_PATH }}"
 
       - name: Get version
         id: version
@@ -57,19 +53,35 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "Building FiXPro firmware version: $VERSION"
 
+      - name: Create build directory
+        run: mkdir -p firmware/build
+
+      - name: Configure CMake
+        working-directory: firmware/build
+        env:
+          PICO_SDK_PATH: ${{ github.workspace }}/pico-sdk
+        run: |
+          cmake -DPICO_SDK_PATH="$PICO_SDK_PATH" -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Build firmware
+        working-directory: firmware/build
+        run: make -j$(nproc)
+
       - name: List build outputs
         run: |
-          ls -la ${{ steps.build.outputs.output_dir }}/
+          ls -la firmware/build/*.uf2
+          ls -la firmware/build/*.bin
+          ls -la firmware/build/*.elf
 
       - name: Upload firmware artifacts
         uses: actions/upload-artifact@v4
         with:
           name: firmware-${{ steps.version.outputs.VERSION }}
           path: |
-            ${{ steps.build.outputs.output_dir }}/*.uf2
-            ${{ steps.build.outputs.output_dir }}/*.bin
-            ${{ steps.build.outputs.output_dir }}/*.hex
-            ${{ steps.build.outputs.output_dir }}/*.elf
+            firmware/build/*.uf2
+            firmware/build/*.bin
+            firmware/build/*.hex
+            firmware/build/*.elf
           retention-days: 30
 
   release:
