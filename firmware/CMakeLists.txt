@@ -89,5 +89,3 @@ add_custom_command(TARGET ${FIRMWARE_NAME} POST_BUILD
     COMMAND ${CMAKE_OBJCOPY} -O ihex ${FIRMWARE_NAME}.elf ${FIRMWARE_NAME}.hex
     COMMAND echo "Firmware built: ${CMAKE_CURRENT_BINARY_DIR}/${FIRMWARE_NAME}.uf2"
 )
-
-print_target_config(${FIRMWARE_NAME})
