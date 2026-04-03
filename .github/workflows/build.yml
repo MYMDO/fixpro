@@ -21,7 +21,7 @@ env:
 jobs:
   build:
     name: Build Firmware (RP2040)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     permissions:
       contents: read
 
@@ -35,7 +35,8 @@ jobs:
           sudo apt-get install -y \
             gcc-arm-none-eabi binutils-arm-none-eabi \
             cmake make g++ ninja-build \
-            libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+            libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib \
+            libusb-1.0-0-dev
 
       - name: Clone Pico SDK
         run: |
@@ -60,32 +61,25 @@ jobs:
         working-directory: firmware
         env:
           PICO_SDK_PATH: ${{ github.workspace }}/pico-sdk
+          CC: arm-none-eabi-gcc
+          CXX: arm-none-eabi-g++
         run: |
           cmake -S . -B build \
             -DCMAKE_TOOLCHAIN_FILE=$PICO_SDK_PATH/cmake/preload/toolchains/pico_arm_cortex_m0plus_gcc.cmake \
             -DPICO_SDK_PATH=$PICO_SDK_PATH \
             -DPICO_BOARD=pico \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_C_COMPILER=arm-none-eabi-gcc \
-            -DCMAKE_CXX_COMPILER=arm-none-eabi-g++
+            -DCMAKE_BUILD_TYPE=Release
 
       - name: Build firmware
         working-directory: firmware
         run: cmake --build build -j$(nproc)
 
-      - name: Rename output files
-        working-directory: firmware/build
-        run: |
-          mv FiXPro.elf.bin FiXPro.bin 2>/dev/null || true
-          mv FiXPro.elf.uf2 FiXPro.uf2 2>/dev/null || true
-          mv FiXPro.elf.dis FiXPro.dis 2>/dev/null || true
-          mv FiXPro.elf.map FiXPro.map 2>/dev/null || true
-
       - name: List build outputs
         working-directory: firmware/build
         run: |
           echo "=== Firmware Artifacts ==="
-          ls -lh FiXPro.* 2>/dev/null || ls -lh *.uf2 *.bin *.elf *.hex 2>/dev/null
+          ls -lh FiXPro.* 2>/dev/null || ls -lh *.uf2 *.bin *.elf *.hex 2>/dev/null || echo "Checking files..."
+          ls -la *.uf2 *.bin *.elf *.hex 2>/dev/null || true
 
       - name: Upload firmware artifacts
         uses: actions/upload-artifact@v4
