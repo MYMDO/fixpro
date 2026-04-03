@@ -12,7 +12,7 @@ if (NOT PICO_SDK_PATH)
 endif()
 
 message(STATUS "Pico SDK path: ${PICO_SDK_PATH}")
-include(${PICO_SDK_PATH}/cmake/pico_sdk_import.cmake)
+include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
 pico_sdk_init()
 
