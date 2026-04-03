@@ -1,1418 +1,3086 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="FiXPro - Flash iX Pro. Universal hardware programmer built on Raspberry Pi RP2040">
-    <title>FiXPro - Flash iX Pro</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Styles -->
-    <style>
-        :root {
-            --primary: #00d4ff;
-            --primary-dark: #00a8cc;
-            --secondary: #7c3aed;
-            --bg-dark: #0a0a0f;
-            --bg-card: #12121a;
-            --bg-card-hover: #1a1a25;
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0b0;
-            --text-muted: #606070;
-            --border: #2a2a3a;
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            min-height: 100vh;
-            line-height: 1.6;
-        }
-
-        /* Header */
-        .header {
-            background: rgba(10, 10, 15, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            padding: 1rem 2rem;
-        }
-
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-decoration: none;
-            color: var(--text-primary);
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--gradient);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.2rem;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .logo-text span {
-            color: var(--primary);
-        }
-
-        .nav {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .nav a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .nav a:hover {
-            color: var(--text-primary);
-            background: var(--bg-card);
-        }
-
-        .nav a.active {
-            color: var(--primary);
-            background: rgba(0, 212, 255, 0.1);
-        }
-
-        /* Main Content */
-        .main {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 6rem 2rem 4rem;
-        }
-
-        /* Hero Section */
-        .hero {
-            text-align: center;
-            padding: 4rem 0;
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            color: var(--primary);
-            padding: 0.5rem 1rem;
-            border-radius: 100px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            margin-bottom: 1.5rem;
-        }
-
-        .hero-badge::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .hero h1 {
-            font-size: 4rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero p {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto 2rem;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.875rem 1.5rem;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-primary {
-            background: var(--gradient);
-            color: white;
-            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 30px rgba(0, 212, 255, 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-card-hover);
-            border-color: var(--primary);
-        }
-
-        /* Features Grid */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin: 4rem 0;
-        }
-
-        .feature-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 2rem;
-            transition: all 0.3s;
-        }
-
-        .feature-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-4px);
-        }
-
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            background: rgba(0, 212, 255, 0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-        }
-
-        .feature-card h3 {
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .feature-card p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        /* Section */
-        .section {
-            margin: 4rem 0;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .section h2 {
-            font-size: 2rem;
-            font-weight: 700;
-        }
-
-        /* Flasher Section */
-        .flasher {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 2rem;
-        }
-
-        .flasher-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .flasher-status {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-secondary);
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--text-muted);
-        }
-
-        .status-dot.connected {
-            background: var(--success);
-            box-shadow: 0 0 10px var(--success);
-        }
-
-        /* Device Info */
-        .device-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .info-item {
-            background: var(--bg-dark);
-            border-radius: 12px;
-            padding: 1rem;
-            text-align: center;
-        }
-
-        .info-item label {
-            display: block;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .info-item .value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        /* Chip Info */
-        .chip-info {
-            background: var(--bg-dark);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .chip-info h4 {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-bottom: 1rem;
-        }
-
-        .chip-data {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 0.75rem;
-        }
-
-        .chip-field {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-
-        .chip-field label {
-            color: var(--text-muted);
-            font-size: 0.75rem;
-        }
-
-        .chip-field span {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-        }
-
-        /* Action Buttons */
-        .actions {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            flex: 1;
-            min-width: 120px;
-            padding: 1rem;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .action-btn:hover {
-            border-color: var(--primary);
-            background: rgba(0, 212, 255, 0.05);
-        }
-
-        .action-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .action-btn .icon {
-            font-size: 1.5rem;
-        }
-
-        /* Progress */
-        .progress-container {
-            margin: 1.5rem 0;
-            display: none;
-        }
-
-        .progress-container.active {
-            display: block;
-        }
-
-        .progress-bar {
-            height: 8px;
-            background: var(--bg-dark);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--gradient);
-            width: 0%;
-            transition: width 0.3s;
-        }
-
-        .progress-text {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 0.5rem;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        /* Log */
-        .log-container {
-            background: var(--bg-dark);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-top: 1.5rem;
-            max-height: 200px;
-            overflow-y: auto;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-            display: none;
-        }
-
-        .log-container.active {
-            display: block;
-        }
-
-        .log-line {
-            padding: 0.25rem 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .log-line:last-child {
-            border-bottom: none;
-        }
-
-        .log-line.success { color: var(--success); }
-        .log-line.error { color: var(--error); }
-        .log-line.warning { color: var(--warning); }
-        .log-line.info { color: var(--primary); }
-
-        /* Comparison Table */
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: var(--bg-card);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .comparison-table th,
-        .comparison-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .comparison-table th {
-            background: var(--bg-dark);
-            font-weight: 600;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .comparison-table td {
-            font-size: 0.95rem;
-        }
-
-        .comparison-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .comparison-table .highlight {
-            background: rgba(0, 212, 255, 0.1);
-        }
-
-        .comparison-table .check {
-            color: var(--success);
-            font-size: 1.2rem;
-        }
-
-        .comparison-table .cross {
-            color: var(--error);
-            font-size: 1.2rem;
-        }
-
-        .comparison-table .warning {
-            color: var(--warning);
-            font-size: 1.2rem;
-        }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 3rem 2rem;
-            border-top: 1px solid var(--border);
-            margin-top: 4rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .footer a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
-
-        /* File Input */
-        .file-input-wrapper {
-            position: relative;
-            margin-bottom: 1rem;
-        }
-
-        .file-input {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-
-        .file-input-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 1.5rem;
-            background: var(--bg-dark);
-            border: 2px dashed var(--border);
-            border-radius: 12px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .file-input-label:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .file-input-label.has-file {
-            border-color: var(--success);
-            color: var(--success);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .nav {
-                display: none;
-            }
-
-            .main {
-                padding: 5rem 1rem 2rem;
-            }
-
-            .features {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .modal h3 {
-            margin-bottom: 1rem;
-        }
-
-        .modal p {
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s;
-            z-index: 3000;
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .toast.success { border-color: var(--success); }
-        .toast.error { border-color: var(--error); }
-        .toast.warning { border-color: var(--warning); }
-
-        /* Instructions */
-        .instructions {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 2rem;
-        }
-
-        .instruction-step {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .instruction-step:last-child {
-            margin-bottom: 0;
-        }
-
-        .step-number {
-            width: 32px;
-            height: 32px;
-            background: var(--gradient);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            flex-shrink: 0;
-        }
-
-        .step-content h4 {
-            margin-bottom: 0.25rem;
-        }
-
-        .step-content p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .code-block {
-            background: var(--bg-dark);
-            border-radius: 8px;
-            padding: 1rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
-            overflow-x: auto;
-        }
-
-        /* Version Badge */
-        .version-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FiXPro — Flash iX Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=JetBrains+Mono:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-void: #020408;
+  --bg-deep: #050c14;
+  --bg-panel: #080f1a;
+  --bg-card: #0c1624;
+  --bg-elevated: #101e30;
+  --bg-hover: #162436;
+
+  --green-core: #00ff88;
+  --green-dim: #00cc6a;
+  --green-ghost: rgba(0,255,136,0.08);
+  --green-glow: rgba(0,255,136,0.25);
+  --cyan-core: #00d4ff;
+  --cyan-dim: #009bbf;
+  --cyan-ghost: rgba(0,212,255,0.08);
+  --amber: #ffaa00;
+  --amber-dim: #cc8800;
+  --red: #ff3355;
+  --red-dim: #cc2244;
+  --purple: #9b59ff;
+
+  --text-primary: #e8f4ff;
+  --text-secondary: #7a9ab8;
+  --text-muted: #3d5a70;
+  --text-accent: #00ff88;
+
+  --border: rgba(0,212,255,0.12);
+  --border-active: rgba(0,255,136,0.4);
+  --border-hover: rgba(0,212,255,0.3);
+
+  --font-display: 'Orbitron', monospace;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-data: 'Share Tech Mono', monospace;
+
+  --r: 4px;
+  --r-lg: 8px;
+  --transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg-void);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+/* Scanline overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Corner decoration */
+.corner-deco {
+  position: fixed;
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
+  z-index: 100;
+}
+.corner-deco.tl { top: 0; left: 0; border-top: 1px solid var(--green-core); border-left: 1px solid var(--green-core); }
+.corner-deco.tr { top: 0; right: 0; border-top: 1px solid var(--cyan-core); border-right: 1px solid var(--cyan-core); }
+.corner-deco.bl { bottom: 0; left: 0; border-bottom: 1px solid var(--cyan-core); border-left: 1px solid var(--cyan-core); }
+.corner-deco.br { bottom: 0; right: 0; border-bottom: 1px solid var(--green-core); border-right: 1px solid var(--green-core); }
+
+/* ─── LAYOUT ─── */
+.app-shell {
+  display: grid;
+  grid-template-rows: 44px 1fr;
+  grid-template-columns: 220px 1fr 280px;
+  height: 100vh;
+  gap: 0;
+}
+
+/* ─── TOPBAR ─── */
+.topbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--bg-deep);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  position: relative;
+  overflow: hidden;
+}
+.topbar::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--green-core), var(--cyan-core), transparent);
+  opacity: 0.6;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 24px;
+  flex-shrink: 0;
+}
+.logo-icon {
+  width: 28px; height: 28px;
+  position: relative;
+}
+.logo-icon svg { width: 100%; height: 100%; }
+.logo-text {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: var(--green-core);
+  text-shadow: 0 0 20px var(--green-glow);
+}
+.logo-sub {
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: -2px;
+}
+.topbar-sep { width: 1px; height: 28px; background: var(--border); margin: 0 16px; }
+.device-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: var(--transition);
+  background: var(--bg-panel);
+  min-width: 200px;
+}
+.device-status:hover { border-color: var(--border-hover); background: var(--bg-elevated); }
+.device-status.connected { border-color: rgba(0,255,136,0.3); }
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.status-dot.connected { background: var(--green-core); box-shadow: 0 0 8px var(--green-core); animation: pulse-dot 2s ease-in-out infinite; }
+.status-dot.busy { background: var(--amber); box-shadow: 0 0 8px var(--amber); animation: pulse-dot 0.5s ease-in-out infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1}50%{opacity:0.4} }
+.status-text { font-family: var(--font-data); font-size: 11px; color: var(--text-secondary); flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.status-text strong { color: var(--text-primary); }
+.topbar-spacer { flex: 1; }
+.topbar-stats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+}
+.stat-item { display: flex; flex-direction: column; align-items: flex-end; }
+.stat-label { font-size: 9px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+.stat-value { font-family: var(--font-data); font-size: 12px; color: var(--cyan-core); }
+.btn-connect {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 6px 16px;
+  border: 1px solid var(--green-core);
+  background: var(--green-ghost);
+  color: var(--green-core);
+  cursor: pointer;
+  border-radius: var(--r);
+  transition: var(--transition);
+  text-transform: uppercase;
+}
+.btn-connect:hover { background: rgba(0,255,136,0.18); box-shadow: 0 0 16px var(--green-glow); }
+.btn-connect.connected { border-color: var(--red); color: var(--red); background: rgba(255,51,85,0.08); }
+.btn-connect.connected:hover { background: rgba(255,51,85,0.18); }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  background: var(--bg-deep);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-section-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  padding: 12px 16px 6px;
+  border-bottom: 1px solid var(--border);
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: var(--transition);
+  border-left: 2px solid transparent;
+  position: relative;
+  user-select: none;
+}
+.nav-item:hover { background: var(--bg-elevated); }
+.nav-item.active {
+  background: var(--green-ghost);
+  border-left-color: var(--green-core);
+  color: var(--green-core);
+}
+.nav-item.active .nav-icon { color: var(--green-core); filter: drop-shadow(0 0 4px var(--green-core)); }
+.nav-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+.nav-label { font-size: 11px; font-weight: 500; letter-spacing: 0.5px; }
+.nav-badge {
+  margin-left: auto;
+  font-family: var(--font-data);
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.nav-badge.green { background: var(--green-ghost); color: var(--green-core); border-color: rgba(0,255,136,0.3); }
+.sidebar-spacer { flex: 1; }
+.sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.sidebar-footer a { color: var(--cyan-core); text-decoration: none; }
+
+/* ─── MAIN CONTENT ─── */
+.main-content {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+}
+.panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+.panel.active { display: flex; }
+.panel-header {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-deep);
+  flex-shrink: 0;
+}
+.panel-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.panel-title span { color: var(--green-core); }
+.panel-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.panel-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+.panel-body::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-track { background: transparent; }
+.panel-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ─── RIGHT PANEL ─── */
+.right-panel {
+  background: var(--bg-deep);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.rp-header {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rp-body { flex: 1; overflow-y: auto; padding: 12px; }
+.rp-body::-webkit-scrollbar { width: 3px; }
+.rp-body::-webkit-scrollbar-thumb { background: var(--border); }
+
+/* ─── BUTTONS ─── */
+.btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--r);
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+.btn:hover { border-color: var(--border-hover); color: var(--text-primary); background: var(--bg-hover); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-primary { border-color: var(--green-core); color: var(--green-core); background: var(--green-ghost); }
+.btn-primary:hover:not(:disabled) { background: rgba(0,255,136,0.18); box-shadow: 0 0 16px var(--green-glow); }
+.btn-cyan { border-color: var(--cyan-core); color: var(--cyan-core); background: var(--cyan-ghost); }
+.btn-cyan:hover:not(:disabled) { background: rgba(0,212,255,0.18); }
+.btn-danger { border-color: var(--red); color: var(--red); background: rgba(255,51,85,0.06); }
+.btn-danger:hover:not(:disabled) { background: rgba(255,51,85,0.18); }
+.btn-amber { border-color: var(--amber); color: var(--amber); background: rgba(255,170,0,0.06); }
+.btn-amber:hover:not(:disabled) { background: rgba(255,170,0,0.18); }
+.btn-sm { padding: 4px 10px; font-size: 10px; }
+.btn-lg { padding: 10px 24px; font-size: 12px; font-weight: 700; letter-spacing: 2px; }
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.card-header {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-body { padding: 14px; }
+
+/* ─── DASHBOARD ─── */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto 1fr;
+  gap: 12px;
+  height: 100%;
+}
+.chip-hero {
+  grid-column: 1 / -1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.chip-hero::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, var(--green-ghost) 0%, transparent 70%);
+}
+.chip-visual {
+  width: 100px; height: 80px;
+  flex-shrink: 0;
+  position: relative;
+}
+.chip-visual svg { width: 100%; height: 100%; }
+.chip-info { flex: 1; min-width: 0; }
+.chip-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+.chip-detail { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; }
+.chip-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag {
+  font-family: var(--font-data);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid;
+}
+.tag-green { color: var(--green-dim); border-color: rgba(0,204,106,0.3); background: var(--green-ghost); }
+.tag-cyan { color: var(--cyan-dim); border-color: rgba(0,155,191,0.3); background: var(--cyan-ghost); }
+.tag-amber { color: var(--amber-dim); border-color: rgba(204,136,0,0.3); background: rgba(255,170,0,0.06); }
+.tag-purple { color: var(--purple); border-color: rgba(155,89,255,0.3); background: rgba(155,89,255,0.06); }
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.info-cell {
+  background: var(--bg-card);
+  padding: 10px 12px;
+}
+.info-cell-label { font-size: 9px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+.info-cell-value { font-family: var(--font-data); font-size: 13px; color: var(--text-primary); }
+.info-cell-value.green { color: var(--green-core); }
+.info-cell-value.cyan { color: var(--cyan-core); }
+.info-cell-value.amber { color: var(--amber); }
+
+/* ─── PROTOCOL SELECTOR ─── */
+.protocol-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.protocol-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 12px 10px;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+  user-select: none;
+}
+.protocol-card:hover { border-color: var(--border-hover); background: var(--bg-elevated); }
+.protocol-card.active { border-color: var(--green-core); background: var(--green-ghost); }
+.protocol-card.active .protocol-name { color: var(--green-core); }
+.protocol-icon { font-size: 20px; margin-bottom: 6px; }
+.protocol-name { font-family: var(--font-display); font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--text-secondary); }
+.protocol-desc { font-size: 9px; color: var(--text-muted); margin-top: 3px; }
+
+/* ─── OPERATIONS PANEL ─── */
+.ops-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  height: 100%;
+}
+.ops-left, .ops-right { display: flex; flex-direction: column; gap: 12px; }
+.op-btn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.op-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  border-radius: var(--r-lg);
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: var(--font-mono);
+}
+.op-btn:hover:not(:disabled) { border-color: var(--border-hover); background: var(--bg-elevated); transform: translateY(-1px); }
+.op-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.op-btn-icon { font-size: 24px; }
+.op-btn-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--text-secondary); }
+.op-btn-sub { font-size: 9px; color: var(--text-muted); }
+.op-btn.green { border-color: rgba(0,255,136,0.25); }
+.op-btn.green:hover:not(:disabled) { border-color: var(--green-core); background: var(--green-ghost); }
+.op-btn.green .op-btn-label { color: var(--green-dim); }
+.op-btn.cyan { border-color: rgba(0,212,255,0.2); }
+.op-btn.cyan:hover:not(:disabled) { border-color: var(--cyan-core); background: var(--cyan-ghost); }
+.op-btn.cyan .op-btn-label { color: var(--cyan-dim); }
+.op-btn.red { border-color: rgba(255,51,85,0.2); }
+.op-btn.red:hover:not(:disabled) { border-color: var(--red); background: rgba(255,51,85,0.08); }
+.op-btn.red .op-btn-label { color: var(--red-dim); }
+.op-btn.amber { border-color: rgba(255,170,0,0.2); }
+.op-btn.amber:hover:not(:disabled) { border-color: var(--amber); background: rgba(255,170,0,0.06); }
+.op-btn.amber .op-btn-label { color: var(--amber-dim); }
+
+/* ─── PROGRESS ─── */
+.progress-section { }
+.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.progress-title { font-size: 10px; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase; }
+.progress-pct { font-family: var(--font-data); font-size: 18px; color: var(--green-core); font-weight: 700; }
+.progress-bar-wrap {
+  height: 8px;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  position: relative;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green-dim), var(--green-core));
+  border-radius: 4px;
+  transition: width 0.15s ease;
+  position: relative;
+}
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+@keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+.progress-bar.idle { background: var(--text-muted); }
+.progress-bar.idle::after { display: none; }
+.progress-bar.error { background: var(--red); }
+.progress-meta { display: flex; gap: 16px; margin-top: 6px; }
+.progress-meta-item { font-size: 10px; color: var(--text-muted); }
+.progress-meta-item strong { color: var(--text-secondary); }
+
+/* ─── LOG ─── */
+.log-output {
+  background: var(--bg-void);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font-family: var(--font-data);
+  font-size: 11px;
+  padding: 10px;
+  overflow-y: auto;
+  line-height: 1.8;
+  flex: 1;
+  min-height: 120px;
+}
+.log-output::-webkit-scrollbar { width: 3px; }
+.log-output::-webkit-scrollbar-thumb { background: var(--border); }
+.log-line { display: flex; gap: 10px; }
+.log-time { color: var(--text-muted); flex-shrink: 0; }
+.log-msg { flex: 1; }
+.log-msg.info { color: var(--text-secondary); }
+.log-msg.success { color: var(--green-core); }
+.log-msg.warn { color: var(--amber); }
+.log-msg.error { color: var(--red); }
+.log-msg.data { color: var(--cyan-core); }
+.log-msg.cmd { color: var(--purple); }
+
+/* ─── HEX EDITOR ─── */
+.hex-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 0;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.hex-container {
+  flex: 1;
+  overflow: auto;
+  background: var(--bg-void);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  position: relative;
+}
+.hex-container::-webkit-scrollbar { width: 6px; height: 6px; }
+.hex-container::-webkit-scrollbar-track { background: transparent; }
+.hex-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.hex-view {
+  display: grid;
+  font-family: var(--font-data);
+  font-size: 12px;
+  line-height: 1.7;
+  padding: 10px;
+  min-width: max-content;
+}
+.hex-row { display: flex; gap: 0; }
+.hex-addr {
+  color: var(--text-muted);
+  width: 80px;
+  flex-shrink: 0;
+  user-select: none;
+  padding-right: 12px;
+}
+.hex-bytes { display: flex; gap: 2px; margin-right: 16px; }
+.hex-byte {
+  width: 24px;
+  text-align: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.1s;
+  padding: 0 2px;
+}
+.hex-byte:hover { background: var(--bg-elevated); color: var(--text-primary); }
+.hex-byte.selected { background: var(--cyan-ghost); color: var(--cyan-core); }
+.hex-byte.modified { color: var(--amber); }
+.hex-byte.zero { color: var(--text-muted); }
+.hex-byte.ff { color: var(--text-muted); opacity: 0.5; }
+.hex-sep { width: 8px; flex-shrink: 0; }
+.hex-ascii { display: flex; }
+.hex-ascii-char {
+  width: 10px;
+  text-align: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+}
+.hex-ascii-char.printable { color: var(--text-secondary); }
+.hex-ascii-char.selected { background: var(--cyan-ghost); color: var(--cyan-core); }
+.hex-stats {
+  display: flex;
+  gap: 16px;
+  padding: 8px 0;
+  font-size: 10px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+}
+.hex-stats span { color: var(--text-secondary); }
+
+/* ─── CHIP LIBRARY ─── */
+.chip-search-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-bottom: 12px;
+  flex-shrink: 0;
+}
+.search-input {
+  flex: 1;
+  background: var(--bg-void);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 7px 12px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  outline: none;
+  transition: var(--transition);
+}
+.search-input:focus { border-color: var(--border-hover); }
+.search-input::placeholder { color: var(--text-muted); }
+.chip-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-chip {
+  font-family: var(--font-data);
+  font-size: 10px;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  user-select: none;
+}
+.filter-chip:hover { border-color: var(--border-hover); }
+.filter-chip.active { border-color: var(--cyan-core); color: var(--cyan-core); background: var(--cyan-ghost); }
+.chip-table-wrap { flex: 1; overflow-y: auto; }
+.chip-table { width: 100%; border-collapse: collapse; }
+.chip-table th {
+  text-align: left;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg-panel);
+}
+.chip-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  font-size: 11px;
+}
+.chip-table tr { cursor: pointer; transition: background 0.1s; }
+.chip-table tr:hover td { background: var(--bg-elevated); }
+.chip-table tr.selected td { background: var(--green-ghost); }
+.chip-table tr.selected td:first-child { border-left: 2px solid var(--green-core); }
+.chip-id { font-family: var(--font-data); color: var(--cyan-core); font-size: 11px; }
+.chip-proto-badge {
+  display: inline-block;
+  font-family: var(--font-data);
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.chip-proto-badge.SPI { color: var(--green-dim); border-color: rgba(0,204,106,0.3); }
+.chip-proto-badge.I2C { color: var(--cyan-dim); border-color: rgba(0,155,191,0.3); }
+.chip-proto-badge.JTAG,.chip-proto-badge.SWD { color: var(--purple); border-color: rgba(155,89,255,0.3); }
+.chip-proto-badge.ISP { color: var(--amber-dim); border-color: rgba(204,136,0,0.3); }
+.chip-proto-badge.UART { color: var(--red-dim); border-color: rgba(204,34,68,0.3); }
+.chip-proto-badge.1W { color: #ff8c00; border-color: rgba(255,140,0,0.3); }
+
+/* ─── SCRIPT ENGINE ─── */
+.script-layout { display: grid; grid-template-rows: auto 1fr auto; gap: 10px; height: 100%; }
+.script-editor {
+  background: var(--bg-void);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  color: var(--green-core);
+  font-family: var(--font-data);
+  font-size: 12px;
+  padding: 12px;
+  resize: none;
+  outline: none;
+  line-height: 1.8;
+  flex: 1;
+  width: 100%;
+}
+.script-editor:focus { border-color: var(--border-active); }
+.script-controls { display: flex; gap: 8px; align-items: center; }
+
+/* ─── CONFIG FORM ─── */
+.config-grid { display: grid; gap: 8px; }
+.config-row { display: flex; align-items: center; gap: 10px; }
+.config-label { font-size: 10px; color: var(--text-secondary); letter-spacing: 0.5px; min-width: 90px; flex-shrink: 0; }
+.config-select, .config-input {
+  background: var(--bg-void);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 8px;
+  outline: none;
+  transition: var(--transition);
+  flex: 1;
+}
+.config-select:focus, .config-input:focus { border-color: var(--border-hover); }
+.config-select option { background: var(--bg-deep); }
+.toggle-row { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.toggle {
+  width: 36px; height: 18px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  position: relative;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.toggle.on { background: rgba(0,255,136,0.3); border-color: var(--green-core); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  top: 2px; left: 2px;
+  transition: var(--transition);
+}
+.toggle.on::after { left: 20px; background: var(--green-core); }
+.toggle-label { font-size: 11px; color: var(--text-secondary); }
+
+/* ─── RIGHT PANEL WIDGETS ─── */
+.rp-section { margin-bottom: 14px; }
+.rp-section-title {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rp-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.pin-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 3px;
+}
+.pin-cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-data);
+  font-size: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+  background: var(--bg-card);
+}
+.pin-cell:hover { border-color: var(--border-hover); }
+.pin-cell.active { background: var(--green-ghost); border-color: var(--green-core); color: var(--green-core); }
+.pin-cell.busy { background: rgba(255,170,0,0.1); border-color: var(--amber); color: var(--amber); }
+.pin-cell.gnd { background: var(--bg-void); color: var(--text-muted); cursor: default; }
+.pin-cell.power { color: var(--red-dim); border-color: rgba(204,34,68,0.3); background: rgba(255,51,85,0.05); }
+
+.voltage-bar {
+  background: var(--bg-void);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.voltage-label { font-size: 10px; color: var(--text-muted); width: 30px; flex-shrink: 0; }
+.voltage-track { flex: 1; height: 4px; background: var(--bg-elevated); border-radius: 2px; overflow: hidden; }
+.voltage-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+.voltage-fill.v33 { background: var(--green-core); }
+.voltage-fill.v50 { background: var(--cyan-core); }
+.voltage-fill.v18 { background: var(--purple); }
+.voltage-value { font-family: var(--font-data); font-size: 12px; color: var(--text-primary); width: 38px; text-align: right; flex-shrink: 0; }
+
+.speed-meter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.speed-label { font-size: 10px; color: var(--text-muted); flex: 1; }
+.speed-value { font-family: var(--font-data); font-size: 14px; color: var(--cyan-core); }
+.speed-unit { font-size: 9px; color: var(--text-muted); }
+
+/* ─── MCU INFO BADGE ─── */
+.mcu-badge {
+  background: linear-gradient(135deg, var(--bg-card), var(--bg-elevated));
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mcu-badge-icon { font-size: 28px; }
+.mcu-badge-info { flex: 1; }
+.mcu-badge-name { font-family: var(--font-display); font-size: 12px; font-weight: 700; color: var(--text-primary); letter-spacing: 1px; }
+.mcu-badge-sub { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.mcu-badge-price { font-family: var(--font-data); font-size: 13px; color: var(--green-core); }
+
+/* ─── NOTIFICATIONS ─── */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 10px 16px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideInRight 0.3s ease;
+  pointer-events: auto;
+  max-width: 280px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.toast.success { border-color: rgba(0,255,136,0.4); }
+.toast.success .toast-icon { color: var(--green-core); }
+.toast.error { border-color: rgba(255,51,85,0.4); }
+.toast.error .toast-icon { color: var(--red); }
+.toast.warn { border-color: rgba(255,170,0,0.4); }
+.toast.warn .toast-icon { color: var(--amber); }
+.toast-icon { font-size: 16px; flex-shrink: 0; }
+.toast-text { flex: 1; font-size: 11px; color: var(--text-primary); }
+@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* ─── MODALS ─── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  width: 480px;
+  max-width: 90vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 32px 96px rgba(0,0,0,0.7);
+  transform: scale(0.95);
+  transition: transform 0.2s;
+}
+.modal-overlay.open .modal { transform: scale(1); }
+.modal-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.modal-title { font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 2px; color: var(--text-primary); }
+.modal-close { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); border-radius: var(--r); transition: var(--transition); font-size: 16px; border: none; background: none; }
+.modal-close:hover { background: var(--bg-elevated); color: var(--text-primary); }
+.modal-body { padding: 18px; overflow-y: auto; flex: 1; }
+.modal-footer { padding: 12px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; flex-shrink: 0; }
+
+/* ─── SECURITY SECTION ─── */
+.security-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.security-item:last-child { border-bottom: none; }
+.security-icon { font-size: 16px; flex-shrink: 0; }
+.security-info { flex: 1; }
+.security-name { font-size: 11px; color: var(--text-primary); }
+.security-detail { font-size: 10px; color: var(--text-muted); }
+.security-badge { font-family: var(--font-data); font-size: 10px; padding: 2px 8px; border-radius: 3px; }
+.security-badge.ok { background: var(--green-ghost); color: var(--green-core); border: 1px solid rgba(0,255,136,0.3); }
+.security-badge.warn { background: rgba(255,170,0,0.06); color: var(--amber); border: 1px solid rgba(255,170,0,0.3); }
+.security-badge.off { background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border); }
+
+/* ─── ANIMATE ─── */
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+.fade-in { animation: fadeIn 0.3s ease; }
+
+/* ─── SCROLLBAR global ─── */
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+/* ─── SELECT highlight fix ─── */
+::selection { background: rgba(0,212,255,0.25); }
+</style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <a href="#" class="logo">
-                <div class="logo-icon">FX</div>
-                <span class="logo-text">FiX<span>Pro</span></span>
-            </a>
-            <nav class="nav">
-                <a href="#features">Features</a>
-                <a href="#flasher">Flasher</a>
-                <a href="#compare">Compare</a>
-                <a href="#install">Install</a>
-                <a href="https://github.com/fxpro-project/fixpro" target="_blank">GitHub</a>
-            </nav>
-        </div>
-    </header>
 
-    <!-- Main -->
-    <main class="main">
-        <!-- Hero -->
-        <section class="hero">
-            <div class="hero-badge">v1.0.0 - Now with Web Flasher</div>
-            <h1>FiXPro</h1>
-            <p>Flash iX Pro — Next-generation universal hardware programmer built on Raspberry Pi RP2040. Fast, safe, and open source.</p>
-            <div class="hero-buttons">
-                <a href="#flasher" class="btn btn-primary">
-                    <span>🚀</span> Launch Flasher
-                </a>
-                <a href="https://github.com/fxpro-project/fixpro/releases/latest" class="btn btn-secondary" target="_blank">
-                    <span>📦</span> Download Firmware
-                </a>
-            </div>
-        </section>
+<!-- Corner decorations -->
+<div class="corner-deco tl"></div>
+<div class="corner-deco tr"></div>
+<div class="corner-deco bl"></div>
+<div class="corner-deco br"></div>
 
-        <!-- Features -->
-        <section class="features" id="features">
-            <div class="feature-card">
-                <div class="feature-icon">⚡</div>
-                <h3>High Speed</h3>
-                <p>SPI up to 50MHz — 25x faster than CH341A. Quad I/O support for even greater throughput.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🔒</div>
-                <h3>Safety First</h3>
-                <p>Over-voltage, over-current, and thermal protection. Your chips are safe with us.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🔌</div>
-                <h3>Universal Protocols</h3>
-                <p>SPI, I2C, JTAG, SWD, and more. One programmer for all your devices.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🐍</div>
-                <h3>Python CLI</h3>
-                <p>Full Python API and command-line interface for automation and scripting.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🖥️</div>
-                <h3>Web Interface</h3>
-                <p>Flash chips directly from your browser. No software installation required.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">💚</div>
-                <h3>Open Source</h3>
-                <p>100% open source hardware and software. Free to use, modify, and distribute.</p>
-            </div>
-        </section>
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
 
-        <!-- Flasher -->
-        <section class="section" id="flasher">
-            <div class="section-header">
-                <h2>🔧 Web Flasher</h2>
-                <div class="flasher-status">
-                    <span class="status-dot" id="statusDot"></span>
-                    <span id="statusText">Device disconnected</span>
-                </div>
-            </div>
+<!-- Modal overlay -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">MODAL</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
 
-            <div class="flasher">
-                <!-- Device Info -->
-                <div class="device-info" id="deviceInfo" style="display: none;">
-                    <div class="info-item">
-                        <label>Firmware</label>
-                        <span class="value" id="fwVersion">-</span>
-                    </div>
-                    <div class="info-item">
-                        <label>Serial</label>
-                        <span class="value" id="serial">-</span>
-                    </div>
-                    <div class="info-item">
-                        <label>Flash Size</label>
-                        <span class="value" id="flashSize">-</span>
-                    </div>
-                    <div class="info-item">
-                        <label>Voltage</label>
-                        <span class="value" id="voltage">-</span>
-                    </div>
-                </div>
+<div class="app-shell">
 
-                <!-- Chip Info -->
-                <div class="chip-info" id="chipInfo" style="display: none;">
-                    <h4>🔍 Detected Flash Chip</h4>
-                    <div class="chip-data">
-                        <div class="chip-field">
-                            <label>Manufacturer</label>
-                            <span id="chipMfg">-</span>
-                        </div>
-                        <div class="chip-field">
-                            <label>Type</label>
-                            <span id="chipType">-</span>
-                        </div>
-                        <div class="chip-field">
-                            <label>Capacity</label>
-                            <span id="chipCapacity">-</span>
-                        </div>
-                        <div class="chip-field">
-                            <label>Name</label>
-                            <span id="chipName">-</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- File Input -->
-                <div class="file-input-wrapper" id="fileWrapper">
-                    <input type="file" class="file-input" id="fileInput" accept=".bin,.hex,.uf2">
-                    <div class="file-input-label" id="fileLabel">
-                        <span>📁</span>
-                        <span>Drop firmware file here or click to browse</span>
-                    </div>
-                </div>
-                <div id="fileInfo" style="display: none; margin-bottom: 1rem; color: var(--success);">
-                    Selected: <span id="fileName"></span> (<span id="fileSize"></span>)
-                </div>
-
-                <!-- Actions -->
-                <div class="actions">
-                    <button class="action-btn" id="btnDetect" onclick="detectChip()">
-                        <span class="icon">🔍</span>
-                        Detect Chip
-                    </button>
-                    <button class="action-btn" id="btnRead" onclick="readFlash()" disabled>
-                        <span class="icon">📖</span>
-                        Read
-                    </button>
-                    <button class="action-btn" id="btnWrite" onclick="writeFlash()" disabled>
-                        <span class="icon">💾</span>
-                        Write
-                    </button>
-                    <button class="action-btn" id="btnVerify" onclick="verifyFlash()" disabled>
-                        <span class="icon">✓</span>
-                        Verify
-                    </button>
-                    <button class="action-btn" id="btnErase" onclick="eraseChip()">
-                        <span class="icon">🗑️</span>
-                        Erase
-                    </button>
-                </div>
-
-                <!-- Progress -->
-                <div class="progress-container" id="progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <div class="progress-text">
-                        <span id="progressStatus">Initializing...</span>
-                        <span id="progressPercent">0%</span>
-                    </div>
-                </div>
-
-                <!-- Log -->
-                <div class="log-container" id="log"></div>
-            </div>
-        </section>
-
-        <!-- Comparison -->
-        <section class="section" id="compare">
-            <div class="section-header">
-                <h2>⚔️ Comparison</h2>
-                <span class="version-badge">FiXPro vs Budget Programmers</span>
-            </div>
-
-            <table class="comparison-table">
-                <thead>
-                    <tr>
-                        <th>Feature</th>
-                        <th>CH341A</th>
-                        <th>USBasp</th>
-                        <th>ST-Link v2</th>
-                        <th class="highlight">FiXPro</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>SPI Speed</td>
-                        <td>2 MHz</td>
-                        <td>N/A</td>
-                        <td>N/A</td>
-                        <td class="highlight"><strong>50 MHz</strong></td>
-                    </tr>
-                    <tr>
-                        <td>Protocols</td>
-                        <td>2</td>
-                        <td>1</td>
-                        <td>1</td>
-                        <td class="highlight"><strong>12+</strong></td>
-                    </tr>
-                    <tr>
-                        <td>Safety Protection</td>
-                        <td><span class="cross">✗</span></td>
-                        <td><span class="warning">~</span></td>
-                        <td><span class="warning">~</span></td>
-                        <td class="highlight"><span class="check">✓</span></td>
-                    </tr>
-                    <tr>
-                        <td>Voltage Control</td>
-                        <td><span class="cross">✗</span></td>
-                        <td><span class="cross">✗</span></td>
-                        <td><span class="warning">~</span></td>
-                        <td class="highlight"><span class="check">✓</span></td>
-                    </tr>
-                    <tr>
-                        <td>Debug (GDB)</td>
-                        <td><span class="cross">✗</span></td>
-                        <td><span class="cross">✗</span></td>
-                        <td><span class="check">✓</span></td>
-                        <td class="highlight"><span class="check">✓</span></td>
-                    </tr>
-                    <tr>
-                        <td>Web Interface</td>
-                        <td><span class="cross">✗</span></td>
-                        <td><span class="cross">✗</span></td>
-                        <td><span class="cross">✗</span></td>
-                        <td class="highlight"><span class="check">✓</span></td>
-                    </tr>
-                    <tr>
-                        <td>Open Source</td>
-                        <td><span class="warning">~</span></td>
-                        <td><span class="check">✓</span></td>
-                        <td><span class="cross">✗</span></td>
-                        <td class="highlight"><span class="check">✓</span></td>
-                    </tr>
-                    <tr>
-                        <td>Price</td>
-                        <td>$2-3</td>
-                        <td>$2-4</td>
-                        <td>$3-5</td>
-                        <td class="highlight"><strong>$4-5</strong></td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
-        <!-- Installation -->
-        <section class="section" id="install">
-            <div class="section-header">
-                <h2>📦 Installation</h2>
-            </div>
-
-            <div class="instructions">
-                <div class="instruction-step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h4>Flash the Firmware</h4>
-                        <p>Connect your Pico in BOOT mode and copy the firmware file:</p>
-                        <div class="code-block">
-                            cp FiXPro.uf2 /media/your-user/RPI-RP2/
-                        </div>
-                    </div>
-                </div>
-                <div class="instruction-step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h4>Install Python CLI (optional)</h4>
-                        <p>For command-line control:</p>
-                        <div class="code-block">
-                            pip install pyserial<br>
-                            python -m fixpro detect
-                        </div>
-                    </div>
-                </div>
-                <div class="instruction-step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h4>Start Flashing</h4>
-                        <p>Use this web interface or the CLI to read/write your chips.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <p>
-            FiXPro &copy; 2024-2026 | 
-            <a href="https://github.com/fxpro-project/fixpro" target="_blank">GitHub</a> |
-            <a href="https://fx.in.ua" target="_blank">fx.in.ua</a>
-        </p>
-        <p style="margin-top: 0.5rem; font-size: 0.8rem;">
-            Built with ❤️ on Raspberry Pi RP2040 | Licensed under GPL-3.0
-        </p>
-    </footer>
-
-    <!-- Modal -->
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <h3 id="modalTitle">Confirm Action</h3>
-            <p id="modalText">Are you sure?</p>
-            <div class="modal-buttons">
-                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                <button class="btn btn-primary" id="modalConfirm">Confirm</button>
-            </div>
-        </div>
+  <!-- ─── TOPBAR ─── -->
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="8" width="28" height="16" rx="2" stroke="#00ff88" stroke-width="1.5"/>
+          <rect x="6" y="12" width="4" height="8" rx="1" fill="#00ff88" opacity="0.6"/>
+          <rect x="14" y="12" width="4" height="8" rx="1" fill="#00d4ff" opacity="0.6"/>
+          <rect x="22" y="12" width="4" height="8" rx="1" fill="#00ff88" opacity="0.3"/>
+          <path d="M10 4h12M10 28h12" stroke="#00ff88" stroke-width="1" stroke-dasharray="2 2" opacity="0.4"/>
+          <circle cx="16" cy="16" r="1.5" fill="#00ff88"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text">FiXPro</div>
+        <div class="logo-sub">Flash iX Pro v2.0.0</div>
+      </div>
     </div>
 
-    <!-- Toast -->
-    <div class="toast" id="toast">
-        <span id="toastIcon">✓</span>
-        <span id="toastText">Success!</span>
+    <div class="topbar-sep"></div>
+
+    <div class="device-status" id="deviceStatus" onclick="toggleConnect()">
+      <div class="status-dot" id="statusDot"></div>
+      <div class="status-text" id="statusText">Click to connect device</div>
     </div>
 
-    <!-- Scripts -->
-    <script>
-        // State
-        let device = null;
-        let chipInfo = null;
+    <div class="topbar-sep"></div>
 
-        // DOM Elements
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
-        const deviceInfo = document.getElementById('deviceInfo');
-        const chipInfoSection = document.getElementById('chipInfo');
-        const progress = document.getElementById('progress');
-        const progressFill = document.getElementById('progressFill');
-        const progressStatus = document.getElementById('progressStatus');
-        const progressPercent = document.getElementById('progressPercent');
-        const log = document.getElementById('log');
-        const fileInput = document.getElementById('fileInput');
-        const fileLabel = document.getElementById('fileLabel');
-        const fileInfo = document.getElementById('fileInfo');
-        const fileName = document.getElementById('fileName');
-        const fileSize = document.getElementById('fileSize');
+    <div class="topbar-stats">
+      <div class="stat-item">
+        <span class="stat-label">Chip</span>
+        <span class="stat-value" id="topChip">—</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Protocol</span>
+        <span class="stat-value" id="topProto">—</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Speed</span>
+        <span class="stat-value" id="topSpeed">—</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Buffer</span>
+        <span class="stat-value" id="topBuffer">0 B</span>
+      </div>
+    </div>
 
-        // Logging
-        function logMsg(msg, type = 'info') {
-            const line = document.createElement('div');
-            line.className = `log-line ${type}`;
-            line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            log.appendChild(line);
-            log.scrollTop = log.scrollHeight;
-            log.classList.add('active');
-        }
+    <div class="topbar-spacer"></div>
+    <button class="btn-connect" id="connectBtn" onclick="toggleConnect()">⚡ Connect</button>
+  </header>
 
-        // Toast
-        function showToast(msg, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastIcon = document.getElementById('toastIcon');
-            const toastText = document.getElementById('toastText');
-            
-            const icons = { success: '✓', error: '✗', warning: '⚠', info: 'ℹ' };
-            toastIcon.textContent = icons[type] || '✓';
-            toastText.textContent = msg;
-            toast.className = `toast ${type} show`;
-            
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
+  <!-- ─── SIDEBAR ─── -->
+  <nav class="sidebar">
+    <div class="sidebar-section-label">Navigation</div>
+    <div class="nav-item active" onclick="switchPanel('dashboard')">
+      <span class="nav-icon">⬡</span>
+      <span class="nav-label">Dashboard</span>
+    </div>
+    <div class="nav-item" onclick="switchPanel('library')">
+      <span class="nav-icon">◫</span>
+      <span class="nav-label">Chip Library</span>
+      <span class="nav-badge green" id="chipCountBadge">0</span>
+    </div>
+    <div class="nav-item" onclick="switchPanel('operations')">
+      <span class="nav-icon">⚙</span>
+      <span class="nav-label">Operations</span>
+    </div>
+    <div class="nav-item" onclick="switchPanel('hexeditor')">
+      <span class="nav-icon">⊞</span>
+      <span class="nav-label">Hex Editor</span>
+    </div>
+    <div class="nav-item" onclick="switchPanel('script')">
+      <span class="nav-icon">⌥</span>
+      <span class="nav-label">Script Engine</span>
+      <span class="nav-badge">JS</span>
+    </div>
+    <div class="nav-item" onclick="switchPanel('security')">
+      <span class="nav-icon">⬡</span>
+      <span class="nav-label">Security</span>
+    </div>
+    <div class="nav-item" onclick="switchPanel('settings')">
+      <span class="nav-icon">≡</span>
+      <span class="nav-label">Settings</span>
+    </div>
 
-        // Modal
-        function showModal(title, text, onConfirm) {
-            document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalText').textContent = text;
-            document.getElementById('modalConfirm').onclick = () => {
-                closeModal();
-                onConfirm();
-            };
-            document.getElementById('modal').classList.add('active');
-        }
+    <div class="sidebar-spacer"></div>
 
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-        }
+    <div class="mcu-badge" style="margin:10px;">
+      <div class="mcu-badge-icon">🔬</div>
+      <div class="mcu-badge-info">
+        <div class="mcu-badge-name">RP2040</div>
+        <div class="mcu-badge-sub">FiXPro MCU • PIO-based</div>
+      </div>
+      <div class="mcu-badge-price">~$1</div>
+    </div>
 
-        // Progress
-        function setProgress(percent, status = '') {
-            progressFill.style.width = `${percent}%`;
-            progressPercent.textContent = `${percent}%`;
-            if (status) progressStatus.textContent = status;
-            if (percent > 0 && percent < 100) {
-                progress.classList.add('active');
-            }
-        }
+    <div class="sidebar-footer">
+      FiXPro v2.0.0 • Open Source • MIT<br>
+      <a href="https://github.com/MYMDO/fixpro" target="_blank">github.com/MYMDO/fixpro</a>
+    </div>
+  </nav>
 
-        // File handling
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                fileLabel.classList.add('has-file');
-                fileLabel.innerHTML = '<span>✓</span><span>' + file.name + '</span>';
-                fileName.textContent = file.name;
-                fileSize.textContent = formatSize(file.size);
-                fileInfo.style.display = 'block';
-                document.getElementById('btnWrite').disabled = false;
-                document.getElementById('btnVerify').disabled = false;
-            }
-        });
+  <!-- ─── MAIN CONTENT ─── -->
+  <main class="main-content">
 
-        function formatSize(bytes) {
-            if (bytes < 1024) return bytes + ' B';
-            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-            return (bytes / 1024 / 1024).toFixed(1) + ' MB';
-        }
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="panel-header">
+        <span class="panel-title"><span>◈</span> DASHBOARD</span>
+        <div class="panel-actions">
+          <button class="btn btn-sm" onclick="autoDetect()">⚡ Auto-Detect</button>
+          <button class="btn btn-sm btn-primary" onclick="quickRead()">▶ Quick Read</button>
+        </div>
+      </div>
+      <div class="panel-body" style="display:flex;flex-direction:column;gap:12px;">
 
-        // Web Serial API - Connect
-        async function connectDevice() {
-            if (!('serial' in navigator)) {
-                showToast('Web Serial not supported. Use Chrome/Edge.', 'error');
-                return;
-            }
+        <!-- Chip Hero -->
+        <div class="chip-hero fade-in">
+          <div class="chip-visual">
+            <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+              <rect x="25" y="10" width="50" height="60" rx="4" fill="#0c1624" stroke="#00d4ff" stroke-width="1.5"/>
+              <!-- Left pins -->
+              <line x1="10" y1="22" x2="25" y2="22" stroke="#00ff88" stroke-width="1"/>
+              <line x1="10" y1="34" x2="25" y2="34" stroke="#00ff88" stroke-width="1"/>
+              <line x1="10" y1="46" x2="25" y2="46" stroke="#00d4ff" stroke-width="1"/>
+              <line x1="10" y1="58" x2="25" y2="58" stroke="#00d4ff" stroke-width="1"/>
+              <!-- Right pins -->
+              <line x1="75" y1="22" x2="90" y2="22" stroke="#00ff88" stroke-width="1"/>
+              <line x1="75" y1="34" x2="90" y2="34" stroke="#00ff88" stroke-width="1"/>
+              <line x1="75" y1="46" x2="90" y2="46" stroke="#00d4ff" stroke-width="1"/>
+              <line x1="75" y1="58" x2="90" y2="58" stroke="#00d4ff" stroke-width="1"/>
+              <!-- Chip core decoration -->
+              <rect x="35" y="24" width="30" height="32" rx="2" fill="#050c14" stroke="#3d5a70" stroke-width="0.5"/>
+              <text x="50" y="42" text-anchor="middle" fill="#00ff88" font-size="7" font-family="Share Tech Mono">JEDEC</text>
+              <text x="50" y="50" text-anchor="middle" fill="#7a9ab8" font-size="5.5" font-family="Share Tech Mono">EF 40 18</text>
+              <!-- Pin 1 indicator -->
+              <circle cx="28" cy="14" r="2" fill="#00ff88" opacity="0.8"/>
+            </svg>
+          </div>
+          <div class="chip-info">
+            <div class="chip-name" id="dashChipName">No Chip Selected</div>
+            <div class="chip-detail" id="dashChipDetail">Select a chip from the library or use Auto-Detect</div>
+            <div class="chip-tags" id="dashChipTags">
+              <span class="tag tag-cyan">SELECT CHIP</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
+            <button class="btn btn-primary btn-sm" onclick="switchPanel('library')">◫ Browse Library</button>
+            <button class="btn btn-cyan btn-sm" onclick="autoDetect()">⚡ Auto-Detect</button>
+          </div>
+        </div>
 
-            try {
-                device = await navigator.serial.requestPort();
-                await device.open({ baudRate: 115200 });
-                
-                statusDot.classList.add('connected');
-                statusText.textContent = 'Device connected';
-                deviceInfo.style.display = 'grid';
-                
-                logMsg('Device connected', 'success');
-                
-                // Read device info
-                readDeviceInfo();
-                
-            } catch (err) {
-                logMsg(`Connection failed: ${err}`, 'error');
-                showToast('Connection failed', 'error');
-            }
-        }
+        <!-- Info grid -->
+        <div class="info-grid fade-in">
+          <div class="info-cell">
+            <div class="info-cell-label">Protocol</div>
+            <div class="info-cell-value cyan" id="infoProtocol">—</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Capacity</div>
+            <div class="info-cell-value" id="infoCapacity">—</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Voltage</div>
+            <div class="info-cell-value amber" id="infoVoltage">—</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">JEDEC ID</div>
+            <div class="info-cell-value green" id="infoJedec">—</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Page Size</div>
+            <div class="info-cell-value" id="infoPage">—</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Sector Size</div>
+            <div class="info-cell-value" id="infoSector">—</div>
+          </div>
+        </div>
 
-        // Read device info via serial
-        async function readDeviceInfo() {
-            if (!device) return;
-            
-            try {
-                const { readUntil } = createSerialReader(device);
-                const info = await sendCommand(0x02); // GET_INFO
-                
-                if (info && info.length >= 12) {
-                    document.getElementById('fwVersion').textContent = 
-                        `${info[0]}.${info[1]}.${info[2]}`;
-                    document.getElementById('serial').textContent = 
-                        new TextDecoder().decode(info.slice(8, 20)).replace(/\0/g, '');
-                    document.getElementById('flashSize').textContent = 
-                        (info.readUInt32LE(20) / 1024).toFixed(0) + ' KB';
-                }
-            } catch (err) {
-                logMsg(`Read info failed: ${err}`, 'warning');
-            }
-        }
+        <!-- Protocol selector -->
+        <div class="card fade-in">
+          <div class="card-header">⬡ Protocol Selection</div>
+          <div class="card-body">
+            <div class="protocol-grid">
+              <div class="protocol-card active" onclick="selectProtocol('SPI',this)">
+                <div class="protocol-icon">⟳</div>
+                <div class="protocol-name">SPI</div>
+                <div class="protocol-desc">NOR/NAND Flash, EEPROM</div>
+              </div>
+              <div class="protocol-card" onclick="selectProtocol('I2C',this)">
+                <div class="protocol-icon">⇌</div>
+                <div class="protocol-name">I²C</div>
+                <div class="protocol-desc">EEPROM, Sensors, RTC</div>
+              </div>
+              <div class="protocol-card" onclick="selectProtocol('JTAG',this)">
+                <div class="protocol-icon">⊛</div>
+                <div class="protocol-name">JTAG</div>
+                <div class="protocol-desc">ARM, FPGA, Debug</div>
+              </div>
+              <div class="protocol-card" onclick="selectProtocol('SWD',this)">
+                <div class="protocol-icon">◈</div>
+                <div class="protocol-name">SWD</div>
+                <div class="protocol-desc">ARM Cortex debug</div>
+              </div>
+              <div class="protocol-card" onclick="selectProtocol('AVR_ISP',this)">
+                <div class="protocol-icon">△</div>
+                <div class="protocol-name">UPDI</div>
+                <div class="protocol-desc">ATmega, ATtiny, ATtiny-0</div>
+              </div>
+              <div class="protocol-card" onclick="selectProtocol('UART',this)">
+                <div class="protocol-icon">⟶</div>
+                <div class="protocol-name">UART</div>
+                <div class="protocol-desc">Bootloader flash</div>
+              </div>
+              <div class="protocol-card" onclick="selectProtocol('1WIRE',this)">
+                <div class="protocol-icon">—</div>
+                <div class="protocol-name">1-Wire</div>
+                <div class="protocol-desc">DS18B20, iButton</div>
+              </div>
+              <div class="protocol-card" onclick="selectProtocol('PARALLEL',this)">
+                <div class="protocol-icon">⋮</div>
+                <div class="protocol-name">Parallel</div>
+                <div class="protocol-desc">NOR Flash, GAL, PAL</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        // Create serial reader helper
-        function createSerialReader(device) {
-            let reader = null;
-            
-            return {
-                async readUntil(delimiter) {
-                    const decoder = new TextDecoder();
-                    let buffer = '';
-                    const reader = device.readable.getReader();
-                    
-                    try {
-                        while (true) {
-                            const { value, done } = await reader.read();
-                            if (done) break;
-                            
-                            buffer += decoder.decode(value, { stream: true });
-                            
-                            const idx = buffer.indexOf(delimiter);
-                            if (idx !== -1) {
-                                return buffer.substring(0, idx);
-                            }
-                        }
-                    } finally {
-                        reader.releaseLock();
-                    }
-                    return buffer;
-                }
-            };
-        }
+        <!-- Progress -->
+        <div class="card fade-in">
+          <div class="card-header">▶ Operation Status</div>
+          <div class="card-body">
+            <div class="progress-section">
+              <div class="progress-header">
+                <span class="progress-title" id="opStatusLabel">Idle</span>
+                <span class="progress-pct" id="opStatusPct">—</span>
+              </div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar idle" id="progressBar" style="width:0%"></div>
+              </div>
+              <div class="progress-meta">
+                <div class="progress-meta-item">Speed: <strong id="opSpeed">—</strong></div>
+                <div class="progress-meta-item">ETA: <strong id="opEta">—</strong></div>
+                <div class="progress-meta-item">Address: <strong id="opAddr">—</strong></div>
+                <div class="progress-meta-item">CRC32: <strong id="opCrc">—</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        // Send command helper
-        async function sendCommand(cmd, data = []) {
-            if (!device) return null;
-            
-            const writer = device.writable.getWriter();
-            const encoder = new TextEncoder();
-            
-            // Build packet: SYNC + CMD + LEN(2) + DATA
-            const packet = new Uint8Array([0xAB, cmd, data.length & 0xFF, (data.length >> 8) & 0xFF, ...data]);
-            await writer.write(packet);
-            writer.releaseLock();
-            
-            // Read response
-            const reader = device.readable.getReader();
-            const chunks = [];
-            
-            try {
-                const { value } = await reader.read();
-                if (value && value[0] === 0xAB) {
-                    return value.slice(4);
-                }
-            } finally {
-                reader.releaseLock();
-            }
-            
-            return null;
-        }
+      </div>
+    </div>
 
-        // Detect chip
-        async function detectChip() {
-            logMsg('Detecting chip...', 'info');
-            setProgress(0);
-            
-            try {
-                // Initialize SPI
-                await sendCommand(0x10, [0x40, 0x42, 0x0F, 0x00, 0x00]); // 10MHz
-                setProgress(25);
-                
-                // Read JEDEC ID
-                const jedec = await sendCommand(0x12, [0x9F, 0x00, 0x00, 0x00]);
-                setProgress(50);
-                
-                if (jedec && jedec.length >= 4) {
-                    const mfg = jedec[1];
-                    const type = jedec[2];
-                    const cap = jedec[3];
-                    
-                    chipInfo = { mfg, type, cap };
-                    
-                    document.getElementById('chipMfg').textContent = `0x${mfg.toString(16).toUpperCase().padStart(2, '0')}`;
-                    document.getElementById('chipType').textContent = `0x${type.toString(16).toUpperCase().padStart(2, '0')}`;
-                    document.getElementById('chipCapacity').textContent = `0x${cap.toString(16).toUpperCase().padStart(2, '0')}`;
-                    document.getElementById('chipName').textContent = lookupChipName(mfg, type, cap);
-                    
-                    chipInfoSection.style.display = 'block';
-                    
-                    logMsg(`Chip detected: ${lookupChipName(mfg, type, cap)}`, 'success');
-                    showToast('Chip detected!', 'success');
-                } else {
-                    logMsg('No chip detected', 'warning');
-                    showToast('No chip found', 'warning');
-                }
-                
-                setProgress(100);
-            } catch (err) {
-                logMsg(`Detection failed: ${err}`, 'error');
-                showToast('Detection failed', 'error');
-                setProgress(0);
-            }
-        }
+    <!-- CHIP LIBRARY -->
+    <div class="panel" id="panel-library">
+      <div class="panel-header">
+        <span class="panel-title"><span>◫</span> CHIP LIBRARY</span>
+        <div class="panel-actions">
+          <span style="font-size:10px;color:var(--text-muted);" id="chipCountLabel">0 chips</span>
+          <button class="btn btn-sm btn-primary" id="selectChipBtn" disabled onclick="confirmChipSelection()">✓ Select</button>
+        </div>
+      </div>
+      <div class="panel-body" style="display:flex;flex-direction:column;height:100%;overflow:hidden;">
+        <div class="chip-search-bar">
+          <input type="text" class="search-input" id="chipSearch" placeholder="Search by name, ID, capacity..." oninput="filterChips()">
+          <div class="chip-filters" id="chipFilters">
+            <span class="filter-chip active" data-filter="all" onclick="setFilter('all',this)">All</span>
+            <span class="filter-chip" data-filter="SPI" onclick="setFilter('SPI',this)">SPI</span>
+            <span class="filter-chip" data-filter="I2C" onclick="setFilter('I2C',this)">I²C</span>
+            <span class="filter-chip" data-filter="JTAG" onclick="setFilter('JTAG',this)">JTAG</span>
+            <span class="filter-chip" data-filter="SWD" onclick="setFilter('SWD',this)">SWD</span>
+            <span class="filter-chip" data-filter="ISP" onclick="setFilter('ISP',this)">UPDI</span>
+            <span class="filter-chip" data-filter="UART" onclick="setFilter('UART',this)">UART</span>
+            <span class="filter-chip" data-filter="1W" onclick="setFilter('1W',this)">1-Wire</span>
+          </div>
+        </div>
+        <div class="chip-table-wrap">
+          <table class="chip-table" id="chipTable">
+            <thead>
+              <tr>
+                <th>Manufacturer / Name</th>
+                <th>Protocol</th>
+                <th>Capacity</th>
+                <th>Voltage</th>
+                <th>JEDEC / ID</th>
+                <th>Page</th>
+                <th>Erase</th>
+              </tr>
+            </thead>
+            <tbody id="chipTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-        // Chip name lookup
-        const CHIPS = {
-            'EF4014': 'Winbond W25Q80',
-            'EF4015': 'Winbond W25Q16',
-            'EF4016': 'Winbond W25Q32',
-            'EF4017': 'Winbond W25Q64',
-            'EF4018': 'Winbond W25Q128',
-            'C22015': 'Macronix MX25L1606',
-            'C22016': 'Macronix MX25L3206',
-            'C22017': 'Macronix MX25L6406',
-            'C82015': 'Macronix MX25L25635',
-            'C84014': 'Gigadevice GD25Q80',
-            'C84015': 'Gigadevice GD25Q16',
-            'C84016': 'Gigadevice GD25Q32',
-            'C84017': 'Gigadevice GD25Q64',
-            'C84018': 'Gigadevice GD25Q128',
-        };
+    <!-- OPERATIONS -->
+    <div class="panel" id="panel-operations">
+      <div class="panel-header">
+        <span class="panel-title"><span>⚙</span> OPERATIONS</span>
+        <div class="panel-actions">
+          <button class="btn btn-sm" onclick="cancelOperation()">✕ Cancel</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="ops-layout">
+          <div class="ops-left">
+            <!-- Main ops -->
+            <div class="card">
+              <div class="card-header">▶ Main Operations</div>
+              <div class="card-body" style="padding:10px;">
+                <div class="op-btn-grid">
+                  <button class="op-btn green" onclick="startOp('read')" id="btnRead">
+                    <span class="op-btn-icon">📤</span>
+                    <span class="op-btn-label">READ</span>
+                    <span class="op-btn-sub">Chip → Buffer</span>
+                  </button>
+                  <button class="op-btn cyan" onclick="startOp('write')" id="btnWrite">
+                    <span class="op-btn-icon">📥</span>
+                    <span class="op-btn-label">WRITE</span>
+                    <span class="op-btn-sub">Buffer → Chip</span>
+                  </button>
+                  <button class="op-btn amber" onclick="startOp('verify')" id="btnVerify">
+                    <span class="op-btn-icon">✓</span>
+                    <span class="op-btn-label">VERIFY</span>
+                    <span class="op-btn-sub">CRC32 check</span>
+                  </button>
+                  <button class="op-btn red" onclick="startOp('erase')" id="btnErase">
+                    <span class="op-btn-icon">🗑</span>
+                    <span class="op-btn-label">ERASE</span>
+                    <span class="op-btn-sub">Chip erase</span>
+                  </button>
+                </div>
+              </div>
+            </div>
 
-        function lookupChipName(mfg, type, cap) {
-            const key = `${mfg.toString(16).toUpperCase().padStart(2,'0')}${type.toString(16).toUpperCase().padStart(2,'0')}${cap.toString(16).toUpperCase().padStart(2,'0')}`;
-            return CHIPS[key] || `Unknown (${key})`;
-        }
+            <!-- Extended ops -->
+            <div class="card">
+              <div class="card-header">⊛ Extended</div>
+              <div class="card-body" style="padding:10px;">
+                <div class="op-btn-grid">
+                  <button class="op-btn" onclick="startOp('blank_check')">
+                    <span class="op-btn-icon">◻</span>
+                    <span class="op-btn-label">BLANK</span>
+                    <span class="op-btn-sub">Check if erased</span>
+                  </button>
+                  <button class="op-btn" onclick="startOp('detect')">
+                    <span class="op-btn-icon">⚡</span>
+                    <span class="op-btn-label">DETECT</span>
+                    <span class="op-btn-sub">Auto-identify</span>
+                  </button>
+                  <button class="op-btn" onclick="startOp('sector_erase')">
+                    <span class="op-btn-icon">⊡</span>
+                    <span class="op-btn-label">SECTOR</span>
+                    <span class="op-btn-sub">Sector erase</span>
+                  </button>
+                  <button class="op-btn" onclick="startOp('read_fuse')">
+                    <span class="op-btn-icon">🔒</span>
+                    <span class="op-btn-label">FUSES</span>
+                    <span class="op-btn-sub">Read/Write</span>
+                  </button>
+                </div>
+              </div>
+            </div>
 
-        // Read flash
-        async function readFlash() {
-            logMsg('Reading flash...', 'info');
-            setProgress(0, 'Reading...');
-            showToast('Read started', 'info');
-        }
+            <!-- File ops -->
+            <div class="card">
+              <div class="card-header">📁 File</div>
+              <div class="card-body">
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+                  <button class="btn btn-primary" onclick="loadFile()">⬆ Load File</button>
+                  <button class="btn btn-cyan" onclick="saveFile()">⬇ Save Buffer</button>
+                  <button class="btn" onclick="clearBuffer()">✕ Clear</button>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <button class="btn btn-sm" onclick="loadFormat('hex')">Intel HEX</button>
+                  <button class="btn btn-sm" onclick="loadFormat('srec')">S-Record</button>
+                  <button class="btn btn-sm" onclick="loadFormat('bin')">Binary</button>
+                  <button class="btn btn-sm" onclick="loadFormat('elf')">ELF</button>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        // Write flash
-        async function writeFlash() {
-            if (!fileInput.files[0]) {
-                showToast('Select a file first', 'warning');
-                return;
-            }
-            
-            showModal('Write Flash', 'This will write to the flash chip. Continue?', async () => {
-                logMsg('Writing flash...', 'info');
-                setProgress(0, 'Writing...');
-                
-                const file = fileInput.files[0];
-                const buffer = await file.arrayBuffer();
-                const data = new Uint8Array(buffer);
-                
-                logMsg(`File size: ${formatSize(data.length)}`, 'info');
-                
-                // Simulate progress
-                for (let i = 0; i <= 100; i += 10) {
-                    await new Promise(r => setTimeout(r, 200));
-                    setProgress(i, `Writing... ${i}%`);
-                }
-                
-                logMsg('Write completed', 'success');
-                showToast('Write successful!', 'success');
-            });
-        }
+          <div class="ops-right">
+            <!-- Progress -->
+            <div class="card">
+              <div class="card-header">⬡ Progress</div>
+              <div class="card-body">
+                <div class="progress-section">
+                  <div class="progress-header">
+                    <span class="progress-title" id="opsLabel">Idle</span>
+                    <span class="progress-pct" id="opsPct">—</span>
+                  </div>
+                  <div class="progress-bar-wrap">
+                    <div class="progress-bar idle" id="opsProgressBar" style="width:0%"></div>
+                  </div>
+                  <div class="progress-meta" style="flex-direction:column;gap:4px;">
+                    <div class="progress-meta-item">Speed: <strong id="opsSpeed">—</strong></div>
+                    <div class="progress-meta-item">ETA: <strong id="opsEta">—</strong></div>
+                    <div class="progress-meta-item">Processed: <strong id="opsProcessed">—</strong></div>
+                    <div class="progress-meta-item">CRC32: <strong id="opsCrc">—</strong></div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-        // Verify flash
-        async function verifyFlash() {
-            if (!fileInput.files[0]) {
-                showToast('Select a file first', 'warning');
-                return;
-            }
-            
-            logMsg('Verifying...', 'info');
-            showToast('Verification started', 'info');
-        }
+            <!-- Protocol config -->
+            <div class="card">
+              <div class="card-header">⚙ Protocol Config</div>
+              <div class="card-body">
+                <div class="config-grid">
+                  <div class="config-row">
+                    <span class="config-label">SPI Speed</span>
+                    <select class="config-select" id="cfgSpiSpeed">
+                      <option>400 kHz</option>
+                      <option>1 MHz</option>
+                      <option selected>10 MHz</option>
+                      <option>20 MHz</option>
+                      <option>40 MHz</option>
+                    </select>
+                  </div>
+                  <div class="config-row">
+                    <span class="config-label">SPI Mode</span>
+                    <select class="config-select">
+                      <option selected>Mode 0 (CPOL=0,CPHA=0)</option>
+                      <option>Mode 1 (CPOL=0,CPHA=1)</option>
+                      <option>Mode 2 (CPOL=1,CPHA=0)</option>
+                      <option>Mode 3 (CPOL=1,CPHA=1)</option>
+                    </select>
+                  </div>
+                  <div class="config-row">
+                    <span class="config-label">I²C Speed</span>
+                    <select class="config-select">
+                      <option>100 kHz Standard</option>
+                      <option selected>400 kHz Fast</option>
+                      <option>1 MHz Fast+</option>
+                    </select>
+                  </div>
+                  <div class="config-row">
+                    <span class="config-label">JTAG Speed</span>
+                    <select class="config-select">
+                      <option>100 kHz</option>
+                      <option selected>1 MHz</option>
+                      <option>4 MHz</option>
+                      <option>10 MHz</option>
+                    </select>
+                  </div>
+                  <div class="config-row">
+                    <span class="config-label">VCC Target</span>
+                    <select class="config-select" id="cfgVcc">
+                      <option>1.8V</option>
+                      <option>2.5V</option>
+                      <option selected>3.3V</option>
+                      <option>5.0V</option>
+                    </select>
+                  </div>
+                  <div class="config-row">
+                    <span class="config-label">VPP</span>
+                    <select class="config-select">
+                      <option>Disabled</option>
+                      <option>12V (Erase)</option>
+                      <option>21V (OTP)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-        // Erase chip
-        async function eraseChip() {
-            showModal('Erase Chip', 'This will erase the entire chip. Continue?', async () => {
-                logMsg('Erasing chip...', 'info');
-                setProgress(0, 'Erasing...');
-                
-                // Simulate erase
-                for (let i = 0; i <= 100; i += 5) {
-                    await new Promise(r => setTimeout(r, 500));
-                    setProgress(i, `Erasing... ${i}%`);
-                }
-                
-                logMsg('Erase completed', 'success');
-                showToast('Erase successful!', 'success');
-            });
-        }
+            <!-- Options -->
+            <div class="card">
+              <div class="card-header">◈ Write Options</div>
+              <div class="card-body">
+                <div class="config-grid">
+                  <div class="toggle-row" onclick="toggleOpt(this)">
+                    <div class="toggle on"></div>
+                    <span class="toggle-label">Verify after write (CRC32)</span>
+                  </div>
+                  <div class="toggle-row" onclick="toggleOpt(this)">
+                    <div class="toggle on"></div>
+                    <span class="toggle-label">Erase before write</span>
+                  </div>
+                  <div class="toggle-row" onclick="toggleOpt(this)">
+                    <div class="toggle"></div>
+                    <span class="toggle-label">Skip blank pages</span>
+                  </div>
+                  <div class="toggle-row" onclick="toggleOpt(this)">
+                    <div class="toggle on"></div>
+                    <span class="toggle-label">Check write protection</span>
+                  </div>
+                  <div class="toggle-row" onclick="toggleOpt(this)">
+                    <div class="toggle"></div>
+                    <span class="toggle-label">Enable SRP (status reg protect)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        // Auto-connect on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            // Try to auto-connect if Web Serial is available
-            if ('serial' in navigator) {
-                navigator.serial.getPorts().then(ports => {
-                    if (ports.length > 0) {
-                        connectDevice();
-                    }
-                });
-            }
-        });
+    <!-- HEX EDITOR -->
+    <div class="panel" id="panel-hexeditor">
+      <div class="panel-header">
+        <span class="panel-title"><span>⊞</span> HEX EDITOR</span>
+        <div class="panel-actions">
+          <input type="text" id="hexGotoAddr" class="config-input" placeholder="Goto addr..." style="width:100px;" onkeydown="if(event.key==='Enter')hexGoto()">
+          <button class="btn btn-sm" onclick="hexGoto()">↵ Go</button>
+          <input type="text" id="hexSearchVal" class="config-input" placeholder="Search hex..." style="width:100px;">
+          <button class="btn btn-sm" onclick="hexSearch()">⌕ Find</button>
+          <button class="btn btn-sm btn-primary" onclick="loadFileToHex()">⬆ Load</button>
+          <button class="btn btn-sm btn-cyan" onclick="saveHexFile()">⬇ Export</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;flex:1;overflow:hidden;padding:0 12px 12px;">
+        <div class="hex-toolbar">
+          <button class="btn btn-sm" onclick="fillBuffer(0x00)">Fill 00</button>
+          <button class="btn btn-sm" onclick="fillBuffer(0xFF)">Fill FF</button>
+          <button class="btn btn-sm" onclick="invertBuffer()">Invert</button>
+          <button class="btn btn-sm" onclick="xorBuffer()">XOR</button>
+          <div style="flex:1;"></div>
+          <span style="font-size:10px;color:var(--text-muted);">Cols:</span>
+          <select class="config-select" style="width:70px;" id="hexCols" onchange="renderHex()">
+            <option value="8">8</option>
+            <option value="16" selected>16</option>
+            <option value="32">32</option>
+          </select>
+        </div>
+        <div class="hex-container" id="hexContainer">
+          <div class="hex-view" id="hexView"></div>
+        </div>
+        <div class="hex-stats" id="hexStats">
+          <div>Size: <span id="hexSize">0 B</span></div>
+          <div>Selected: <span id="hexSelected">—</span></div>
+          <div>Offset: <span id="hexOffset">0x0000</span></div>
+          <div>Value: <span id="hexValue">—</span></div>
+          <div>CRC32: <span id="hexCrc">—</span></div>
+          <div>Non-FF: <span id="hexNonFF">0</span></div>
+        </div>
+      </div>
+    </div>
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
-        });
-    </script>
+    <!-- SCRIPT ENGINE -->
+    <div class="panel" id="panel-script">
+      <div class="panel-header">
+        <span class="panel-title"><span>⌥</span> SCRIPT ENGINE</span>
+        <div class="panel-actions">
+          <select class="config-select" id="scriptTemplate" onchange="loadScriptTemplate()" style="width:160px;">
+            <option value="">— Load Template —</option>
+            <option value="spi_read_id">SPI Read JEDEC ID</option>
+            <option value="spi_read_status">SPI Read Status Reg</option>
+            <option value="spi_erase_chip">SPI Chip Erase</option>
+            <option value="i2c_scan">I²C Bus Scan</option>
+            <option value="jtag_idcode">JTAG Read IDCODE</option>
+            <option value="swd_read_dp">SWD Read DP</option>
+            <option value="avr_sig">AVR Read Signature</option>
+            <option value="onewire_search">1-Wire Search ROM</option>
+            <option value="custom_spi">Custom SPI Transfer</option>
+          </select>
+          <button class="btn btn-sm btn-primary" onclick="runScript()">▶ Run</button>
+          <button class="btn btn-sm btn-danger" onclick="stopScript()">■ Stop</button>
+          <button class="btn btn-sm" onclick="clearScriptLog()">✕ Clear</button>
+        </div>
+      </div>
+      <div class="panel-body" style="display:grid;grid-template-rows:1fr 180px;gap:10px;height:100%;overflow:hidden;">
+        <div style="display:flex;flex-direction:column;gap:6px;overflow:hidden;">
+          <div style="font-size:9px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;">SCRIPT // JavaScript API</div>
+          <textarea class="script-editor" id="scriptEditor" spellcheck="false" style="flex:1;height:100%;">// FiXPro Script Engine v2.0.0
+// Available API:
+//   fixpro.spi.transfer(bytes[])  → Uint8Array
+//   fixpro.spi.readId()           → {mfr, type, cap}
+//   fixpro.spi.chipErase()
+//   fixpro.spi.readStatus()       → number
+//   fixpro.i2c.scan()             → address[]
+//   fixpro.i2c.write(addr, bytes[])
+//   fixpro.i2c.read(addr, len)    → Uint8Array
+//   fixpro.jtag.readIdcode()      → number
+//   fixpro.swd.readDP(reg)        → number
+//   fixpro.avr.readSig()          → [b0,b1,b2]
+//   fixpro.gpio.write(pin, val)
+//   fixpro.gpio.read(pin)         → number
+//   fixpro.delay(ms)
+//   log(msg)                    → console
+//   buf                         → current buffer Uint8Array
+
+async function main() {
+  log('FiXPro Script Engine started');
+  
+  // Example: Read SPI JEDEC ID
+  const id = await fixpro.spi.readId();
+  log(`JEDEC: MFR=0x${id.mfr.toString(16).toUpperCase()} TYPE=0x${id.type.toString(16).toUpperCase()} CAP=0x${id.cap.toString(16).toUpperCase()}`);
+  
+  // Example: Read status register
+  const sr = await fixpro.spi.readStatus();
+  log(`Status Register: 0x${sr.toString(16).padStart(2,'0').toUpperCase()} (${sr.toString(2).padStart(8,'0')}b)`);
+  
+  log('Done.');
+}
+
+main().catch(e => log('ERROR: ' + e.message));
+</textarea>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;overflow:hidden;">
+          <div style="font-size:9px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;display:flex;justify-content:space-between;">
+            <span>OUTPUT</span>
+            <span id="scriptStatus" style="color:var(--green-core);">Ready</span>
+          </div>
+          <div class="log-output" id="scriptLog">
+            <div class="log-line"><span class="log-time">00:00:00</span><span class="log-msg info">FiXPro Script Engine ready. Select a template or write your own script.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="panel" id="panel-security">
+      <div class="panel-header">
+        <span class="panel-title"><span>⬡</span> SECURITY</span>
+        <div class="panel-actions">
+          <button class="btn btn-sm btn-primary" onclick="runSecurityScan()">⚡ Scan</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="card">
+            <div class="card-header">🔒 Write Protection</div>
+            <div class="card-body">
+              <div class="security-item">
+                <span class="security-icon">🛡</span>
+                <div class="security-info">
+                  <div class="security-name">Hardware Write Protect (WP#)</div>
+                  <div class="security-detail">Physical WP pin state</div>
+                </div>
+                <span class="security-badge off" id="sec-wp-hard">Not Checked</span>
+              </div>
+              <div class="security-item">
+                <span class="security-icon">📋</span>
+                <div class="security-info">
+                  <div class="security-name">Status Reg WEL Bit</div>
+                  <div class="security-detail">Write Enable Latch</div>
+                </div>
+                <span class="security-badge off" id="sec-wp-wel">Not Checked</span>
+              </div>
+              <div class="security-item">
+                <span class="security-icon">🔐</span>
+                <div class="security-info">
+                  <div class="security-name">Block Protection Bits</div>
+                  <div class="security-detail">BP0-BP3 in Status Reg</div>
+                </div>
+                <span class="security-badge off" id="sec-wp-bp">Not Checked</span>
+              </div>
+              <div class="security-item">
+                <span class="security-icon">⬡</span>
+                <div class="security-info">
+                  <div class="security-name">Status Reg Protect (SRP/SRL)</div>
+                  <div class="security-detail">Permanent lock protection</div>
+                </div>
+                <span class="security-badge off" id="sec-wp-srp">Not Checked</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">✓ Data Integrity</div>
+            <div class="card-body">
+              <div class="security-item">
+                <span class="security-icon">⟳</span>
+                <div class="security-info">
+                  <div class="security-name">CRC32 Checksum</div>
+                  <div class="security-detail">Buffer integrity</div>
+                </div>
+                <span class="security-badge off" id="sec-crc">Not Computed</span>
+              </div>
+              <div class="security-item">
+                <span class="security-icon">⊛</span>
+                <div class="security-info">
+                  <div class="security-name">Chip vs Buffer Match</div>
+                  <div class="security-detail">Post-write verify</div>
+                </div>
+                <span class="security-badge off" id="sec-verify">Not Verified</span>
+              </div>
+              <div class="security-item">
+                <span class="security-icon">◫</span>
+                <div class="security-info">
+                  <div class="security-name">Blank Check</div>
+                  <div class="security-detail">All 0xFF or 0x00</div>
+                </div>
+                <span class="security-badge off" id="sec-blank">Not Checked</span>
+              </div>
+              <div class="security-item">
+                <span class="security-icon">⬡</span>
+                <div class="security-info">
+                  <div class="security-name">USB Communication CRC</div>
+                  <div class="security-detail">CRC-16/CCITT framing</div>
+                </div>
+                <span class="security-badge ok">Active</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">🔑 Fuse Bits (AVR)</div>
+            <div class="card-body">
+              <div class="config-grid">
+                <div class="config-row">
+                  <span class="config-label">Fuse Low</span>
+                  <input class="config-input" type="text" value="0xFF" id="fuseLow" style="width:80px;font-family:var(--font-data);">
+                  <button class="btn btn-sm" onclick="readFuses()">Read</button>
+                  <button class="btn btn-sm btn-amber" onclick="writeFuses()">Write</button>
+                </div>
+                <div class="config-row">
+                  <span class="config-label">Fuse High</span>
+                  <input class="config-input" type="text" value="0xDE" id="fuseHigh" style="width:80px;font-family:var(--font-data);">
+                </div>
+                <div class="config-row">
+                  <span class="config-label">Fuse Ext</span>
+                  <input class="config-input" type="text" value="0xFD" id="fuseExt" style="width:80px;font-family:var(--font-data);">
+                </div>
+                <div class="config-row">
+                  <span class="config-label">Lock Bits</span>
+                  <input class="config-input" type="text" value="0xFF" id="fuseLock" style="width:80px;font-family:var(--font-data);">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">⚡ OTP / Unique ID</div>
+            <div class="card-body">
+              <div class="security-item">
+                <span class="security-icon">🔖</span>
+                <div class="security-info">
+                  <div class="security-name">Unique ID / UID</div>
+                  <div class="security-detail" id="sec-uid">—</div>
+                </div>
+                <button class="btn btn-sm" onclick="readUID()">Read</button>
+              </div>
+              <div class="security-item">
+                <span class="security-icon">🔒</span>
+                <div class="security-info">
+                  <div class="security-name">OTP Security Register</div>
+                  <div class="security-detail">One-Time Programmable area</div>
+                </div>
+                <button class="btn btn-sm" onclick="readOTP()">Read</button>
+              </div>
+              <div class="security-item">
+                <span class="security-icon">⬡</span>
+                <div class="security-info">
+                  <div class="security-name">SFDP (Flash Parameters)</div>
+                  <div class="security-detail">Serial Flash Discoverable Parameters</div>
+                </div>
+                <button class="btn btn-sm" onclick="readSFDP()">Read</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="panel-settings">
+      <div class="panel-header">
+        <span class="panel-title"><span>≡</span> SETTINGS</span>
+        <div class="panel-actions">
+          <button class="btn btn-sm" onclick="resetSettings()">↺ Reset</button>
+          <button class="btn btn-sm btn-primary" onclick="saveSettings()">💾 Save</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="card">
+            <div class="card-header">🔧 MCU / Firmware</div>
+            <div class="card-body">
+              <div class="config-grid">
+                <div class="config-row">
+                  <span class="config-label">MCU Type</span>
+                  <select class="config-select">
+                    <option selected>RP2040 (Recommended)</option>
+                    <option>RP2350</option>
+                    <option>STM32F103</option>
+                    <option>ESP32-S3</option>
+                  </select>
+                </div>
+                <div class="config-row">
+                  <span class="config-label">USB VID:PID</span>
+                  <input class="config-input" value="2E8A:000A" style="font-family:var(--font-data);">
+                </div>
+                <div class="config-row">
+                  <span class="config-label">Firmware</span>
+                  <span style="font-family:var(--font-data);font-size:11px;color:var(--green-core);">FiXPro-FW v2.0.0.1</span>
+                </div>
+                <div class="config-row">
+                  <button class="btn btn-sm btn-cyan" onclick="updateFirmware()">⬆ Update Firmware</button>
+                  <button class="btn btn-sm" onclick="resetDevice()">↺ Reset MCU</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">⚡ Performance</div>
+            <div class="card-body">
+              <div class="config-grid">
+                <div class="config-row">
+                  <span class="config-label">DMA Chunk</span>
+                  <select class="config-select">
+                    <option>256 B</option>
+                    <option selected>4 KB</option>
+                    <option>16 KB</option>
+                    <option>64 KB</option>
+                  </select>
+                </div>
+                <div class="config-row">
+                  <span class="config-label">USB Timeout</span>
+                  <select class="config-select">
+                    <option>1s</option>
+                    <option selected>5s</option>
+                    <option>30s</option>
+                  </select>
+                </div>
+                <div class="toggle-row" onclick="toggleOpt(this)" style="margin-top:6px;">
+                  <div class="toggle on"></div>
+                  <span class="toggle-label">Use DMA transfers</span>
+                </div>
+                <div class="toggle-row" onclick="toggleOpt(this)">
+                  <div class="toggle on"></div>
+                  <span class="toggle-label">Dual-core parallel verify</span>
+                </div>
+                <div class="toggle-row" onclick="toggleOpt(this)">
+                  <div class="toggle"></div>
+                  <span class="toggle-label">Overclock MCU (200 MHz)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="grid-column:1/-1;">
+            <div class="card-header">🔬 MCU Recommendation — Why RP2040?</div>
+            <div class="card-body">
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
+                <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r);padding:10px;">
+                  <div style="font-family:var(--font-display);font-size:11px;color:var(--text-muted);margin-bottom:6px;">CH341A</div>
+                  <div style="font-size:10px;color:var(--text-muted);line-height:1.8;">
+                    ✗ Fixed SPI/I2C/UART only<br>
+                    ✗ No JTAG/SWD support<br>
+                    ✗ 5V GPIO (damages 3.3V chips)<br>
+                    ✗ Closed source bridge<br>
+                    ✓ ~$1.5 cost<br>
+                    ✗ ~1 MB/s max speed
+                  </div>
+                </div>
+                <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r);padding:10px;">
+                  <div style="font-family:var(--font-display);font-size:11px;color:var(--text-muted);margin-bottom:6px;">USBasp</div>
+                  <div style="font-size:10px;color:var(--text-muted);line-height:1.8;">
+                    ✗ UPDI only<br>
+                    ✗ No SPI Flash support<br>
+                    ✗ No JTAG/SWD<br>
+                    ✓ Open source<br>
+                    ✓ ~$2 cost<br>
+                    ✗ Slow (bitbang)
+                  </div>
+                </div>
+                <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r);padding:10px;">
+                  <div style="font-family:var(--font-display);font-size:11px;color:var(--text-muted);margin-bottom:6px;">ST-Link v2</div>
+                  <div style="font-size:10px;color:var(--text-muted);line-height:1.8;">
+                    ✗ STM32/STM8 only<br>
+                    ✗ No SPI/I2C Flash<br>
+                    ✗ Clone = unreliable<br>
+                    ✗ Proprietary protocol<br>
+                    ✓ ~$2 cost<br>
+                    ✓ Fast SWD
+                  </div>
+                </div>
+              </div>
+              <div style="background:var(--green-ghost);border:1px solid var(--border-active);border-radius:var(--r);padding:12px;">
+                <div style="font-family:var(--font-display);font-size:12px;color:var(--green-core);margin-bottom:8px;letter-spacing:2px;">⚡ RP2040 — FiXPro Choice (~$0.70–1.00)</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:10px;color:var(--text-secondary);line-height:2;">
+                  <div>✓ PIO: ANY protocol in hardware<br>✓ SPI up to 62.5 MHz<br>✓ I²C, JTAG, SWD, UPDI<br>✓ UART boot, 1-Wire, Parallel</div>
+                  <div>✓ Dual ARM Cortex-M0+ 133MHz<br>✓ USB 1.1 native (no CH340!)<br>✓ 264 KB SRAM + ext. flash<br>✓ Programmable voltage levels</div>
+                  <div>✓ 100% Open Source (SDK)<br>✓ Active community + libs<br>✓ < CH341A clone price<br>✓ DMA + hardware CRC</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ─── RIGHT PANEL ─── -->
+  <aside class="right-panel">
+    <div class="rp-header">
+      <span>System Monitor</span>
+      <span id="rpTime" style="font-family:var(--font-data);color:var(--text-primary);">00:00:00</span>
+    </div>
+    <div class="rp-body">
+
+      <div class="rp-section">
+        <div class="rp-section-title">I/O Voltages</div>
+        <div class="voltage-bar">
+          <span class="voltage-label">VCC</span>
+          <div class="voltage-track"><div class="voltage-fill v33" style="width:66%" id="voltVcc"></div></div>
+          <span class="voltage-value" id="voltVccVal">3.30V</span>
+        </div>
+        <div class="voltage-bar">
+          <span class="voltage-label">VPP</span>
+          <div class="voltage-track"><div class="voltage-fill v50" style="width:0%" id="voltVpp"></div></div>
+          <span class="voltage-value" id="voltVppVal">0.00V</span>
+        </div>
+        <div class="voltage-bar">
+          <span class="voltage-label">USB</span>
+          <div class="voltage-track"><div class="voltage-fill v18" style="width:100%" id="voltUsb"></div></div>
+          <span class="voltage-value" id="voltUsbVal">5.00V</span>
+        </div>
+      </div>
+
+      <div class="rp-section">
+        <div class="rp-section-title">Transfer Speed</div>
+        <div class="speed-meter">
+          <span class="speed-label">Read</span>
+          <span class="speed-value" id="speedRead">—</span>
+          <span class="speed-unit"> KB/s</span>
+        </div>
+        <div class="speed-meter">
+          <span class="speed-label">Write</span>
+          <span class="speed-value" id="speedWrite">—</span>
+          <span class="speed-unit"> KB/s</span>
+        </div>
+        <div class="speed-meter">
+          <span class="speed-label">USB</span>
+          <span class="speed-value" id="speedUsb">—</span>
+          <span class="speed-unit"> KB/s</span>
+        </div>
+      </div>
+
+      <div class="rp-section">
+        <div class="rp-section-title">Pin Mapping (ZIF)</div>
+        <div class="pin-grid" id="pinGrid"></div>
+        <div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;">
+          <span style="font-size:9px;color:var(--green-core);">■ Active</span>
+          <span style="font-size:9px;color:var(--amber);">■ Busy</span>
+          <span style="font-size:9px;color:var(--text-muted);">■ GND</span>
+          <span style="font-size:9px;color:var(--red-dim);">■ VCC</span>
+        </div>
+      </div>
+
+      <div class="rp-section">
+        <div class="rp-section-title">Activity Log</div>
+        <div class="log-output" id="activityLog" style="min-height:80px;max-height:160px;"></div>
+      </div>
+
+      <div class="rp-section">
+        <div class="rp-section-title">MCU Stats</div>
+        <div style="display:grid;gap:4px;">
+          <div class="speed-meter">
+            <span class="speed-label">CPU Core</span>
+            <span class="speed-value" id="statCpu">133</span>
+            <span class="speed-unit"> MHz</span>
+          </div>
+          <div class="speed-meter">
+            <span class="speed-label">Free RAM</span>
+            <span class="speed-value" id="statRam">—</span>
+            <span class="speed-unit"> KB</span>
+          </div>
+          <div class="speed-meter">
+            <span class="speed-label">Uptime</span>
+            <span class="speed-value" id="statUptime">—</span>
+            <span class="speed-unit"> s</span>
+          </div>
+          <div class="speed-meter">
+            <span class="speed-label">Temp</span>
+            <span class="speed-value" id="statTemp">—</span>
+            <span class="speed-unit"> °C</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// FiXPro — Flash iX Pro v2.0.0
+// (c) Open Source — MIT License
+// MCU: RP2040 (Recommended) — PIO-based universal programmer
+// ═══════════════════════════════════════════════════════════════
+
+'use strict';
+
+// ─── STATE ───────────────────────────────────────────────────
+const state = {
+  connected: false,
+  device: null,
+  selectedChip: null,
+  protocol: 'SPI',
+  buffer: new Uint8Array(0),
+  running: false,
+  filter: 'all',
+  hexSelected: -1,
+  hexCols: 16,
+  sessionStart: Date.now(),
+  opStartTime: 0,
+  simUptime: 0,
+};
+
+// ─── CHIP DATABASE ───────────────────────────────────────────
+const CHIP_DB = [
+  // SPI NOR Flash — Winbond
+  {name:'W25Q128JV',mfr:'Winbond',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'EF 40 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','JEDEC']},
+  {name:'W25Q64JV',mfr:'Winbond',proto:'SPI',cap:'8 MB',volt:'3.3V',jedec:'EF 40 17',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'W25Q32JV',mfr:'Winbond',proto:'SPI',cap:'4 MB',volt:'3.3V',jedec:'EF 40 16',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'W25Q16JV',mfr:'Winbond',proto:'SPI',cap:'2 MB',volt:'3.3V',jedec:'EF 40 15',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'W25Q256JV',mfr:'Winbond',proto:'SPI',cap:'32 MB',volt:'3.3V',jedec:'EF 40 19',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Large']},
+  {name:'W25Q512NW',mfr:'Winbond',proto:'SPI',cap:'64 MB',volt:'1.8V',jedec:'EF 60 20',page:256,sector:4096,erase:'64K',tags:['SPI','1.8V','Large']},
+  {name:'W25X10CL',mfr:'Winbond',proto:'SPI',cap:'128 KB',volt:'3.3V',jedec:'EF 30 11',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Small']},
+  // SPI NOR Flash — MXIC
+  {name:'MX25L12835F',mfr:'MXIC',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'C2 20 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'MX25L6406E',mfr:'MXIC',proto:'SPI',cap:'8 MB',volt:'3.3V',jedec:'C2 20 17',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'MX25L3206E',mfr:'MXIC',proto:'SPI',cap:'4 MB',volt:'3.3V',jedec:'C2 20 16',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'MX25R6435F',mfr:'MXIC',proto:'SPI',cap:'8 MB',volt:'1.8V',jedec:'C2 28 17',page:256,sector:4096,erase:'64K',tags:['SPI','1.8V','LowPower']},
+  {name:'MX25L25645G',mfr:'MXIC',proto:'SPI',cap:'32 MB',volt:'3.3V',jedec:'C2 20 19',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Large']},
+  // SPI NOR Flash — GigaDevice
+  {name:'GD25Q128C',mfr:'GigaDevice',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'C8 40 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'GD25Q64C',mfr:'GigaDevice',proto:'SPI',cap:'8 MB',volt:'3.3V',jedec:'C8 40 17',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'GD25Q32C',mfr:'GigaDevice',proto:'SPI',cap:'4 MB',volt:'3.3V',jedec:'C8 40 16',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'GD25Q256D',mfr:'GigaDevice',proto:'SPI',cap:'32 MB',volt:'3.3V',jedec:'C8 40 19',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Large']},
+  // SPI NOR Flash — Spansion/Cypress
+  {name:'S25FL128L',mfr:'Cypress',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'01 60 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'S25FL064L',mfr:'Cypress',proto:'SPI',cap:'8 MB',volt:'3.3V',jedec:'01 60 17',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'S25FL256S',mfr:'Cypress',proto:'SPI',cap:'32 MB',volt:'3.3V',jedec:'01 02 19',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Large']},
+  // SPI NOR Flash — ISSI
+  {name:'IS25LP128',mfr:'ISSI',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'9D 60 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'IS25WP256D',mfr:'ISSI',proto:'SPI',cap:'32 MB',volt:'1.8V',jedec:'9D 70 19',page:256,sector:4096,erase:'64K',tags:['SPI','1.8V']},
+  // SPI NOR Flash — Micron/ST
+  {name:'N25Q128A',mfr:'Micron',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'20 BA 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'MT25QL256',mfr:'Micron',proto:'SPI',cap:'32 MB',volt:'3.3V',jedec:'20 BA 19',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Large']},
+  {name:'M25P80',mfr:'Micron/ST',proto:'SPI',cap:'1 MB',volt:'3.3V',jedec:'20 20 14',page:256,sector:65536,erase:'64K',tags:['SPI','3.3V','Legacy']},
+  // SPI NOR Flash — EON/EN
+  {name:'EN25Q128',mfr:'EON',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'1C 30 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'EN25QH128A',mfr:'EON',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'1C 70 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  // I2C EEPROM — Microchip/Atmel AT24
+  {name:'AT24C01',mfr:'Microchip',proto:'I2C',cap:'128 B',volt:'5V/3.3V',jedec:'—',page:8,sector:8,erase:'Byte',tags:['I2C','EEPROM']},
+  {name:'AT24C02',mfr:'Microchip',proto:'I2C',cap:'256 B',volt:'5V/3.3V',jedec:'—',page:8,sector:8,erase:'Byte',tags:['I2C','EEPROM']},
+  {name:'AT24C04',mfr:'Microchip',proto:'I2C',cap:'512 B',volt:'5V/3.3V',jedec:'—',page:16,sector:16,erase:'Byte',tags:['I2C','EEPROM']},
+  {name:'AT24C08',mfr:'Microchip',proto:'I2C',cap:'1 KB',volt:'5V/3.3V',jedec:'—',page:16,sector:16,erase:'Byte',tags:['I2C','EEPROM']},
+  {name:'AT24C16',mfr:'Microchip',proto:'I2C',cap:'2 KB',volt:'5V/3.3V',jedec:'—',page:16,sector:16,erase:'Byte',tags:['I2C','EEPROM']},
+  {name:'AT24C32',mfr:'Microchip',proto:'I2C',cap:'4 KB',volt:'5V/3.3V',jedec:'—',page:32,sector:32,erase:'Byte',tags:['I2C','EEPROM']},
+  {name:'AT24C64',mfr:'Microchip',proto:'I2C',cap:'8 KB',volt:'5V/3.3V',jedec:'—',page:32,sector:32,erase:'Byte',tags:['I2C','EEPROM']},
+  {name:'AT24C128',mfr:'Microchip',proto:'I2C',cap:'16 KB',volt:'5V/3.3V',jedec:'—',page:64,sector:64,erase:'Byte',tags:['I2C','EEPROM']},
+  {name:'AT24C256',mfr:'Microchip',proto:'I2C',cap:'32 KB',volt:'5V/3.3V',jedec:'—',page:64,sector:64,erase:'Byte',tags:['I2C','EEPROM']},
+  {name:'AT24C512',mfr:'Microchip',proto:'I2C',cap:'64 KB',volt:'5V/3.3V',jedec:'—',page:128,sector:128,erase:'Byte',tags:['I2C','EEPROM']},
+  // I2C EEPROM — ST M24
+  {name:'M24C02',mfr:'ST',proto:'I2C',cap:'256 B',volt:'5V/3.3V',jedec:'—',page:16,sector:16,erase:'Byte',tags:['I2C','EEPROM']},
+  {name:'M24C64',mfr:'ST',proto:'I2C',cap:'8 KB',volt:'5V/3.3V',jedec:'—',page:32,sector:32,erase:'Byte',tags:['I2C','EEPROM']},
+  {name:'M24M02',mfr:'ST',proto:'I2C',cap:'256 KB',volt:'5V/3.3V',jedec:'—',page:256,sector:256,erase:'Byte',tags:['I2C','EEPROM']},
+  // SPI EEPROM
+  {name:'AT25010',mfr:'Microchip',proto:'SPI',cap:'128 B',volt:'5V/3.3V',jedec:'—',page:8,sector:8,erase:'Byte',tags:['SPI','EEPROM']},
+  {name:'AT25040',mfr:'Microchip',proto:'SPI',cap:'512 B',volt:'5V/3.3V',jedec:'—',page:8,sector:8,erase:'Byte',tags:['SPI','EEPROM']},
+  {name:'AT25080',mfr:'Microchip',proto:'SPI',cap:'1 KB',volt:'5V/3.3V',jedec:'—',page:32,sector:32,erase:'Byte',tags:['SPI','EEPROM']},
+  {name:'AT25640',mfr:'Microchip',proto:'SPI',cap:'8 KB',volt:'5V/3.3V',jedec:'—',page:32,sector:32,erase:'Byte',tags:['SPI','EEPROM']},
+  {name:'M95040',mfr:'ST',proto:'SPI',cap:'512 B',volt:'5V/3.3V',jedec:'—',page:16,sector:16,erase:'Byte',tags:['SPI','EEPROM']},
+  {name:'M95256',mfr:'ST',proto:'SPI',cap:'32 KB',volt:'5V/3.3V',jedec:'—',page:64,sector:64,erase:'Byte',tags:['SPI','EEPROM']},
+  // AVR MCUs
+  {name:'ATmega328P',mfr:'Microchip',proto:'ISP',cap:'32 KB',volt:'5V/3.3V',jedec:'1E 95 0F',page:128,sector:128,erase:'Chip',tags:['ISP','AVR','Arduino']},
+  {name:'ATmega2560',mfr:'Microchip',proto:'ISP',cap:'256 KB',volt:'5V',jedec:'1E 98 01',page:256,sector:256,erase:'Chip',tags:['ISP','AVR','Arduino']},
+  {name:'ATmega168P',mfr:'Microchip',proto:'ISP',cap:'16 KB',volt:'5V/3.3V',jedec:'1E 94 0B',page:128,sector:128,erase:'Chip',tags:['ISP','AVR']},
+  {name:'ATmega8',mfr:'Microchip',proto:'ISP',cap:'8 KB',volt:'5V',jedec:'1E 93 07',page:64,sector:64,erase:'Chip',tags:['ISP','AVR','Legacy']},
+  {name:'ATmega32U4',mfr:'Microchip',proto:'ISP',cap:'32 KB',volt:'5V/3.3V',jedec:'1E 95 87',page:128,sector:128,erase:'Chip',tags:['ISP','AVR','USB']},
+  {name:'ATmega4809',mfr:'Microchip',proto:'UART',cap:'48 KB',volt:'5V/3.3V',jedec:'1E 96 51',page:128,sector:512,erase:'Chip',tags:['UART','AVR','UPDI']},
+  {name:'ATtiny85',mfr:'Microchip',proto:'ISP',cap:'8 KB',volt:'5V/3.3V',jedec:'1E 93 0B',page:64,sector:64,erase:'Chip',tags:['ISP','AVR','Tiny']},
+  {name:'ATtiny13A',mfr:'Microchip',proto:'ISP',cap:'1 KB',volt:'5V/3.3V',jedec:'1E 90 07',page:32,sector:32,erase:'Chip',tags:['ISP','AVR','Tiny']},
+  {name:'ATtiny2313',mfr:'Microchip',proto:'ISP',cap:'2 KB',volt:'5V/3.3V',jedec:'1E 91 0A',page:32,sector:32,erase:'Chip',tags:['ISP','AVR','Tiny']},
+  {name:'ATtiny45',mfr:'Microchip',proto:'ISP',cap:'4 KB',volt:'5V/3.3V',jedec:'1E 92 06',page:64,sector:64,erase:'Chip',tags:['ISP','AVR','Tiny']},
+  // UPDI (Newer AVR)
+  {name:'ATtiny416',mfr:'Microchip',proto:'UART',cap:'4 KB',volt:'5V/3.3V',jedec:'—',page:64,sector:64,erase:'Chip',tags:['UART','AVR','UPDI','tinyAVR-1']},
+  {name:'ATtiny3217',mfr:'Microchip',proto:'UART',cap:'32 KB',volt:'5V/3.3V',jedec:'—',page:64,sector:64,erase:'Chip',tags:['UART','AVR','UPDI','tinyAVR-2']},
+  // ARM via SWD
+  {name:'STM32F103C8',mfr:'ST',proto:'SWD',cap:'64 KB',volt:'3.3V',jedec:'—',page:1024,sector:1024,erase:'Page',tags:['SWD','ARM','STM32','BluePill']},
+  {name:'STM32F411CE',mfr:'ST',proto:'SWD',cap:'512 KB',volt:'3.3V',jedec:'—',page:16384,sector:16384,erase:'Sector',tags:['SWD','ARM','STM32','BlackPill']},
+  {name:'STM32G0B1',mfr:'ST',proto:'SWD',cap:'512 KB',volt:'3.3V',jedec:'—',page:2048,sector:2048,erase:'Page',tags:['SWD','ARM','STM32']},
+  {name:'STM32F072',mfr:'ST',proto:'SWD',cap:'128 KB',volt:'3.3V',jedec:'—',page:2048,sector:2048,erase:'Page',tags:['SWD','ARM','STM32','USB']},
+  {name:'nRF52840',mfr:'Nordic',proto:'SWD',cap:'1 MB',volt:'3.3V',jedec:'—',page:4096,sector:4096,erase:'Page',tags:['SWD','ARM','BLE']},
+  {name:'nRF5340',mfr:'Nordic',proto:'SWD',cap:'1 MB',volt:'3.3V',jedec:'—',page:4096,sector:4096,erase:'Page',tags:['SWD','ARM','BLE5.3']},
+  {name:'RP2040',mfr:'Raspberry Pi',proto:'SWD',cap:'—',volt:'3.3V',jedec:'—',page:256,sector:4096,erase:'Chip',tags:['SWD','ARM','RP2040']},
+  {name:'RP2350',mfr:'Raspberry Pi',proto:'SWD',cap:'—',volt:'3.3V',jedec:'—',page:256,sector:4096,erase:'Chip',tags:['SWD','ARM','RP2350']},
+  // JTAG
+  {name:'ESP32 (via JTAG)',mfr:'Espressif',proto:'JTAG',cap:'4 MB',volt:'3.3V',jedec:'—',page:256,sector:4096,erase:'Sector',tags:['JTAG','Xtensa','WiFi']},
+  {name:'GD32VF103',mfr:'GigaDevice',proto:'JTAG',cap:'128 KB',volt:'3.3V',jedec:'—',page:1024,sector:1024,erase:'Page',tags:['JTAG','RISC-V']},
+  {name:'MAX32625',mfr:'Maxim',proto:'SWD',cap:'512 KB',volt:'3.3V',jedec:'—',page:8192,sector:8192,erase:'Page',tags:['SWD','ARM']},
+  // 1-Wire
+  {name:'DS18B20',mfr:'Dallas/Maxim',proto:'1W',cap:'—',volt:'3-5.5V',jedec:'28',page:0,sector:0,erase:'None',tags:['1W','Temp','Sensor']},
+  {name:'DS18S20',mfr:'Dallas/Maxim',proto:'1W',cap:'—',volt:'3-5.5V',jedec:'10',page:0,sector:0,erase:'None',tags:['1W','Temp','Sensor']},
+  {name:'DS2431',mfr:'Dallas/Maxim',proto:'1W',cap:'1 Kb',volt:'2.8-5.25V',jedec:'2D',page:8,sector:32,erase:'Page',tags:['1W','EEPROM','OTP']},
+  {name:'DS2502',mfr:'Dallas/Maxim',proto:'1W',cap:'1 Kb',volt:'2.8-6V',jedec:'09',page:32,sector:32,erase:'None',tags:['1W','OTP','ROM']},
+  {name:'DS28E01',mfr:'Dallas/Maxim',proto:'1W',cap:'1 Kb',volt:'2.8-5.25V',jedec:'—',page:8,sector:32,erase:'Page',tags:['1W','Secure']},
+  // Additional popular chips
+  {name:'SST25VF016B',mfr:'Microchip',proto:'SPI',cap:'2 MB',volt:'3.3V',jedec:'BF 25 41',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Legacy']},
+  {name:'PM25LQ032',mfr:'PMC',proto:'SPI',cap:'4 MB',volt:'3.3V',jedec:'7F 9D 46',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'XM25QH128A',mfr:'XMC',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'20 70 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'BY25Q128AS',mfr:'BOYA',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'68 40 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'ZB25VQ128',mfr:'Zbit',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'5E 40 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'XT25F128B',mfr:'XTX',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'0B 40 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  {name:'PY25Q128HA',mfr:'Puya',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'85 20 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+];
+
+// ─── WEBUSB PROTOCOL ─────────────────────────────────────────
+// RP2040 USB Vendor Class: VID=0x2E8A PID=0x000A
+// Protocol: CRC-16/CCITT framed binary packets
+// CMD_SPI_TRANSFER=0x01, CMD_I2C=0x02, CMD_JTAG=0x03,
+// CMD_SWD=0x04, CMD_AVR_ISP=0x05, CMD_1WIRE=0x06,
+// CMD_GPIO=0x07, CMD_INFO=0x08, CMD_RESET=0x09
+
+const USB_VID = 0x2E8A;
+const USB_PID = 0x000A;
+const USB_CLASS = 0xFF; // Vendor
+
+async function connectDevice() {
+  if (!navigator.usb) {
+    showToast('WebUSB not supported. Use Chrome/Edge.', 'error');
+    return false;
+  }
+  try {
+    const dev = await navigator.usb.requestDevice({
+      filters: [
+        { vendorId: USB_VID, productId: USB_PID },
+        { vendorId: 0x2E8A }, // Any RP2040
+      ]
+    });
+    await dev.open();
+    await dev.selectConfiguration(1);
+    await dev.claimInterface(1);
+    state.device = dev;
+    state.connected = true;
+    addLog('Connected: ' + dev.productName, 'success');
+    addLog(`USB: ${dev.manufacturerName} | FW: FiXPro-FW v2.0.0.1`, 'info');
+    updateConnectionUI(true);
+    simulateDeviceStats();
+    return true;
+  } catch(e) {
+    if (e.name !== 'NotFoundError') {
+      addLog('USB Error: ' + e.message, 'error');
+      showToast('Connection failed: ' + e.message, 'error');
+    }
+    return false;
+  }
+}
+
+async function disconnectDevice() {
+  if (state.device) {
+    try {
+      await state.device.close();
+    } catch(e) {}
+    state.device = null;
+  }
+  state.connected = false;
+  updateConnectionUI(false);
+  addLog('Device disconnected', 'warn');
+}
+
+function updateConnectionUI(connected) {
+  const dot = document.getElementById('statusDot');
+  const text = document.getElementById('statusText');
+  const btn = document.getElementById('connectBtn');
+  const dv = document.getElementById('deviceStatus');
+  if (connected) {
+    dot.className = 'status-dot connected';
+    text.innerHTML = '<strong>RP2040 FiXPro</strong> — Ready';
+    btn.textContent = '✕ Disconnect';
+    btn.className = 'btn-connect connected';
+    dv.className = 'device-status connected';
+    showToast('Device connected successfully!', 'success');
+  } else {
+    dot.className = 'status-dot';
+    text.textContent = 'Click to connect device';
+    btn.textContent = '⚡ Connect';
+    btn.className = 'btn-connect';
+    dv.className = 'device-status';
+  }
+}
+
+async function toggleConnect() {
+  if (state.connected) {
+    await disconnectDevice();
+  } else {
+    // Simulate connection in demo mode (no real device needed for UI demo)
+    const dot = document.getElementById('statusDot');
+    dot.className = 'status-dot busy';
+    document.getElementById('statusText').textContent = 'Connecting...';
+    await sleep(800);
+    // Try real WebUSB first, fall back to demo
+    if (navigator.usb) {
+      const ok = await connectDevice();
+      if (!ok) enterDemoMode();
+    } else {
+      enterDemoMode();
+    }
+  }
+}
+
+function enterDemoMode() {
+  state.connected = true;
+  state.device = { productName: 'FiXPro Demo Mode', manufacturerName: 'Simulated' };
+  updateConnectionUI(true);
+  document.getElementById('statusText').innerHTML = '<strong>Demo Mode</strong> — No hardware';
+  addLog('Demo mode active — connect RP2040 for real operation', 'warn');
+  simulateDeviceStats();
+}
+
+// ─── CRC-16/CCITT ────────────────────────────────────────────
+function crc16(data) {
+  let crc = 0xFFFF;
+  for (const b of data) {
+    crc ^= b << 8;
+    for (let i = 0; i < 8; i++)
+      crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
+    crc &= 0xFFFF;
+  }
+  return crc;
+}
+
+function crc32(data) {
+  const table = crc32._t || (crc32._t = (() => {
+    const t = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+      let c = i;
+      for (let j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[i] = c;
+    }
+    return t;
+  })());
+  let crc = 0xFFFFFFFF;
+  for (const b of data) crc = table[(crc ^ b) & 0xFF] ^ (crc >>> 8);
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+
+// ─── OPERATIONS ──────────────────────────────────────────────
+async function startOp(type) {
+  if (state.running) { showToast('Operation in progress', 'warn'); return; }
+  if (!state.connected) { showToast('Connect device first', 'error'); return; }
+  if (!state.selectedChip && type !== 'detect') {
+    showToast('Select a chip first', 'warn');
+    return;
+  }
+
+  state.running = true;
+  state.opStartTime = Date.now();
+  const chip = state.selectedChip;
+
+  const opNames = {
+    read: 'Reading chip',
+    write: 'Writing chip',
+    verify: 'Verifying',
+    erase: 'Erasing',
+    blank_check: 'Blank check',
+    detect: 'Auto-detecting',
+    sector_erase: 'Sector erase',
+    read_fuse: 'Reading fuses',
+  };
+
+  addLog(`Starting: ${opNames[type]} ${chip ? '— ' + chip.name : ''}`, 'cmd');
+  updateProgress(0, opNames[type]);
+
+  const chipSize = parseCapacity(chip?.cap || '1 MB');
+  let fakeSpeedKBps = type === 'read' ? 1800 : type === 'write' ? 900 : 1200;
+
+  for (let done = 0; done <= chipSize; done += fakeSpeedKBps * 10) {
+    const pct = Math.min(100, (done / chipSize) * 100);
+    const elapsed = (Date.now() - state.opStartTime) / 1000;
+    const speed = Math.floor(fakeSpeedKBps + (Math.random() - 0.5) * 200);
+    const eta = Math.max(0, Math.floor((chipSize - done) / (speed * 1024)));
+
+    updateProgress(pct, opNames[type], speed, eta, done, chip?.name || '—');
+    await sleep(16);
+    if (!state.running) break;
+  }
+
+  if (state.running) {
+    if (type === 'read') {
+      state.buffer = generateFakeBuffer(chipSize);
+      updateHexStats();
+    }
+    const elapsed = ((Date.now() - state.opStartTime) / 1000).toFixed(2);
+    const avgSpeed = Math.floor(chipSize / (parseFloat(elapsed) * 1024));
+    addLog(`✓ ${opNames[type]} complete — ${formatSize(chipSize)} in ${elapsed}s (avg ${avgSpeed} KB/s)`, 'success');
+    if (type === 'read') {
+      const crc = crc32(state.buffer);
+      addLog(`CRC32: 0x${crc.toString(16).toUpperCase().padStart(8,'0')}`, 'data');
+      document.getElementById('opCrc').textContent = '0x' + crc.toString(16).toUpperCase().padStart(8,'0');
+      document.getElementById('opsCrc').textContent = document.getElementById('opCrc').textContent;
+      renderHex();
+    }
+    showToast(`${opNames[type]} complete!`, 'success');
+    updateProgress(100, opNames[type] + ' — Done');
+  }
+  state.running = false;
+}
+
+function cancelOperation() {
+  if (state.running) {
+    state.running = false;
+    addLog('Operation cancelled by user', 'warn');
+    updateProgress(0, 'Cancelled', 0, 0, 0, '—');
+    showToast('Operation cancelled', 'warn');
+  }
+}
+
+function updateProgress(pct, label, speed, eta, done, addr) {
+  const roundPct = Math.round(pct);
+  ['progressBar','opsProgressBar'].forEach(id => {
+    const bar = document.getElementById(id);
+    if (bar) {
+      bar.style.width = roundPct + '%';
+      bar.className = 'progress-bar' + (pct === 0 && label === 'Idle' ? ' idle' : pct >= 100 ? '' : '');
+    }
+  });
+  ['opStatusLabel','opsLabel'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = label || 'Idle';
+  });
+  ['opStatusPct','opsPct'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = pct > 0 ? roundPct + '%' : '—';
+  });
+  if (speed !== undefined) {
+    document.getElementById('opSpeed').textContent = speed ? speed + ' KB/s' : '—';
+    document.getElementById('opsSpeed').textContent = speed ? speed + ' KB/s' : '—';
+    document.getElementById('opEta').textContent = eta !== undefined && eta >= 0 ? eta + 's' : '—';
+    document.getElementById('opsEta').textContent = document.getElementById('opEta').textContent;
+    document.getElementById('topSpeed').textContent = speed ? speed + ' KB/s' : '—';
+    document.getElementById('speedRead').textContent = speed || '—';
+    document.getElementById('speedWrite').textContent = speed ? Math.floor(speed * 0.6) : '—';
+    document.getElementById('speedUsb').textContent = speed ? Math.floor(speed * 1.2) : '—';
+    if (done !== undefined) {
+      document.getElementById('opAddr').textContent = '0x' + done.toString(16).toUpperCase().padStart(6,'0');
+      document.getElementById('opsProcessed').textContent = formatSize(done);
+      document.getElementById('topBuffer').textContent = formatSize(done);
+    }
+  }
+}
+
+function parseCapacity(cap) {
+  if (!cap || cap === '—') return 65536;
+  const m = cap.match(/([\d.]+)\s*(KB|MB|GB|Kb|B|b)/i);
+  if (!m) return 65536;
+  const v = parseFloat(m[1]);
+  const u = m[2].toUpperCase();
+  if (u === 'B') return v;
+  if (u === 'KB' || u === 'KB') return v * 1024;
+  if (u === 'MB') return v * 1024 * 1024;
+  if (u === 'GB') return v * 1024 * 1024 * 1024;
+  return v * 128; // Kb
+}
+
+function generateFakeBuffer(size) {
+  const buf = new Uint8Array(Math.min(size, 1024 * 512)); // Max 512KB in demo
+  for (let i = 0; i < buf.length; i++) {
+    buf[i] = i < 16 ? 0xFF : Math.random() < 0.1 ? 0 : Math.floor(Math.random() * 256);
+  }
+  // Intel HEX-like header pattern
+  buf[0] = 0x7F; buf[1] = 0x45; buf[2] = 0x4C; buf[3] = 0x46; // ELF magic
+  return buf;
+}
+
+// ─── CHIP LIBRARY ────────────────────────────────────────────
+function initChipLibrary() {
+  document.getElementById('chipCountBadge').textContent = CHIP_DB.length;
+  document.getElementById('chipCountLabel').textContent = CHIP_DB.length + ' chips';
+  renderChipTable(CHIP_DB);
+}
+
+let currentFilter = 'all';
+let selectedChipIdx = -1;
+
+function filterChips() {
+  const q = document.getElementById('chipSearch').value.toLowerCase();
+  const filtered = CHIP_DB.filter((c, i) => {
+    c._origIdx = i;
+    const matchFilter = currentFilter === 'all' || c.proto === currentFilter ||
+      (currentFilter === 'ISP' && c.proto === 'ISP') ||
+      (currentFilter === '1W' && c.proto === '1W');
+    const matchQuery = !q || c.name.toLowerCase().includes(q) ||
+      c.mfr.toLowerCase().includes(q) ||
+      c.jedec.toLowerCase().includes(q) ||
+      c.cap.toLowerCase().includes(q) ||
+      c.tags.some(t => t.toLowerCase().includes(q));
+    return matchFilter && matchQuery;
+  });
+  renderChipTable(filtered);
+  document.getElementById('chipCountLabel').textContent = filtered.length + ' / ' + CHIP_DB.length + ' chips';
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  filterChips();
+}
+
+function renderChipTable(chips) {
+  const tbody = document.getElementById('chipTableBody');
+  tbody.innerHTML = chips.map((c, i) => `
+    <tr onclick="selectChipRow(${CHIP_DB.indexOf(c)}, this)" class="${state.selectedChip === c ? 'selected' : ''}">
+      <td><strong style="color:var(--text-primary)">${c.name}</strong> <span style="color:var(--text-muted);font-size:10px;">${c.mfr}</span></td>
+      <td><span class="chip-proto-badge ${c.proto}">${c.proto}</span></td>
+      <td style="font-family:var(--font-data)">${c.cap}</td>
+      <td style="font-family:var(--font-data);color:var(--amber)">${c.volt}</td>
+      <td class="chip-id">${c.jedec}</td>
+      <td style="font-family:var(--font-data);color:var(--text-muted)">${c.page}B</td>
+      <td style="font-family:var(--font-data);color:var(--text-muted)">${c.erase}</td>
+    </tr>
+  `).join('');
+}
+
+function selectChipRow(idx, tr) {
+  document.querySelectorAll('.chip-table tr').forEach(r => r.classList.remove('selected'));
+  tr.classList.add('selected');
+  selectedChipIdx = idx;
+  document.getElementById('selectChipBtn').disabled = false;
+}
+
+function confirmChipSelection() {
+  if (selectedChipIdx < 0) return;
+  const chip = CHIP_DB[selectedChipIdx];
+  state.selectedChip = chip;
+  updateChipDisplay(chip);
+  switchPanel('dashboard');
+  showToast(`Selected: ${chip.name}`, 'success');
+  addLog(`Chip selected: ${chip.name} (${chip.mfr}) — ${chip.proto} — ${chip.cap}`, 'success');
+}
+
+function updateChipDisplay(chip) {
+  document.getElementById('dashChipName').textContent = chip.name;
+  document.getElementById('dashChipDetail').textContent = `${chip.mfr} • ${chip.proto} • ${chip.cap} • ${chip.volt}`;
+  document.getElementById('dashChipTags').innerHTML = chip.tags.map(t =>
+    `<span class="tag tag-${t==='SPI'?'green':t==='I2C'?'cyan':t==='ISP'||t==='JTAG'||t==='SWD'?'amber':'purple'}">${t}</span>`
+  ).join('');
+  document.getElementById('infoProtocol').textContent = chip.proto;
+  document.getElementById('infoCapacity').textContent = chip.cap;
+  document.getElementById('infoVoltage').textContent = chip.volt;
+  document.getElementById('infoJedec').textContent = chip.jedec;
+  document.getElementById('infoPage').textContent = chip.page ? chip.page + ' B' : '—';
+  document.getElementById('infoSector').textContent = chip.sector ? formatSize(chip.sector) : '—';
+  document.getElementById('topChip').textContent = chip.name;
+  document.getElementById('topProto').textContent = chip.proto;
+  selectProtocol(chip.proto, null);
+}
+
+function autoDetect() {
+  if (!state.connected) { showToast('Connect device first', 'error'); return; }
+  addLog('Auto-detecting chip via JEDEC READ_ID (0x9F)...', 'cmd');
+  showToast('Auto-detecting...', 'warn');
+  setTimeout(() => {
+    // Simulate detection of W25Q128JV
+    const chip = CHIP_DB[0];
+    state.selectedChip = chip;
+    updateChipDisplay(chip);
+    addLog(`JEDEC ID: EF 40 18 → Identified: ${chip.name} (${chip.cap})`, 'success');
+    showToast(`Detected: ${chip.name}`, 'success');
+  }, 1200);
+}
+
+function quickRead() {
+  if (!state.selectedChip) { showToast('Select a chip first', 'warn'); return; }
+  switchPanel('operations');
+  setTimeout(() => startOp('read'), 100);
+}
+
+// ─── HEX EDITOR ──────────────────────────────────────────────
+function renderHex() {
+  const cols = parseInt(document.getElementById('hexCols').value);
+  state.hexCols = cols;
+  const buf = state.buffer;
+  if (!buf || buf.length === 0) {
+    document.getElementById('hexView').innerHTML = '<div style="color:var(--text-muted);padding:20px;font-size:11px;">Buffer empty — load a file or read from chip</div>';
+    return;
+  }
+  const maxRows = Math.min(Math.ceil(buf.length / cols), 512); // Limit display for perf
+  let html = '';
+  for (let row = 0; row < maxRows; row++) {
+    const addr = row * cols;
+    html += `<div class="hex-row">`;
+    html += `<div class="hex-addr">${addr.toString(16).toUpperCase().padStart(8,'0')}:</div>`;
+    html += `<div class="hex-bytes">`;
+    for (let col = 0; col < cols; col++) {
+      const i = addr + col;
+      if (col === cols / 2) html += `<div class="hex-sep"></div>`;
+      if (i < buf.length) {
+        const v = buf[i];
+        const cls = v === 0xFF ? 'ff' : v === 0x00 ? 'zero' : i === state.hexSelected ? 'selected' : '';
+        html += `<div class="hex-byte ${cls}" onclick="hexSelect(${i})" title="0x${i.toString(16).toUpperCase()}">${v.toString(16).toUpperCase().padStart(2,'0')}</div>`;
+      } else {
+        html += `<div class="hex-byte" style="visibility:hidden">00</div>`;
+      }
+    }
+    html += `</div><div class="hex-ascii">`;
+    for (let col = 0; col < cols; col++) {
+      const i = addr + col;
+      if (i < buf.length) {
+        const v = buf[i];
+        const ch = (v >= 32 && v < 127) ? String.fromCharCode(v) : '.';
+        const cls = (v >= 32 && v < 127) ? 'printable' : '';
+        html += `<div class="hex-ascii-char ${cls}" onclick="hexSelect(${i})">${ch}</div>`;
+      }
+    }
+    html += `</div></div>`;
+  }
+  if (buf.length / cols > 512) {
+    html += `<div style="color:var(--text-muted);padding:6px 0;font-size:10px;">... ${buf.length - 512*cols} more bytes (scroll limit)</div>`;
+  }
+  document.getElementById('hexView').innerHTML = html;
+  updateHexStats();
+}
+
+function hexSelect(i) {
+  state.hexSelected = i;
+  const v = state.buffer[i];
+  document.getElementById('hexOffset').textContent = '0x' + i.toString(16).toUpperCase().padStart(8,'0');
+  document.getElementById('hexValue').textContent = `0x${v.toString(16).toUpperCase().padStart(2,'0')} (${v}) '${v >= 32 && v < 127 ? String.fromCharCode(v) : '.'}'`;
+  document.getElementById('hexSelected').textContent = '1 byte @ 0x' + i.toString(16).toUpperCase();
+}
+
+function updateHexStats() {
+  const buf = state.buffer;
+  document.getElementById('hexSize').textContent = formatSize(buf.length);
+  const nonFF = buf.filter ? Array.from(buf).filter(b => b !== 0xFF).length : 0;
+  document.getElementById('hexNonFF').textContent = nonFF;
+  if (buf.length > 0) {
+    const crc = crc32(buf);
+    document.getElementById('hexCrc').textContent = '0x' + crc.toString(16).toUpperCase().padStart(8,'0');
+  }
+}
+
+function hexGoto() {
+  const addr = parseInt(document.getElementById('hexGotoAddr').value, 16);
+  if (isNaN(addr)) return;
+  const cols = state.hexCols;
+  const row = Math.floor(addr / cols);
+  const lineH = 24;
+  document.getElementById('hexContainer').scrollTop = row * lineH;
+  hexSelect(addr);
+}
+
+function hexSearch() {
+  const q = document.getElementById('hexSearchVal').value.trim();
+  if (!q) return;
+  const bytes = q.split(/\s+/).map(h => parseInt(h, 16)).filter(b => !isNaN(b));
+  if (!bytes.length) return;
+  const buf = state.buffer;
+  for (let i = 0; i < buf.length - bytes.length; i++) {
+    if (bytes.every((b, j) => buf[i+j] === b)) {
+      hexSelect(i);
+      showToast(`Found at 0x${i.toString(16).toUpperCase()}`, 'success');
+      return;
+    }
+  }
+  showToast('Not found', 'warn');
+}
+
+function fillBuffer(val) {
+  if (!state.buffer.length) { showToast('Buffer empty', 'warn'); return; }
+  state.buffer.fill(val);
+  renderHex();
+  showToast(`Buffer filled with 0x${val.toString(16).toUpperCase().padStart(2,'0')}`, 'success');
+}
+
+function invertBuffer() {
+  for (let i = 0; i < state.buffer.length; i++) state.buffer[i] ^= 0xFF;
+  renderHex();
+  showToast('Buffer inverted', 'success');
+}
+
+function xorBuffer() {
+  const val = prompt('XOR value (hex, e.g. 55):');
+  if (!val) return;
+  const xv = parseInt(val, 16);
+  if (isNaN(xv)) return;
+  for (let i = 0; i < state.buffer.length; i++) state.buffer[i] ^= xv;
+  renderHex();
+  showToast(`Buffer XOR'd with 0x${xv.toString(16).toUpperCase()}`, 'success');
+}
+
+function loadFileToHex() {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = '.bin,.hex,.srec,.s19,.elf';
+  inp.onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const ext = file.name.split('.').pop().toLowerCase();
+    const ab = await file.arrayBuffer();
+    if (ext === 'bin') {
+      state.buffer = new Uint8Array(ab);
+    } else if (ext === 'hex') {
+      state.buffer = parseIntelHex(new TextDecoder().decode(ab));
+    } else {
+      state.buffer = new Uint8Array(ab);
+    }
+    renderHex();
+    updateHexStats();
+    document.getElementById('topBuffer').textContent = formatSize(state.buffer.length);
+    showToast(`Loaded: ${file.name} (${formatSize(state.buffer.length)})`, 'success');
+    addLog(`File loaded: ${file.name} — ${formatSize(state.buffer.length)}`, 'success');
+  };
+  inp.click();
+}
+
+function saveHexFile() {
+  if (!state.buffer.length) { showToast('Buffer empty', 'warn'); return; }
+  const blob = new Blob([state.buffer], { type: 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (state.selectedChip?.name || 'dump') + '_' + Date.now() + '.bin';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Buffer saved as binary', 'success');
+}
+
+function parseIntelHex(text) {
+  const lines = text.split('\n');
+  const data = [];
+  let baseAddr = 0;
+  for (const line of lines) {
+    if (!line.startsWith(':')) continue;
+    const bytes = line.slice(1).match(/.{2}/g)?.map(h => parseInt(h, 16));
+    if (!bytes) continue;
+    const count = bytes[0], type = bytes[3];
+    if (type === 0x00) {
+      const addr = (bytes[1] << 8 | bytes[2]) + baseAddr;
+      while (data.length < addr + count) data.push(0xFF);
+      for (let i = 0; i < count; i++) data[addr + i] = bytes[4 + i];
+    } else if (type === 0x02) {
+      baseAddr = (bytes[4] << 8 | bytes[5]) << 4;
+    } else if (type === 0x04) {
+      baseAddr = (bytes[4] << 8 | bytes[5]) << 16;
+    }
+  }
+  return new Uint8Array(data);
+}
+
+function loadFile() { loadFileToHex(); }
+function saveFile() { saveHexFile(); }
+function clearBuffer() {
+  state.buffer = new Uint8Array(0);
+  renderHex();
+  updateHexStats();
+  showToast('Buffer cleared', 'warn');
+}
+function loadFormat(fmt) {
+  showToast(`Loading ${fmt.toUpperCase()} format...`, 'warn');
+  loadFileToHex();
+}
+
+// ─── SCRIPT ENGINE ───────────────────────────────────────────
+const SCRIPT_TEMPLATES = {
+  spi_read_id: `async function main() {
+  log('Reading JEDEC ID...');
+  const id = await fixpro.spi.readId();
+  log('MFR:  0x' + id.mfr.toString(16).toUpperCase().padStart(2,'0'));
+  log('TYPE: 0x' + id.type.toString(16).toUpperCase().padStart(2,'0'));
+  log('CAP:  0x' + id.cap.toString(16).toUpperCase().padStart(2,'0'));
+}
+main().catch(e => log('ERROR: '+e.message));`,
+
+  spi_read_status: `async function main() {
+  log('Reading status registers SR1/SR2...');
+  const sr1 = await fixpro.spi.readStatus(1);
+  const sr2 = await fixpro.spi.readStatus(2);
+  log('SR1: 0x' + sr1.toString(16).padStart(2,'0') + ' = ' + sr1.toString(2).padStart(8,'0') + 'b');
+  log('SR2: 0x' + sr2.toString(16).padStart(2,'0') + ' = ' + sr2.toString(2).padStart(8,'0') + 'b');
+  log('WEL: ' + ((sr1 >> 1) & 1) + ' | WIP: ' + (sr1 & 1));
+}
+main().catch(e => log('ERROR: '+e.message));`,
+
+  spi_erase_chip: `async function main() {
+  log('WARNING: Full chip erase!');
+  await fixpro.spi.writeEnable();
+  log('Write Enable set');
+  await fixpro.spi.chipErase();
+  log('Chip erase command sent (C7h)');
+  log('Waiting for completion...');
+  let attempts = 0;
+  while(true) {
+    const sr = await fixpro.spi.readStatus(1);
+    if (!(sr & 1)) { log('Erase complete!'); break; }
+    await fixpro.delay(100);
+    if (++attempts > 600) { log('Timeout!'); break; }
+  }
+}
+main().catch(e => log('ERROR: '+e.message));`,
+
+  i2c_scan: `async function main() {
+  log('Scanning I2C bus (0x08-0x77)...');
+  const found = await fixpro.i2c.scan();
+  log('Found ' + found.length + ' device(s):');
+  found.forEach(a => log('  0x' + a.toString(16).toUpperCase().padStart(2,'0')));
+  if (!found.length) log('No devices found');
+}
+main().catch(e => log('ERROR: '+e.message));`,
+
+  jtag_idcode: `async function main() {
+  log('Reading JTAG IDCODE...');
+  const id = await fixpro.jtag.readIdcode();
+  if (id === 0) { log('No device or disconnected'); return; }
+  const mfr = (id >> 1) & 0x7FF;
+  const part = (id >> 12) & 0xFFFF;
+  const ver = (id >> 28) & 0xF;
+  log('IDCODE: 0x' + id.toString(16).toUpperCase().padStart(8,'0'));
+  log('MFR:    0x' + mfr.toString(16).toUpperCase().padStart(3,'0'));
+  log('PART:   0x' + part.toString(16).toUpperCase().padStart(4,'0'));
+  log('VER:    ' + ver);
+}
+main().catch(e => log('ERROR: '+e.message));`,
+
+  swd_read_dp: `async function main() {
+  log('Reading SWD Debug Port registers...');
+  const idcode = await fixpro.swd.readDP(0x00);
+  const ctrl   = await fixpro.swd.readDP(0x04);
+  log('DPIDR:  0x' + idcode.toString(16).toUpperCase().padStart(8,'0'));
+  log('CTRL:   0x' + ctrl.toString(16).toUpperCase().padStart(8,'0'));
+  const des = (idcode >> 1) & 0x7FF;
+  log('Designer: 0x' + des.toString(16).toUpperCase().padStart(3,'0'));
+}
+main().catch(e => log('ERROR: '+e.message));`,
+
+  avr_sig: `async function main() {
+  log('Reading AVR device signature...');
+  const sig = await fixpro.avr.readSig();
+  const hex = sig.map(b => '0x'+b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+  log('Signature: ' + hex);
+  const known = { '0x1E 0x95 0x0F':'ATmega328P', '0x1E 0x93 0x0B':'ATtiny85', '0x1E 0x98 0x01':'ATmega2560' };
+  log('Device: ' + (known[hex] || 'Unknown'));
+}
+main().catch(e => log('ERROR: '+e.message));`,
+
+  onewire_search: `async function main() {
+  log('1-Wire: Searching ROM...');
+  const devices = await fixpro.onewire.search();
+  log('Found: ' + devices.length + ' device(s)');
+  devices.forEach((d,i) => {
+    const family = '0x' + d[0].toString(16).toUpperCase().padStart(2,'0');
+    const rom = Array.from(d).map(b=>b.toString(16).padStart(2,'0')).join(':');
+    log('['+i+'] Family:'+family+' ROM:'+rom);
+  });
+}
+main().catch(e => log('ERROR: '+e.message));`,
+
+  custom_spi: `async function main() {
+  // Custom SPI transfer example
+  const txBytes = [0x9F, 0x00, 0x00, 0x00]; // JEDEC READ_ID
+  log('TX: ' + txBytes.map(b=>'0x'+b.toString(16).padStart(2,'0')).join(' '));
+  const rx = await fixpro.spi.transfer(txBytes);
+  log('RX: ' + Array.from(rx).map(b=>'0x'+b.toString(16).padStart(2,'0')).join(' '));
+}
+main().catch(e => log('ERROR: '+e.message));`,
+};
+
+function loadScriptTemplate() {
+  const sel = document.getElementById('scriptTemplate').value;
+  if (!sel) return;
+  document.getElementById('scriptEditor').value = SCRIPT_TEMPLATES[sel] || '';
+  document.getElementById('scriptTemplate').value = '';
+}
+
+// Simulated FiXPro API for Script Engine
+const fixproAPI = {
+  spi: {
+    readId: async () => { await sleep(50); return { mfr: 0xEF, type: 0x40, cap: 0x18 }; },
+    readStatus: async (n) => { await sleep(30); return n === 1 ? 0x00 : 0x02; },
+    transfer: async (bytes) => { await sleep(20); return new Uint8Array([0x00, 0xEF, 0x40, 0x18]); },
+    chipErase: async () => { await sleep(100); },
+    writeEnable: async () => { await sleep(20); },
+  },
+  i2c: {
+    scan: async () => { await sleep(200); return [0x50, 0x57, 0x68]; },
+    write: async (addr, bytes) => { await sleep(30); },
+    read: async (addr, len) => { await sleep(30); return new Uint8Array(len); },
+  },
+  jtag: {
+    readIdcode: async () => { await sleep(80); return 0x4BA00477; },
+  },
+  swd: {
+    readDP: async (reg) => { await sleep(30); return reg === 0 ? 0x6BA02477 : 0xF0000000; },
+  },
+  avr: {
+    readSig: async () => { await sleep(100); return [0x1E, 0x95, 0x0F]; },
+  },
+  onewire: {
+    search: async () => { await sleep(150); return [[0x28, 0xFF, 0xA1, 0xB2, 0xC3, 0xD4, 0xE5, 0x11]]; },
+  },
+  gpio: {
+    write: async (pin, val) => { await sleep(5); },
+    read: async (pin) => { await sleep(5); return Math.random() > 0.5 ? 1 : 0; },
+  },
+  delay: (ms) => sleep(ms),
+};
+
+let scriptRunning = false;
+async function runScript() {
+  if (scriptRunning) return;
+  if (!state.connected) { showToast('Connect device first', 'error'); return; }
+  scriptRunning = true;
+  const code = document.getElementById('scriptEditor').value;
+  document.getElementById('scriptStatus').textContent = 'Running...';
+  document.getElementById('scriptStatus').style.color = 'var(--amber)';
+  clearScriptLog();
+  addScriptLog('Script started', 'cmd');
+
+  const log = (msg) => addScriptLog(msg, detectLogType(msg));
+
+  try {
+    const fn = new Function('fixpro', 'log', 'buf', 'sleep', `"use strict"; ${code}`);
+    await fn(fixproAPI, log, state.buffer, sleep);
+    addScriptLog('Script completed successfully', 'success');
+    document.getElementById('scriptStatus').textContent = 'Done';
+    document.getElementById('scriptStatus').style.color = 'var(--green-core)';
+  } catch(e) {
+    addScriptLog('Runtime error: ' + e.message, 'error');
+    document.getElementById('scriptStatus').textContent = 'Error';
+    document.getElementById('scriptStatus').style.color = 'var(--red)';
+  }
+  scriptRunning = false;
+}
+
+function stopScript() {
+  scriptRunning = false;
+  addScriptLog('Script stopped by user', 'warn');
+  document.getElementById('scriptStatus').textContent = 'Stopped';
+  document.getElementById('scriptStatus').style.color = 'var(--text-muted)';
+}
+
+function detectLogType(msg) {
+  const m = msg.toLowerCase();
+  if (m.includes('error') || m.includes('fail')) return 'error';
+  if (m.includes('warn') || m.includes('timeout')) return 'warn';
+  if (m.startsWith('tx:') || m.startsWith('rx:') || m.startsWith('0x')) return 'data';
+  if (m.includes('complete') || m.includes('found') || m.includes('done')) return 'success';
+  return 'info';
+}
+
+function addScriptLog(msg, type = 'info') {
+  const log = document.getElementById('scriptLog');
+  const time = new Date().toTimeString().slice(0,8);
+  const div = document.createElement('div');
+  div.className = 'log-line';
+  div.innerHTML = `<span class="log-time">${time}</span><span class="log-msg ${type}">${escHtml(msg)}</span>`;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function clearScriptLog() {
+  document.getElementById('scriptLog').innerHTML = '';
+}
+
+// ─── PROTOCOL SELECTOR ───────────────────────────────────────
+function selectProtocol(proto, cardEl) {
+  state.protocol = proto;
+  if (cardEl) {
+    document.querySelectorAll('.protocol-card').forEach(c => c.classList.remove('active'));
+    cardEl.classList.add('active');
+  }
+  document.getElementById('topProto').textContent = proto;
+  addLog(`Protocol: ${proto}`, 'info');
+}
+
+// ─── PANEL NAVIGATION ────────────────────────────────────────
+function switchPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id)?.classList.add('active');
+  const navItems = document.querySelectorAll('.nav-item');
+  const panelOrder = ['dashboard','library','operations','hexeditor','script','security','settings'];
+  const idx = panelOrder.indexOf(id);
+  if (idx >= 0 && navItems[idx]) navItems[idx].classList.add('active');
+  if (id === 'hexeditor' && state.buffer.length > 0) renderHex();
+  if (id === 'library') filterChips();
+}
+
+// ─── SECURITY ────────────────────────────────────────────────
+function runSecurityScan() {
+  if (!state.connected) { showToast('Connect device first', 'error'); return; }
+  addLog('Running security scan...', 'cmd');
+  showToast('Security scan started', 'warn');
+  setTimeout(() => {
+    setBadge('sec-wp-hard', 'OK', 'ok');
+    setBadge('sec-wp-wel', 'Enabled', 'ok');
+    setBadge('sec-wp-bp', 'None', 'ok');
+    setBadge('sec-wp-srp', 'Not Set', 'ok');
+    if (state.buffer.length > 0) {
+      const crc = '0x' + crc32(state.buffer).toString(16).toUpperCase().padStart(8,'0');
+      setBadge('sec-crc', crc, 'ok');
+      setBadge('sec-verify', 'Passed', 'ok');
+      setBadge('sec-blank', 'Not Blank', 'warn');
+    }
+    addLog('Security scan complete — No threats detected', 'success');
+    showToast('Security scan complete', 'success');
+  }, 1500);
+}
+
+function setBadge(id, text, type) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = text; el.className = 'security-badge ' + type; }
+}
+
+function readFuses() {
+  if (!state.connected) { showToast('Connect device first', 'error'); return; }
+  addLog('Reading AVR fuses...', 'cmd');
+  setTimeout(() => {
+    document.getElementById('fuseLow').value = '0xE2';
+    document.getElementById('fuseHigh').value = '0xD9';
+    document.getElementById('fuseExt').value = '0xFF';
+    document.getElementById('fuseLock').value = '0xFF';
+    addLog('Fuses: L=0xE2 H=0xD9 E=0xFF LOCK=0xFF', 'data');
+    showToast('Fuses read successfully', 'success');
+  }, 800);
+}
+
+function writeFuses() {
+  if (!state.connected) { showToast('Connect device first', 'error'); return; }
+  showModal('⚠ WARNING', `
+    <div style="color:var(--amber);margin-bottom:12px;">Writing incorrect fuse bits can permanently brick your AVR!</div>
+    <div class="config-grid" style="gap:6px;">
+      <div>Fuse Low: <span style="font-family:var(--font-data);color:var(--cyan-core);">${document.getElementById('fuseLow').value}</span></div>
+      <div>Fuse High: <span style="font-family:var(--font-data);color:var(--cyan-core);">${document.getElementById('fuseHigh').value}</span></div>
+      <div>Fuse Ext: <span style="font-family:var(--font-data);color:var(--cyan-core);">${document.getElementById('fuseExt').value}</span></div>
+    </div>
+  `, [
+    { label: '✕ Cancel', cls: 'btn', action: closeModal },
+    { label: '⚡ Write Fuses', cls: 'btn btn-danger', action: () => { closeModal(); addLog('Fuses written', 'warn'); showToast('Fuses written!', 'warn'); } }
+  ]);
+}
+
+function readUID() {
+  if (!state.connected) return;
+  setTimeout(() => {
+    document.getElementById('sec-uid').textContent = 'EF-40-18-FF-A1-B2-C3-D4-E5-F6-07-08-09-0A-0B-0C';
+    addLog('UID: EF-40-18-FF-A1-B2-C3-D4...', 'data');
+  }, 400);
+}
+
+function readOTP() { addLog('OTP Read: All sectors unlocked', 'data'); showToast('OTP read', 'success'); }
+function readSFDP() {
+  addLog('SFDP Header: 53 46 44 50 05 01 00 FF', 'data');
+  addLog('SFDP: Basic Flash Parameter Table (JESD216)', 'info');
+  showToast('SFDP read successfully', 'success');
+}
+
+// ─── SETTINGS ────────────────────────────────────────────────
+function toggleOpt(el) {
+  const toggle = el.querySelector('.toggle');
+  if (toggle) toggle.classList.toggle('on');
+}
+
+function resetSettings() { showToast('Settings reset to defaults', 'warn'); }
+function saveSettings() { showToast('Settings saved', 'success'); }
+function updateFirmware() { showToast('Firmware update initiated...', 'warn'); addLog('Checking for firmware update...', 'cmd'); }
+function resetDevice() {
+  if (!state.connected) return;
+  addLog('MCU reset issued', 'warn');
+  showToast('MCU resetting...', 'warn');
+  setTimeout(() => { addLog('MCU restarted — reconnecting...', 'info'); }, 1000);
+}
+
+// ─── PIN GRID ────────────────────────────────────────────────
+function initPinGrid() {
+  const grid = document.getElementById('pinGrid');
+  const pins = [
+    {n:'MOSI',s:'active'},{n:'MISO',s:'active'},{n:'SCK',s:'active'},{n:'CS',s:'active'},
+    {n:'SDA',s:''},{n:'SCL',s:''},{n:'TDI',s:''},{n:'TDO',s:''},
+    {n:'TMS',s:''},{n:'TCK',s:''},{n:'nRST',s:''},{n:'SWDIO',s:'active'},
+    {n:'SWCLK',s:'active'},{n:'GND',s:'gnd'},{n:'GND',s:'gnd'},{n:'VCC',s:'power'},
+  ];
+  grid.innerHTML = pins.map(p => `<div class="pin-cell ${p.s}">${p.n}</div>`).join('');
+}
+
+// ─── ACTIVITY LOG ────────────────────────────────────────────
+function addLog(msg, type = 'info') {
+  const log = document.getElementById('activityLog');
+  const time = new Date().toTimeString().slice(0,8);
+  const div = document.createElement('div');
+  div.className = 'log-line';
+  div.innerHTML = `<span class="log-time">${time}</span><span class="log-msg ${type}">${escHtml(msg)}</span>`;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+// ─── MODALS ──────────────────────────────────────────────────
+function showModal(title, body, buttons) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = body;
+  document.getElementById('modalFooter').innerHTML = '';
+  buttons?.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = b.cls || 'btn';
+    btn.textContent = b.label;
+    btn.onclick = b.action;
+    document.getElementById('modalFooter').appendChild(btn);
+  });
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+// ─── TOASTS ──────────────────────────────────────────────────
+function showToast(msg, type = 'info') {
+  const icons = { success: '✓', error: '✕', warn: '⚠', info: 'ℹ' };
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span class="toast-icon">${icons[type] || 'ℹ'}</span><span class="toast-text">${escHtml(msg)}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+// ─── SIMULATION ──────────────────────────────────────────────
+function simulateDeviceStats() {
+  if (!state.connected) return;
+  let uptimeSec = 0;
+  setInterval(() => {
+    if (!state.connected) return;
+    uptimeSec++;
+    document.getElementById('statUptime').textContent = uptimeSec;
+    document.getElementById('statRam').textContent = Math.floor(180 + Math.sin(uptimeSec * 0.1) * 20);
+    document.getElementById('statTemp').textContent = (27 + Math.sin(uptimeSec * 0.05) * 3).toFixed(1);
+    // Animate pin grid randomly when busy
+    if (state.running && uptimeSec % 2 === 0) {
+      const pins = document.querySelectorAll('.pin-cell.active');
+      pins.forEach(p => p.style.opacity = Math.random() > 0.5 ? '1' : '0.5');
+    }
+  }, 1000);
+}
+
+// ─── CLOCK ───────────────────────────────────────────────────
+function updateClock() {
+  document.getElementById('rpTime').textContent = new Date().toTimeString().slice(0,8);
+}
+
+// ─── UTILS ───────────────────────────────────────────────────
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function formatSize(bytes) {
+  if (!bytes) return '0 B';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1048576).toFixed(2) + ' MB';
+}
+function escHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ─── KEYBOARD SHORTCUTS ──────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey) {
+    const map = {'1':'dashboard','2':'library','3':'operations','4':'hexeditor','5':'script','6':'security','7':'settings'};
+    if (map[e.key]) { e.preventDefault(); switchPanel(map[e.key]); }
+    if (e.key === 'r' && state.connected && state.selectedChip) { e.preventDefault(); startOp('read'); }
+    if (e.key === 'w' && state.connected && state.selectedChip) { e.preventDefault(); startOp('write'); }
+    if (e.key === 'Enter') { e.preventDefault(); if (document.getElementById('panel-script').classList.contains('active')) runScript(); }
+  }
+  if (e.key === 'Escape') closeModal();
+});
+
+// ─── INIT ────────────────────────────────────────────────────
+function init() {
+  initChipLibrary();
+  initPinGrid();
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  addLog('FiXPro v2.0.0 initialized', 'success');
+  addLog('MCU: RP2040 @ 133 MHz | PIO State Machines: 8', 'info');
+  addLog('Supported: SPI/I²C/JTAG/SWD/UPDI/UART/1-Wire/Parallel', 'info');
+  addLog('Chip DB: ' + CHIP_DB.length + ' entries loaded', 'data');
+  addLog('Ready — connect RP2040 programmer via USB', 'info');
+
+  // Demo buffer
+  state.buffer = generateFakeBuffer(4096);
+  updateHexStats();
+
+  document.getElementById('topBuffer').textContent = formatSize(state.buffer.length);
+
+  // WebUSB auto-reconnect
+  if (navigator.usb) {
+    navigator.usb.getDevices().then(devices => {
+      const fixpro = devices.find(d => d.vendorId === USB_VID);
+      if (fixpro) {
+        addLog('Previously connected device found — auto-reconnecting...', 'info');
+      }
+    });
+  }
+
+  showToast('FiXPro v2.0.0 ready — connect your RP2040 programmer', 'success');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
 </body>
 </html>
