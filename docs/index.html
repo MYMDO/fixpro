@@ -333,6 +333,8 @@ body::before {
 .btn-amber { border-color: var(--amber); color: var(--amber); background: rgba(255,170,0,0.06); }
 .btn-amber:hover:not(:disabled) { background: rgba(255,170,0,0.18); }
 .btn-sm { padding: 4px 10px; font-size: 10px; }
+.btn-green { background: rgba(0,255,136,0.15); color: var(--green-core); border-color: var(--green-core); }
+.btn-green:hover { background: rgba(0,255,136,0.25); }
 .btn-lg { padding: 10px 24px; font-size: 12px; font-weight: 700; letter-spacing: 2px; }
 
 /* ─── CARDS ─── */
@@ -1139,6 +1141,19 @@ body::before {
           <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
             <button class="btn btn-primary btn-sm" onclick="switchPanel('library')">◫ Browse Library</button>
             <button class="btn btn-cyan btn-sm" onclick="autoDetect()">⚡ Auto-Detect</button>
+          </div>
+        </div>
+
+        <!-- FiXPro Hardware Control -->
+        <div class="card fade-in" id="fixpro-control" style="display:none;">
+          <div class="card-header">◈ FiXPro Hardware Control</div>
+          <div class="card-body" style="display:flex;flex-wrap:wrap;gap:8px;">
+            <button class="btn btn-sm btn-green" onclick="fixproPing()">🔄 PING</button>
+            <button class="btn btn-sm" onclick="fixproCaps()">📋 CAPS</button>
+            <button class="btn btn-sm" onclick="fixproGpioTest()">🔌 GPIO</button>
+            <button class="btn btn-sm btn-cyan" onclick="fixproSpiReadId()">💾 SPI ID</button>
+            <button class="btn btn-sm" onclick="fixproI2cScan()">⇌ I2C Scan</button>
+            <button class="btn btn-sm" onclick="fixproHelp()">❓ HELP</button>
           </div>
         </div>
 
@@ -2426,6 +2441,7 @@ async function connectDevice() {
     await opup.connect();
     state.connected = true;
     addLog('Connected: FiXPro via Web Serial', 'success');
+    document.getElementById('fixpro-control').style.display = 'block';
     updateConnectionUI(true);
     return true;
   } catch(e) {
@@ -2441,6 +2457,7 @@ async function disconnectDevice() {
   } catch(e) {}
   state.connected = false;
   state.device = null;
+  document.getElementById('fixpro-control').style.display = 'none';
   updateConnectionUI(false);
   addLog('Device disconnected', 'warn');
 }
@@ -3311,7 +3328,51 @@ function showToast(msg, type = 'info') {
   setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
-// ─── SIMULATION ──────────────────────────────────────────────
+// ─── FiXPro API ─────────────────────────────────────────────
+async function fixproPing() {
+  if (!state.connected) { addLog('Not connected', 'error'); return; }
+  try {
+    await opup.ping();
+    addLog('PING successful', 'success');
+  } catch (e) { addLog('PING failed: ' + e.message, 'error'); }
+}
+
+async function fixproCaps() {
+  if (!state.connected) { addLog('Not connected', 'error'); return; }
+  try {
+    await opup.getCaps();
+    addLog('CAPS requested', 'info');
+  } catch (e) { addLog('CAPS failed: ' + e.message, 'error'); }
+}
+
+async function fixproGpioTest() {
+  if (!state.connected) { addLog('Not connected', 'error'); return; }
+  try {
+    await opup.gpioTest();
+    addLog('GPIO test requested', 'info');
+  } catch (e) { addLog('GPIO test failed: ' + e.message, 'error'); }
+}
+
+async function fixproSpiReadId() {
+  if (!state.connected) { addLog('Not connected', 'error'); return; }
+  addLog('Reading SPI Flash ID...', 'cmd');
+  try {
+    await opup.spiReadId();
+  } catch (e) { addLog('SPI read ID failed: ' + e.message, 'error'); }
+}
+
+async function fixproI2cScan() {
+  if (!state.connected) { addLog('Not connected', 'error'); return; }
+  addLog('Scanning I2C bus...', 'cmd');
+  try {
+    await opup.i2cScan();
+  } catch (e) { addLog('I2C scan failed: ' + e.message, 'error'); }
+}
+
+async function fixproHelp() {
+  addLog('FiXPro Commands: PING, CAPS, GPIO_TEST, SPI_ID, I2C_SCAN', 'info');
+}
+
 function simulateDeviceStats() {
   if (!state.connected) return;
   let uptimeSec = 0;
@@ -3321,7 +3382,6 @@ function simulateDeviceStats() {
     document.getElementById('statUptime').textContent = uptimeSec;
     document.getElementById('statRam').textContent = Math.floor(180 + Math.sin(uptimeSec * 0.1) * 20);
     document.getElementById('statTemp').textContent = (27 + Math.sin(uptimeSec * 0.05) * 3).toFixed(1);
-    // Animate pin grid randomly when busy
     if (state.running && uptimeSec % 2 === 0) {
       const pins = document.querySelectorAll('.pin-cell.active');
       pins.forEach(p => p.style.opacity = Math.random() > 0.5 ? '1' : '0.5');
