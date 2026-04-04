@@ -38,7 +38,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: fixpro-firmware
-          path: ./
+          path: ./release
+
+      - name: List files
+        run: |
+          echo "=== Release directory ==="
+          ls -la release/
+          echo ""
+          echo "=== Current directory ==="
+          pwd
+          ls -la
 
       - name: Get version
         id: version
@@ -46,11 +55,11 @@ jobs:
           VERSION="v2.0.$(date +%Y%m%d%H%M%S)"
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Rename firmware
-        run: mv firmware.uf2 FiXPro.uf2
-
-      - name: Create checksums
-        run: sha256sum FiXPro.uf2 > SHA256SUMS.txt
+      - name: Copy firmware
+        run: |
+          cp release/firmware.uf2 FiXPro.uf2
+          sha256sum FiXPro.uf2 > SHA256SUMS.txt
+          ls -la FiXPro.uf2 SHA256SUMS.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
