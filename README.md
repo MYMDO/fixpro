@@ -4,10 +4,10 @@
 
 **Universal Hardware Programmer for SPI Flash, I2C EEPROM, ARM MCU & AVR**
 
-[![License: GPL v3](https://img.shields.io/github/license/MYMDO/fixpro?style=flat-square)](LICENSE)
-[![Build](https://img.shields.io/github/actions/workflow/status/MYMDO/fixpro/build.yml?style=flat-square)](https://github.com/MYMDO/fixpro/actions)
-[![Release](https://img.shields.io/github/v/release/MYMDO/fixpro?style=flat-square)](https://github.com/MYMDO/fixpro/releases)
-[![Web](https://img.shields.io/badge/Web-ready-brightgreen?style=flat-square)](docs/index.html)
+![License](https://img.shields.io/github/license/MYMDO/fixpro)
+![Build](https://img.shields.io/github/actions/workflow/status/MYMDO/fixpro/build.yml)
+![Release](https://img.shields.io/github/v/release/MYMDO/fixpro)
+![Web](https://img.shields.io/badge/Web-ready-brightgreen)
 
 *Raspberry Pi RP2040 • Web Serial API • No Drivers Required*
 
