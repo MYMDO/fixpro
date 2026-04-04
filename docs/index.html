@@ -2329,15 +2329,23 @@ class OPUPClient {
     this.connected = true;
     this.readLoop();
     
-    // Test connection with PING
+    // Test connection with text PING
     try {
-      const resp = await this.sendCommand(OPUP_CMD.SYS_PING, new Uint8Array(0), 2000);
-      addLog('OPUP Protocol active', 'success');
-      return true;
+      await this.sendText('PING\n');
+      addLog('PING OK', 'success');
     } catch (e) {
       addLog('PING failed: ' + e.message, 'warn');
-      return true; // Still connected
     }
+    
+    return true;
+  }
+
+  async sendText(text) {
+    if (!this.port) throw new Error('Not connected');
+    const enc = new TextEncoder();
+    const writer = this.port.writable.getWriter();
+    await writer.write(enc.encode(text));
+    writer.releaseLock();
   }
 
   async disconnect() {
@@ -2461,24 +2469,23 @@ class OPUPClient {
   }
 
   async ping() {
-    return this.sendCommand(OPUP_CMD.SYS_PING);
+    return this.sendText('PING\n');
   }
 
   async getCaps() {
-    const resp = await this.sendCommand(OPUP_CMD.SYS_GET_CAPS);
-    return new TextDecoder().decode(resp.payload);
+    return this.sendText('CAPS\n');
   }
 
   async gpioTest() {
-    return this.sendCommand(OPUP_CMD.SYS_GPIO_TEST);
+    return this.sendText('GPIO\n');
   }
 
   async spiReadId() {
-    return this.sendCommand(OPUP_CMD.SPI_READ_ID);
+    return this.sendText('SPI_ID\n');
   }
 
   async i2cScan() {
-    return this.sendCommand(OPUP_CMD.I2C_SCAN);
+    return this.sendText('I2C_SCAN\n');
   }
 }
 
