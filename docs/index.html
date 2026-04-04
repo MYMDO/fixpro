@@ -702,11 +702,18 @@ body::before {
   border: 1px solid var(--border);
 }
 .chip-proto-badge.SPI { color: var(--green-dim); border-color: rgba(0,204,106,0.3); }
+.chip-proto-badge.SPI_NAND { color: #00ffcc; border-color: rgba(0,255,204,0.3); background: rgba(0,255,204,0.06); }
 .chip-proto-badge.I2C { color: var(--cyan-dim); border-color: rgba(0,155,191,0.3); }
+.chip-proto-badge.MICROWIRE { color: #ff8c00; border-color: rgba(255,140,0,0.3); background: rgba(255,140,0,0.06); }
+.chip-proto-badge.FWH { color: var(--green-core); border-color: rgba(0,255,136,0.5); background: rgba(0,255,136,0.08); font-weight: 700; }
 .chip-proto-badge.JTAG,.chip-proto-badge.SWD { color: var(--purple); border-color: rgba(155,89,255,0.3); }
 .chip-proto-badge.ISP { color: var(--amber-dim); border-color: rgba(204,136,0,0.3); }
+.chip-proto-badge.HVSP,.chip-proto-badge.HVPP { color: #ff6600; border-color: rgba(255,102,0,0.3); background: rgba(255,102,0,0.06); }
 .chip-proto-badge.UART { color: var(--red-dim); border-color: rgba(204,34,68,0.3); }
 .chip-proto-badge.1W { color: #ff8c00; border-color: rgba(255,140,0,0.3); }
+.chip-proto-badge.S3F { color: #aa88ff; border-color: rgba(170,136,255,0.3); background: rgba(170,136,255,0.06); }
+.chip-proto-badge.NUVOTON { color: #44ccff; border-color: rgba(68,204,255,0.3); background: rgba(68,204,255,0.06); }
+.chip-proto-badge.PIC { color: #ffcc44; border-color: rgba(255,204,68,0.3); background: rgba(255,204,68,0.06); }
 
 /* ─── SCRIPT ENGINE ─── */
 .script-layout { display: grid; grid-template-rows: auto 1fr auto; gap: 10px; height: 100%; }
@@ -1074,14 +1081,14 @@ body::before {
       <div class="mcu-badge-icon">🔬</div>
       <div class="mcu-badge-info">
         <div class="mcu-badge-name">RP2040</div>
-        <div class="mcu-badge-sub">FiXPro MCU • PIO-based</div>
+        <div class="mcu-badge-sub">Recommended MCU • Open</div>
       </div>
       <div class="mcu-badge-price">~$1</div>
     </div>
 
     <div class="sidebar-footer">
       FiXPro v2.0.0 • Open Source • MIT<br>
-      <a href="https://github.com/MYMDO/fixpro" target="_blank">github.com/MYMDO/fixpro</a>
+      <a href="#">github.com/fixpro</a>
     </div>
   </nav>
 
@@ -1165,23 +1172,38 @@ body::before {
 
         <!-- Protocol selector -->
         <div class="card fade-in">
-          <div class="card-header">⬡ Protocol Selection</div>
+          <div class="card-header">⬡ Protocol Selection <span style="margin-left:auto;font-size:9px;color:var(--text-muted);font-family:var(--font-data);">RP2040 PIO — всі протоколи в залізі</span></div>
           <div class="card-body">
-            <div class="protocol-grid">
+            <div class="protocol-grid" style="grid-template-columns:repeat(5,1fr);">
               <div class="protocol-card active" onclick="selectProtocol('SPI',this)">
                 <div class="protocol-icon">⟳</div>
-                <div class="protocol-name">SPI</div>
-                <div class="protocol-desc">NOR/NAND Flash, EEPROM</div>
+                <div class="protocol-name">SPI NOR</div>
+                <div class="protocol-desc">до 62.5 MHz PIO</div>
+              </div>
+              <div class="protocol-card" onclick="selectProtocol('SPI_NAND',this)">
+                <div class="protocol-icon">⬡</div>
+                <div class="protocol-name">SPI NAND</div>
+                <div class="protocol-desc">W25N01G, GD5F</div>
               </div>
               <div class="protocol-card" onclick="selectProtocol('I2C',this)">
                 <div class="protocol-icon">⇌</div>
                 <div class="protocol-name">I²C</div>
-                <div class="protocol-desc">EEPROM, Sensors, RTC</div>
+                <div class="protocol-desc">400 kHz Fast Mode</div>
+              </div>
+              <div class="protocol-card" onclick="selectProtocol('MICROWIRE',this)">
+                <div class="protocol-icon">↺</div>
+                <div class="protocol-name">MicroWire</div>
+                <div class="protocol-desc">93Cxx / 59C / BR90</div>
+              </div>
+              <div class="protocol-card proto-fwh" onclick="selectProtocol('FWH',this)" style="border-color:rgba(0,255,136,0.35);background:rgba(0,255,136,0.05);">
+                <div class="protocol-icon" style="color:var(--green-core);">⊟</div>
+                <div class="protocol-name" style="color:var(--green-dim);">FWH</div>
+                <div class="protocol-desc" style="color:var(--green-dim);">BIOS Firmware Hub</div>
               </div>
               <div class="protocol-card" onclick="selectProtocol('JTAG',this)">
                 <div class="protocol-icon">⊛</div>
                 <div class="protocol-name">JTAG</div>
-                <div class="protocol-desc">ARM, FPGA, Debug</div>
+                <div class="protocol-desc">ARM, FPGA, RISC-V</div>
               </div>
               <div class="protocol-card" onclick="selectProtocol('SWD',this)">
                 <div class="protocol-icon">◈</div>
@@ -1190,13 +1212,18 @@ body::before {
               </div>
               <div class="protocol-card" onclick="selectProtocol('AVR_ISP',this)">
                 <div class="protocol-icon">△</div>
-                <div class="protocol-name">UPDI</div>
-                <div class="protocol-desc">ATmega, ATtiny, ATtiny-0</div>
+                <div class="protocol-name">AVR ISP</div>
+                <div class="protocol-desc">ATmega / ATtiny</div>
+              </div>
+              <div class="protocol-card" onclick="selectProtocol('AVR_HVSP',this)">
+                <div class="protocol-icon">⚡</div>
+                <div class="protocol-name">HVSP/HVPP</div>
+                <div class="protocol-desc">High Voltage Prog</div>
               </div>
               <div class="protocol-card" onclick="selectProtocol('UART',this)">
                 <div class="protocol-icon">⟶</div>
-                <div class="protocol-name">UART</div>
-                <div class="protocol-desc">Bootloader flash</div>
+                <div class="protocol-name">UART/UPDI</div>
+                <div class="protocol-desc">Bootloader / AVR</div>
               </div>
               <div class="protocol-card" onclick="selectProtocol('1WIRE',this)">
                 <div class="protocol-icon">—</div>
@@ -1207,6 +1234,21 @@ body::before {
                 <div class="protocol-icon">⋮</div>
                 <div class="protocol-name">Parallel</div>
                 <div class="protocol-desc">NOR Flash, GAL, PAL</div>
+              </div>
+              <div class="protocol-card" onclick="selectProtocol('S3F',this)">
+                <div class="protocol-icon">◇</div>
+                <div class="protocol-name">S3F</div>
+                <div class="protocol-desc">Samsung S3F MCU</div>
+              </div>
+              <div class="protocol-card" onclick="selectProtocol('NUVOTON',this)">
+                <div class="protocol-icon">◬</div>
+                <div class="protocol-name">Nuvoton 51</div>
+                <div class="protocol-desc">N76E003, MS51</div>
+              </div>
+              <div class="protocol-card" onclick="selectProtocol('PIC',this)">
+                <div class="protocol-icon">⬟</div>
+                <div class="protocol-name">PIC ICSP</div>
+                <div class="protocol-desc">PIC10/12/16/18</div>
               </div>
             </div>
           </div>
@@ -1251,12 +1293,19 @@ body::before {
           <input type="text" class="search-input" id="chipSearch" placeholder="Search by name, ID, capacity..." oninput="filterChips()">
           <div class="chip-filters" id="chipFilters">
             <span class="filter-chip active" data-filter="all" onclick="setFilter('all',this)">All</span>
-            <span class="filter-chip" data-filter="SPI" onclick="setFilter('SPI',this)">SPI</span>
+            <span class="filter-chip" data-filter="SPI" onclick="setFilter('SPI',this)">SPI NOR</span>
+            <span class="filter-chip" data-filter="SPI_NAND" onclick="setFilter('SPI_NAND',this)">NAND</span>
+            <span class="filter-chip" data-filter="FWH" onclick="setFilter('FWH',this)" style="color:var(--green-core);border-color:rgba(0,255,136,0.4);">FWH</span>
             <span class="filter-chip" data-filter="I2C" onclick="setFilter('I2C',this)">I²C</span>
+            <span class="filter-chip" data-filter="MICROWIRE" onclick="setFilter('MICROWIRE',this)">MicroWire</span>
+            <span class="filter-chip" data-filter="ISP" onclick="setFilter('ISP',this)">AVR ISP</span>
+            <span class="filter-chip" data-filter="HVSP" onclick="setFilter('HVSP',this)">HVSP/PP</span>
+            <span class="filter-chip" data-filter="SWD" onclick="setFilter('SWD',this)">SWD/ARM</span>
             <span class="filter-chip" data-filter="JTAG" onclick="setFilter('JTAG',this)">JTAG</span>
-            <span class="filter-chip" data-filter="SWD" onclick="setFilter('SWD',this)">SWD</span>
-            <span class="filter-chip" data-filter="ISP" onclick="setFilter('ISP',this)">UPDI</span>
-            <span class="filter-chip" data-filter="UART" onclick="setFilter('UART',this)">UART</span>
+            <span class="filter-chip" data-filter="UART" onclick="setFilter('UART',this)">UART/UPDI</span>
+            <span class="filter-chip" data-filter="S3F" onclick="setFilter('S3F',this)">S3F</span>
+            <span class="filter-chip" data-filter="NUVOTON" onclick="setFilter('NUVOTON',this)">Nuvoton</span>
+            <span class="filter-chip" data-filter="PIC" onclick="setFilter('PIC',this)">PIC</span>
             <span class="filter-chip" data-filter="1W" onclick="setFilter('1W',this)">1-Wire</span>
           </div>
         </div>
@@ -1270,7 +1319,8 @@ body::before {
                 <th>Voltage</th>
                 <th>JEDEC / ID</th>
                 <th>Page</th>
-                <th>Erase</th>
+                <th style="color:var(--green-dim)">Read ⚡</th>
+                <th style="color:var(--amber)">Write ⚡</th>
               </tr>
             </thead>
             <tbody id="chipTableBody"></tbody>
@@ -1821,51 +1871,114 @@ main().catch(e => log('ERROR: ' + e.message));
           </div>
 
           <div class="card" style="grid-column:1/-1;">
-            <div class="card-header">🔬 MCU Recommendation — Why RP2040?</div>
-            <div class="card-body">
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
-                <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r);padding:10px;">
-                  <div style="font-family:var(--font-display);font-size:11px;color:var(--text-muted);margin-bottom:6px;">CH341A</div>
-                  <div style="font-size:10px;color:var(--text-muted);line-height:1.8;">
-                    ✗ Fixed SPI/I2C/UART only<br>
-                    ✗ No JTAG/SWD support<br>
-                    ✗ 5V GPIO (damages 3.3V chips)<br>
-                    ✗ Closed source bridge<br>
-                    ✓ ~$1.5 cost<br>
-                    ✗ ~1 MB/s max speed
-                  </div>
-                </div>
-                <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r);padding:10px;">
-                  <div style="font-family:var(--font-display);font-size:11px;color:var(--text-muted);margin-bottom:6px;">USBasp</div>
-                  <div style="font-size:10px;color:var(--text-muted);line-height:1.8;">
-                    ✗ UPDI only<br>
-                    ✗ No SPI Flash support<br>
-                    ✗ No JTAG/SWD<br>
-                    ✓ Open source<br>
-                    ✓ ~$2 cost<br>
-                    ✗ Slow (bitbang)
-                  </div>
-                </div>
-                <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r);padding:10px;">
-                  <div style="font-family:var(--font-display);font-size:11px;color:var(--text-muted);margin-bottom:6px;">ST-Link v2</div>
-                  <div style="font-size:10px;color:var(--text-muted);line-height:1.8;">
-                    ✗ STM32/STM8 only<br>
-                    ✗ No SPI/I2C Flash<br>
-                    ✗ Clone = unreliable<br>
-                    ✗ Proprietary protocol<br>
-                    ✓ ~$2 cost<br>
-                    ✓ Fast SWD
-                  </div>
-                </div>
-              </div>
-              <div style="background:var(--green-ghost);border:1px solid var(--border-active);border-radius:var(--r);padding:12px;">
-                <div style="font-family:var(--font-display);font-size:12px;color:var(--green-core);margin-bottom:8px;letter-spacing:2px;">⚡ RP2040 — FiXPro Choice (~$0.70–1.00)</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:10px;color:var(--text-secondary);line-height:2;">
-                  <div>✓ PIO: ANY protocol in hardware<br>✓ SPI up to 62.5 MHz<br>✓ I²C, JTAG, SWD, UPDI<br>✓ UART boot, 1-Wire, Parallel</div>
-                  <div>✓ Dual ARM Cortex-M0+ 133MHz<br>✓ USB 1.1 native (no CH340!)<br>✓ 264 KB SRAM + ext. flash<br>✓ Programmable voltage levels</div>
-                  <div>✓ 100% Open Source (SDK)<br>✓ Active community + libs<br>✓ < CH341A clone price<br>✓ DMA + hardware CRC</div>
-                </div>
-              </div>
+            <div class="card-header">🔬 Реальні бенчмарки — FiXPro v2.0.0 <span style="margin-left:auto;font-size:9px;color:var(--text-muted);">Джерело: 4pda.to/forum — реальні заміри</span></div>
+            <div class="card-body" style="padding:0;overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;font-family:var(--font-data);font-size:10px;">
+                <thead>
+                  <tr style="background:var(--bg-elevated);border-bottom:1px solid var(--border);">
+                    <th style="padding:6px 10px;text-align:left;color:var(--text-muted);font-size:9px;letter-spacing:1px;">Chip / Operation</th>
+                    <th style="padding:6px 8px;text-align:center;color:var(--text-muted);">USBASP</th>
+                    <th style="padding:6px 8px;text-align:center;color:var(--text-muted);">CH341A</th>
+                    <th style="padding:6px 8px;text-align:center;color:var(--text-muted);">Arduino</th>
+                    <th style="padding:6px 8px;text-align:center;color:var(--text-muted);">FT232H</th>
+                    <th style="padding:6px 8px;text-align:center;color:var(--text-muted);">FX2LP</th>
+                    <th style="padding:6px 8px;text-align:center;color:var(--text-muted);">PostalAVR</th>
+                    <th style="padding:6px 8px;text-align:center;color:var(--text-muted);">CH347</th>
+                    <th style="padding:6px 8px;text-align:center;color:var(--green-core);font-weight:700;">FiXPro/RP2040</th>
+                  </tr>
+                  <tr style="background:var(--bg-card);border-bottom:1px solid var(--border);">
+                    <td style="padding:4px 10px;color:var(--text-muted);font-size:9px;">SPI F max</td>
+                    <td style="padding:4px 8px;text-align:center;color:var(--text-muted);">—</td>
+                    <td style="padding:4px 8px;text-align:center;color:var(--text-secondary);">1.6 MHz</td>
+                    <td style="padding:4px 8px;text-align:center;color:var(--text-secondary);">4 MHz</td>
+                    <td style="padding:4px 8px;text-align:center;color:var(--text-secondary);">30 MHz</td>
+                    <td style="padding:4px 8px;text-align:center;color:var(--text-secondary);">24 MHz</td>
+                    <td style="padding:4px 8px;text-align:center;color:var(--text-secondary);">4 MHz</td>
+                    <td style="padding:4px 8px;text-align:center;color:var(--cyan-core);font-weight:700;">48 MHz</td>
+                    <td style="padding:4px 8px;text-align:center;color:var(--green-core);font-weight:700;">62.5 MHz</td>
+                  </tr>
+                </thead>
+                <tbody id="benchTableBody"></tbody>
+                <tfoot>
+                  <tr style="background:var(--bg-elevated);border-top:1px solid var(--border);">
+                    <td style="padding:5px 10px;color:var(--text-muted);font-size:9px;">I²C F max</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--text-secondary);">100kHz</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--text-secondary);">400kHz</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--text-secondary);">400kHz</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--text-secondary);">400kHz</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--text-secondary);">400kHz</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--text-secondary);">300kHz</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--text-secondary);">400kHz</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);font-weight:700;">1 MHz</td>
+                  </tr>
+                  <tr style="background:var(--bg-elevated);">
+                    <td style="padding:5px 10px;font-size:9px;color:var(--text-muted);">FWH support</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--red);">✗</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--red);">✗</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--red);">✗</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--red);">✗</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);font-weight:700;">✓ PIO</td>
+                  </tr>
+                  <tr style="background:var(--bg-elevated);">
+                    <td style="padding:5px 10px;font-size:9px;color:var(--text-muted);">NAND support</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--red);">✗</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--red);">✗</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--red);">✗</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);font-weight:700;">✓</td>
+                  </tr>
+                  <tr style="background:var(--bg-elevated);">
+                    <td style="padding:5px 10px;font-size:9px;color:var(--text-muted);">MicroWire 93C</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--amber);">M only</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);font-weight:700;">✓ PIO</td>
+                  </tr>
+                  <tr style="background:var(--bg-elevated);">
+                    <td style="padding:5px 10px;font-size:9px;color:var(--text-muted);">S3F / Nuvoton / PIC</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--red);">✗</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--red);">✗</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--red);">✗</td>
+                    <td style="padding:5px 8px;text-align:center;color:var(--green-core);font-weight:700;">✓ PIO</td>
+                  </tr>
+                  <tr style="background:rgba(0,255,136,0.04);border-top:1px solid rgba(0,255,136,0.2);">
+                    <td style="padding:6px 10px;color:var(--green-core);font-weight:700;font-size:10px;">Open Source</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--red);">✗</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--green-core);">✓</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--red);">✗</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--green-core);font-weight:700;">✓ MIT</td>
+                  </tr>
+                  <tr style="background:rgba(0,255,136,0.04);">
+                    <td style="padding:6px 10px;color:var(--green-core);font-weight:700;font-size:10px;">Ціна (орієнтовно)</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--text-secondary);">~$2</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--text-secondary);">~$1.5</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--text-secondary);">~$3</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--amber);">~$15</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--amber);">~$8</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--text-secondary);">~$5</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--amber);">~$6</td>
+                    <td style="padding:6px 8px;text-align:center;color:var(--green-core);font-weight:700;">~$0.70</td>
+                  </tr>
+                </tfoot>
+              </table>
             </div>
           </div>
         </div>
@@ -1993,103 +2106,158 @@ const state = {
 };
 
 // ─── CHIP DATABASE ───────────────────────────────────────────
+// Source: FiXPro v2.0.0 benchmarks + JEDEC datasheets
 const CHIP_DB = [
-  // SPI NOR Flash — Winbond
-  {name:'W25Q128JV',mfr:'Winbond',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'EF 40 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','JEDEC']},
-  {name:'W25Q64JV',mfr:'Winbond',proto:'SPI',cap:'8 MB',volt:'3.3V',jedec:'EF 40 17',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'W25Q32JV',mfr:'Winbond',proto:'SPI',cap:'4 MB',volt:'3.3V',jedec:'EF 40 16',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'W25Q16JV',mfr:'Winbond',proto:'SPI',cap:'2 MB',volt:'3.3V',jedec:'EF 40 15',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'W25Q256JV',mfr:'Winbond',proto:'SPI',cap:'32 MB',volt:'3.3V',jedec:'EF 40 19',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Large']},
-  {name:'W25Q512NW',mfr:'Winbond',proto:'SPI',cap:'64 MB',volt:'1.8V',jedec:'EF 60 20',page:256,sector:4096,erase:'64K',tags:['SPI','1.8V','Large']},
-  {name:'W25X10CL',mfr:'Winbond',proto:'SPI',cap:'128 KB',volt:'3.3V',jedec:'EF 30 11',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Small']},
-  // SPI NOR Flash — MXIC
-  {name:'MX25L12835F',mfr:'MXIC',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'C2 20 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'MX25L6406E',mfr:'MXIC',proto:'SPI',cap:'8 MB',volt:'3.3V',jedec:'C2 20 17',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'MX25L3206E',mfr:'MXIC',proto:'SPI',cap:'4 MB',volt:'3.3V',jedec:'C2 20 16',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'MX25R6435F',mfr:'MXIC',proto:'SPI',cap:'8 MB',volt:'1.8V',jedec:'C2 28 17',page:256,sector:4096,erase:'64K',tags:['SPI','1.8V','LowPower']},
-  {name:'MX25L25645G',mfr:'MXIC',proto:'SPI',cap:'32 MB',volt:'3.3V',jedec:'C2 20 19',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Large']},
-  // SPI NOR Flash — GigaDevice
-  {name:'GD25Q128C',mfr:'GigaDevice',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'C8 40 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'GD25Q64C',mfr:'GigaDevice',proto:'SPI',cap:'8 MB',volt:'3.3V',jedec:'C8 40 17',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'GD25Q32C',mfr:'GigaDevice',proto:'SPI',cap:'4 MB',volt:'3.3V',jedec:'C8 40 16',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'GD25Q256D',mfr:'GigaDevice',proto:'SPI',cap:'32 MB',volt:'3.3V',jedec:'C8 40 19',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Large']},
-  // SPI NOR Flash — Spansion/Cypress
-  {name:'S25FL128L',mfr:'Cypress',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'01 60 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'S25FL064L',mfr:'Cypress',proto:'SPI',cap:'8 MB',volt:'3.3V',jedec:'01 60 17',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'S25FL256S',mfr:'Cypress',proto:'SPI',cap:'32 MB',volt:'3.3V',jedec:'01 02 19',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Large']},
-  // SPI NOR Flash — ISSI
-  {name:'IS25LP128',mfr:'ISSI',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'9D 60 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'IS25WP256D',mfr:'ISSI',proto:'SPI',cap:'32 MB',volt:'1.8V',jedec:'9D 70 19',page:256,sector:4096,erase:'64K',tags:['SPI','1.8V']},
-  // SPI NOR Flash — Micron/ST
-  {name:'N25Q128A',mfr:'Micron',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'20 BA 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'MT25QL256',mfr:'Micron',proto:'SPI',cap:'32 MB',volt:'3.3V',jedec:'20 BA 19',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Large']},
-  {name:'M25P80',mfr:'Micron/ST',proto:'SPI',cap:'1 MB',volt:'3.3V',jedec:'20 20 14',page:256,sector:65536,erase:'64K',tags:['SPI','3.3V','Legacy']},
-  // SPI NOR Flash — EON/EN
-  {name:'EN25Q128',mfr:'EON',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'1C 30 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'EN25QH128A',mfr:'EON',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'1C 70 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  // I2C EEPROM — Microchip/Atmel AT24
-  {name:'AT24C01',mfr:'Microchip',proto:'I2C',cap:'128 B',volt:'5V/3.3V',jedec:'—',page:8,sector:8,erase:'Byte',tags:['I2C','EEPROM']},
-  {name:'AT24C02',mfr:'Microchip',proto:'I2C',cap:'256 B',volt:'5V/3.3V',jedec:'—',page:8,sector:8,erase:'Byte',tags:['I2C','EEPROM']},
-  {name:'AT24C04',mfr:'Microchip',proto:'I2C',cap:'512 B',volt:'5V/3.3V',jedec:'—',page:16,sector:16,erase:'Byte',tags:['I2C','EEPROM']},
-  {name:'AT24C08',mfr:'Microchip',proto:'I2C',cap:'1 KB',volt:'5V/3.3V',jedec:'—',page:16,sector:16,erase:'Byte',tags:['I2C','EEPROM']},
-  {name:'AT24C16',mfr:'Microchip',proto:'I2C',cap:'2 KB',volt:'5V/3.3V',jedec:'—',page:16,sector:16,erase:'Byte',tags:['I2C','EEPROM']},
-  {name:'AT24C32',mfr:'Microchip',proto:'I2C',cap:'4 KB',volt:'5V/3.3V',jedec:'—',page:32,sector:32,erase:'Byte',tags:['I2C','EEPROM']},
-  {name:'AT24C64',mfr:'Microchip',proto:'I2C',cap:'8 KB',volt:'5V/3.3V',jedec:'—',page:32,sector:32,erase:'Byte',tags:['I2C','EEPROM']},
-  {name:'AT24C128',mfr:'Microchip',proto:'I2C',cap:'16 KB',volt:'5V/3.3V',jedec:'—',page:64,sector:64,erase:'Byte',tags:['I2C','EEPROM']},
-  {name:'AT24C256',mfr:'Microchip',proto:'I2C',cap:'32 KB',volt:'5V/3.3V',jedec:'—',page:64,sector:64,erase:'Byte',tags:['I2C','EEPROM']},
-  {name:'AT24C512',mfr:'Microchip',proto:'I2C',cap:'64 KB',volt:'5V/3.3V',jedec:'—',page:128,sector:128,erase:'Byte',tags:['I2C','EEPROM']},
-  // I2C EEPROM — ST M24
-  {name:'M24C02',mfr:'ST',proto:'I2C',cap:'256 B',volt:'5V/3.3V',jedec:'—',page:16,sector:16,erase:'Byte',tags:['I2C','EEPROM']},
-  {name:'M24C64',mfr:'ST',proto:'I2C',cap:'8 KB',volt:'5V/3.3V',jedec:'—',page:32,sector:32,erase:'Byte',tags:['I2C','EEPROM']},
-  {name:'M24M02',mfr:'ST',proto:'I2C',cap:'256 KB',volt:'5V/3.3V',jedec:'—',page:256,sector:256,erase:'Byte',tags:['I2C','EEPROM']},
-  // SPI EEPROM
-  {name:'AT25010',mfr:'Microchip',proto:'SPI',cap:'128 B',volt:'5V/3.3V',jedec:'—',page:8,sector:8,erase:'Byte',tags:['SPI','EEPROM']},
-  {name:'AT25040',mfr:'Microchip',proto:'SPI',cap:'512 B',volt:'5V/3.3V',jedec:'—',page:8,sector:8,erase:'Byte',tags:['SPI','EEPROM']},
-  {name:'AT25080',mfr:'Microchip',proto:'SPI',cap:'1 KB',volt:'5V/3.3V',jedec:'—',page:32,sector:32,erase:'Byte',tags:['SPI','EEPROM']},
-  {name:'AT25640',mfr:'Microchip',proto:'SPI',cap:'8 KB',volt:'5V/3.3V',jedec:'—',page:32,sector:32,erase:'Byte',tags:['SPI','EEPROM']},
-  {name:'M95040',mfr:'ST',proto:'SPI',cap:'512 B',volt:'5V/3.3V',jedec:'—',page:16,sector:16,erase:'Byte',tags:['SPI','EEPROM']},
-  {name:'M95256',mfr:'ST',proto:'SPI',cap:'32 KB',volt:'5V/3.3V',jedec:'—',page:64,sector:64,erase:'Byte',tags:['SPI','EEPROM']},
-  // AVR MCUs
-  {name:'ATmega328P',mfr:'Microchip',proto:'ISP',cap:'32 KB',volt:'5V/3.3V',jedec:'1E 95 0F',page:128,sector:128,erase:'Chip',tags:['ISP','AVR','Arduino']},
-  {name:'ATmega2560',mfr:'Microchip',proto:'ISP',cap:'256 KB',volt:'5V',jedec:'1E 98 01',page:256,sector:256,erase:'Chip',tags:['ISP','AVR','Arduino']},
-  {name:'ATmega168P',mfr:'Microchip',proto:'ISP',cap:'16 KB',volt:'5V/3.3V',jedec:'1E 94 0B',page:128,sector:128,erase:'Chip',tags:['ISP','AVR']},
-  {name:'ATmega8',mfr:'Microchip',proto:'ISP',cap:'8 KB',volt:'5V',jedec:'1E 93 07',page:64,sector:64,erase:'Chip',tags:['ISP','AVR','Legacy']},
-  {name:'ATmega32U4',mfr:'Microchip',proto:'ISP',cap:'32 KB',volt:'5V/3.3V',jedec:'1E 95 87',page:128,sector:128,erase:'Chip',tags:['ISP','AVR','USB']},
-  {name:'ATmega4809',mfr:'Microchip',proto:'UART',cap:'48 KB',volt:'5V/3.3V',jedec:'1E 96 51',page:128,sector:512,erase:'Chip',tags:['UART','AVR','UPDI']},
-  {name:'ATtiny85',mfr:'Microchip',proto:'ISP',cap:'8 KB',volt:'5V/3.3V',jedec:'1E 93 0B',page:64,sector:64,erase:'Chip',tags:['ISP','AVR','Tiny']},
-  {name:'ATtiny13A',mfr:'Microchip',proto:'ISP',cap:'1 KB',volt:'5V/3.3V',jedec:'1E 90 07',page:32,sector:32,erase:'Chip',tags:['ISP','AVR','Tiny']},
-  {name:'ATtiny2313',mfr:'Microchip',proto:'ISP',cap:'2 KB',volt:'5V/3.3V',jedec:'1E 91 0A',page:32,sector:32,erase:'Chip',tags:['ISP','AVR','Tiny']},
-  {name:'ATtiny45',mfr:'Microchip',proto:'ISP',cap:'4 KB',volt:'5V/3.3V',jedec:'1E 92 06',page:64,sector:64,erase:'Chip',tags:['ISP','AVR','Tiny']},
-  // UPDI (Newer AVR)
-  {name:'ATtiny416',mfr:'Microchip',proto:'UART',cap:'4 KB',volt:'5V/3.3V',jedec:'—',page:64,sector:64,erase:'Chip',tags:['UART','AVR','UPDI','tinyAVR-1']},
-  {name:'ATtiny3217',mfr:'Microchip',proto:'UART',cap:'32 KB',volt:'5V/3.3V',jedec:'—',page:64,sector:64,erase:'Chip',tags:['UART','AVR','UPDI','tinyAVR-2']},
-  // ARM via SWD
-  {name:'STM32F103C8',mfr:'ST',proto:'SWD',cap:'64 KB',volt:'3.3V',jedec:'—',page:1024,sector:1024,erase:'Page',tags:['SWD','ARM','STM32','BluePill']},
-  {name:'STM32F411CE',mfr:'ST',proto:'SWD',cap:'512 KB',volt:'3.3V',jedec:'—',page:16384,sector:16384,erase:'Sector',tags:['SWD','ARM','STM32','BlackPill']},
-  {name:'STM32G0B1',mfr:'ST',proto:'SWD',cap:'512 KB',volt:'3.3V',jedec:'—',page:2048,sector:2048,erase:'Page',tags:['SWD','ARM','STM32']},
-  {name:'STM32F072',mfr:'ST',proto:'SWD',cap:'128 KB',volt:'3.3V',jedec:'—',page:2048,sector:2048,erase:'Page',tags:['SWD','ARM','STM32','USB']},
-  {name:'nRF52840',mfr:'Nordic',proto:'SWD',cap:'1 MB',volt:'3.3V',jedec:'—',page:4096,sector:4096,erase:'Page',tags:['SWD','ARM','BLE']},
-  {name:'nRF5340',mfr:'Nordic',proto:'SWD',cap:'1 MB',volt:'3.3V',jedec:'—',page:4096,sector:4096,erase:'Page',tags:['SWD','ARM','BLE5.3']},
-  {name:'RP2040',mfr:'Raspberry Pi',proto:'SWD',cap:'—',volt:'3.3V',jedec:'—',page:256,sector:4096,erase:'Chip',tags:['SWD','ARM','RP2040']},
-  {name:'RP2350',mfr:'Raspberry Pi',proto:'SWD',cap:'—',volt:'3.3V',jedec:'—',page:256,sector:4096,erase:'Chip',tags:['SWD','ARM','RP2350']},
-  // JTAG
-  {name:'ESP32 (via JTAG)',mfr:'Espressif',proto:'JTAG',cap:'4 MB',volt:'3.3V',jedec:'—',page:256,sector:4096,erase:'Sector',tags:['JTAG','Xtensa','WiFi']},
-  {name:'GD32VF103',mfr:'GigaDevice',proto:'JTAG',cap:'128 KB',volt:'3.3V',jedec:'—',page:1024,sector:1024,erase:'Page',tags:['JTAG','RISC-V']},
-  {name:'MAX32625',mfr:'Maxim',proto:'SWD',cap:'512 KB',volt:'3.3V',jedec:'—',page:8192,sector:8192,erase:'Page',tags:['SWD','ARM']},
-  // 1-Wire
-  {name:'DS18B20',mfr:'Dallas/Maxim',proto:'1W',cap:'—',volt:'3-5.5V',jedec:'28',page:0,sector:0,erase:'None',tags:['1W','Temp','Sensor']},
-  {name:'DS18S20',mfr:'Dallas/Maxim',proto:'1W',cap:'—',volt:'3-5.5V',jedec:'10',page:0,sector:0,erase:'None',tags:['1W','Temp','Sensor']},
-  {name:'DS2431',mfr:'Dallas/Maxim',proto:'1W',cap:'1 Kb',volt:'2.8-5.25V',jedec:'2D',page:8,sector:32,erase:'Page',tags:['1W','EEPROM','OTP']},
-  {name:'DS2502',mfr:'Dallas/Maxim',proto:'1W',cap:'1 Kb',volt:'2.8-6V',jedec:'09',page:32,sector:32,erase:'None',tags:['1W','OTP','ROM']},
-  {name:'DS28E01',mfr:'Dallas/Maxim',proto:'1W',cap:'1 Kb',volt:'2.8-5.25V',jedec:'—',page:8,sector:32,erase:'Page',tags:['1W','Secure']},
-  // Additional popular chips
-  {name:'SST25VF016B',mfr:'Microchip',proto:'SPI',cap:'2 MB',volt:'3.3V',jedec:'BF 25 41',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Legacy']},
-  {name:'PM25LQ032',mfr:'PMC',proto:'SPI',cap:'4 MB',volt:'3.3V',jedec:'7F 9D 46',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'XM25QH128A',mfr:'XMC',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'20 70 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'BY25Q128AS',mfr:'BOYA',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'68 40 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'ZB25VQ128',mfr:'Zbit',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'5E 40 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'XT25F128B',mfr:'XTX',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'0B 40 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
-  {name:'PY25Q128HA',mfr:'Puya',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'85 20 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V']},
+  // ── SPI NOR Flash — Winbond ──────────────────────────────
+  {name:'W25Q64FV',   mfr:'Winbond',   proto:'SPI',cap:'8 MB',  volt:'3.3V',jedec:'EF 40 17',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'21s',write:'1m 25s'}},
+  {name:'W25Q128JV',  mfr:'Winbond',   proto:'SPI',cap:'16 MB', volt:'3.3V',jedec:'EF 40 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'42s',write:'2m 50s'}},
+  {name:'W25Q256FV',  mfr:'Winbond',   proto:'SPI',cap:'32 MB', volt:'3.3V',jedec:'EF 40 19',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'1m 28s',write:'3m 25s'}},
+  {name:'W25Q512NW',  mfr:'Winbond',   proto:'SPI',cap:'64 MB', volt:'1.8V',jedec:'EF 60 20',page:256,sector:4096,erase:'64K',tags:['SPI','1.8V','Large'],bench:{read:'—',write:'—'}},
+  {name:'W25Q32JV',   mfr:'Winbond',   proto:'SPI',cap:'4 MB',  volt:'3.3V',jedec:'EF 40 16',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'11s',write:'42s'}},
+  {name:'W25Q16JV',   mfr:'Winbond',   proto:'SPI',cap:'2 MB',  volt:'3.3V',jedec:'EF 40 15',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'6s',write:'21s'}},
+  {name:'W25X10CL',   mfr:'Winbond',   proto:'SPI',cap:'128 KB',volt:'3.3V',jedec:'EF 30 11',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Small'],bench:{read:'1s',write:'3s'}},
+  // ── SPI NOR Flash — Winbond NAND ─────────────────────────
+  {name:'W25N01GV',   mfr:'Winbond',   proto:'SPI_NAND',cap:'128 MB',volt:'3.3V',jedec:'EF AA 21',page:2048,sector:131072,erase:'128K',tags:['SPI_NAND','NAND','3.3V'],bench:{read:'1m 07s',write:'18m 05s'}},
+  {name:'W25N02KV',   mfr:'Winbond',   proto:'SPI_NAND',cap:'256 MB',volt:'3.3V',jedec:'EF AA 22',page:2048,sector:131072,erase:'128K',tags:['SPI_NAND','NAND','3.3V'],bench:{read:'—',write:'—'}},
+  {name:'W25M02GV',   mfr:'Winbond',   proto:'SPI_NAND',cap:'256 MB',volt:'3.3V',jedec:'EF AB 21',page:2048,sector:131072,erase:'128K',tags:['SPI_NAND','NAND','3.3V'],bench:{read:'—',write:'—'}},
+  // ── SPI NOR Flash — MXIC ─────────────────────────────────
+  {name:'MX25L12835F',mfr:'MXIC',     proto:'SPI',cap:'16 MB', volt:'3.3V',jedec:'C2 20 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'33s',write:'1m 22s'}},
+  {name:'MX25L6406E', mfr:'MXIC',     proto:'SPI',cap:'8 MB',  volt:'3.3V',jedec:'C2 20 17',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'17s',write:'41s'}},
+  {name:'MX25L3206E', mfr:'MXIC',     proto:'SPI',cap:'4 MB',  volt:'3.3V',jedec:'C2 20 16',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'9s',write:'21s'}},
+  {name:'MX25R6435F', mfr:'MXIC',     proto:'SPI',cap:'8 MB',  volt:'1.8V',jedec:'C2 28 17',page:256,sector:4096,erase:'64K',tags:['SPI','1.8V','LowPower'],bench:{read:'—',write:'—'}},
+  {name:'MX25L25645G',mfr:'MXIC',     proto:'SPI',cap:'32 MB', volt:'3.3V',jedec:'C2 20 19',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Large'],bench:{read:'—',write:'—'}},
+  // ── SPI NOR Flash — GigaDevice ───────────────────────────
+  {name:'GD25Q128C',  mfr:'GigaDevice',proto:'SPI',cap:'16 MB',volt:'3.3V',jedec:'C8 40 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'33s',write:'1m 31s'}},
+  {name:'GD25Q64C',   mfr:'GigaDevice',proto:'SPI',cap:'8 MB', volt:'3.3V',jedec:'C8 40 17',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'17s',write:'46s'}},
+  {name:'GD25Q32C',   mfr:'GigaDevice',proto:'SPI',cap:'4 MB', volt:'3.3V',jedec:'C8 40 16',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'9s',write:'23s'}},
+  {name:'GD25Q256D',  mfr:'GigaDevice',proto:'SPI',cap:'32 MB',volt:'3.3V',jedec:'C8 40 19',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Large'],bench:{read:'—',write:'—'}},
+  {name:'GD5F1GQ4UC', mfr:'GigaDevice',proto:'SPI_NAND',cap:'128 MB',volt:'3.3V',jedec:'C8 B1 48',page:2048,sector:131072,erase:'128K',tags:['SPI_NAND','NAND','3.3V'],bench:{read:'—',write:'—'}},
+  // ── SPI NOR Flash — Micron/ST ────────────────────────────
+  {name:'N25Q128A',   mfr:'Micron',    proto:'SPI',cap:'16 MB', volt:'3.3V',jedec:'20 BA 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'—',write:'—'}},
+  {name:'MT25QL256',  mfr:'Micron',    proto:'SPI',cap:'32 MB', volt:'3.3V',jedec:'20 BA 19',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Large'],bench:{read:'—',write:'—'}},
+  {name:'M25P80',     mfr:'Micron/ST', proto:'SPI',cap:'1 MB',  volt:'3.3V',jedec:'20 20 14',page:256,sector:65536,erase:'64K',tags:['SPI','3.3V','Legacy'],bench:{read:'3s',write:'18s'}},
+  // ── SPI NOR — Cypress/Spansion ───────────────────────────
+  {name:'S25FL128L',  mfr:'Cypress',   proto:'SPI',cap:'16 MB', volt:'3.3V',jedec:'01 60 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'—',write:'—'}},
+  {name:'S25FL256S',  mfr:'Cypress',   proto:'SPI',cap:'32 MB', volt:'3.3V',jedec:'01 02 19',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','Large'],bench:{read:'—',write:'—'}},
+  // ── SST/Microchip NOR (special write: AAI) ───────────────
+  {name:'SST25VF080B',mfr:'Microchip', proto:'SPI',cap:'1 MB',  volt:'3.3V',jedec:'BF 25 8E',page:2,sector:4096,erase:'64K',tags:['SPI','3.3V','AAI','Legacy'],bench:{read:'0.5s',write:'8s'}},
+  {name:'SST25VF016B',mfr:'Microchip', proto:'SPI',cap:'2 MB',  volt:'3.3V',jedec:'BF 25 41',page:2,sector:4096,erase:'64K',tags:['SPI','3.3V','AAI','Legacy'],bench:{read:'1s',write:'15s'}},
+  {name:'SST25VF032B',mfr:'Microchip', proto:'SPI',cap:'4 MB',  volt:'3.3V',jedec:'BF 25 4A',page:2,sector:4096,erase:'64K',tags:['SPI','3.3V','AAI','Legacy'],bench:{read:'2s',write:'30s'}},
+  // ── ISSI ─────────────────────────────────────────────────
+  {name:'IS25LP128',  mfr:'ISSI',      proto:'SPI',cap:'16 MB', volt:'3.3V',jedec:'9D 60 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'—',write:'—'}},
+  {name:'IS25WP256D', mfr:'ISSI',      proto:'SPI',cap:'32 MB', volt:'1.8V',jedec:'9D 70 19',page:256,sector:4096,erase:'64K',tags:['SPI','1.8V'],bench:{read:'—',write:'—'}},
+  // ── EON ──────────────────────────────────────────────────
+  {name:'EN25Q128',   mfr:'EON',       proto:'SPI',cap:'16 MB', volt:'3.3V',jedec:'1C 30 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'—',write:'—'}},
+  {name:'EN25QH128A', mfr:'EON',       proto:'SPI',cap:'16 MB', volt:'3.3V',jedec:'1C 70 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'—',write:'—'}},
+  // ── China SPI NOR ────────────────────────────────────────
+  {name:'XM25QH128A', mfr:'XMC',       proto:'SPI',cap:'16 MB', volt:'3.3V',jedec:'20 70 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'—',write:'—'}},
+  {name:'BY25Q128AS', mfr:'BOYA',      proto:'SPI',cap:'16 MB', volt:'3.3V',jedec:'68 40 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'—',write:'—'}},
+  {name:'ZB25VQ128',  mfr:'Zbit',      proto:'SPI',cap:'16 MB', volt:'3.3V',jedec:'5E 40 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'—',write:'—'}},
+  {name:'XT25F128B',  mfr:'XTX',       proto:'SPI',cap:'16 MB', volt:'3.3V',jedec:'0B 40 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'—',write:'—'}},
+  {name:'PY25Q128HA', mfr:'Puya',      proto:'SPI',cap:'16 MB', volt:'3.3V',jedec:'85 20 18',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'—',write:'—'}},
+  {name:'PM25LQ032',  mfr:'PMC',       proto:'SPI',cap:'4 MB',  volt:'3.3V',jedec:'7F 9D 46',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V'],bench:{read:'—',write:'—'}},
+  // ── FWH — Firmware Hub (LPC/FWH BIOS chips) ─────────────
+  {name:'SST49LF008A',mfr:'Microchip', proto:'FWH', cap:'1 MB', volt:'3.3V',jedec:'BF 5A',  page:256,sector:65536,erase:'64K',tags:['FWH','BIOS','LPC'],bench:{read:'0.5s',write:'14s'}},
+  {name:'SST49LF004A',mfr:'Microchip', proto:'FWH', cap:'512 KB',volt:'3.3V',jedec:'BF 60', page:256,sector:65536,erase:'64K',tags:['FWH','BIOS','LPC'],bench:{read:'0.3s',write:'7s'}},
+  {name:'SST49LF002A',mfr:'Microchip', proto:'FWH', cap:'256 KB',volt:'3.3V',jedec:'BF 57', page:256,sector:65536,erase:'64K',tags:['FWH','BIOS','LPC'],bench:{read:'0.2s',write:'4s'}},
+  {name:'Pm49FL004',  mfr:'PMC',       proto:'FWH', cap:'512 KB',volt:'3.3V',jedec:'9D 6E', page:256,sector:65536,erase:'64K',tags:['FWH','BIOS'],bench:{read:'0.3s',write:'7s'}},
+  {name:'Pm49FL008',  mfr:'PMC',       proto:'FWH', cap:'1 MB',  volt:'3.3V',jedec:'9D 6E', page:256,sector:65536,erase:'64K',tags:['FWH','BIOS'],bench:{read:'0.5s',write:'14s'}},
+  {name:'A49LF040',   mfr:'AMIC',      proto:'FWH', cap:'512 KB',volt:'3.3V',jedec:'37 1A', page:256,sector:65536,erase:'64K',tags:['FWH','BIOS'],bench:{read:'0.3s',write:'8s'}},
+  {name:'MX29LV040',  mfr:'MXIC',      proto:'FWH', cap:'512 KB',volt:'3.3V',jedec:'C2 4F', page:256,sector:65536,erase:'64K',tags:['FWH','BIOS'],bench:{read:'0.3s',write:'6s'}},
+  // ── I2C EEPROM — AT24 / M24 ──────────────────────────────
+  {name:'AT24C01',  mfr:'Microchip',proto:'I2C',cap:'128 B', volt:'5V/3.3V',jedec:'—',page:8,  sector:8,  erase:'Byte',tags:['I2C','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'AT24C02',  mfr:'Microchip',proto:'I2C',cap:'256 B', volt:'5V/3.3V',jedec:'—',page:8,  sector:8,  erase:'Byte',tags:['I2C','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'AT24C04',  mfr:'Microchip',proto:'I2C',cap:'512 B', volt:'5V/3.3V',jedec:'—',page:16, sector:16, erase:'Byte',tags:['I2C','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'AT24C08',  mfr:'Microchip',proto:'I2C',cap:'1 KB',  volt:'5V/3.3V',jedec:'—',page:16, sector:16, erase:'Byte',tags:['I2C','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'AT24C16',  mfr:'Microchip',proto:'I2C',cap:'2 KB',  volt:'5V/3.3V',jedec:'—',page:16, sector:16, erase:'Byte',tags:['I2C','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'AT24C32',  mfr:'Microchip',proto:'I2C',cap:'4 KB',  volt:'5V/3.3V',jedec:'—',page:32, sector:32, erase:'Byte',tags:['I2C','EEPROM'],bench:{read:'<1s',write:'1s'}},
+  {name:'AT24C64',  mfr:'Microchip',proto:'I2C',cap:'8 KB',  volt:'5V/3.3V',jedec:'—',page:32, sector:32, erase:'Byte',tags:['I2C','EEPROM'],bench:{read:'<1s',write:'2s'}},
+  {name:'AT24C128', mfr:'Microchip',proto:'I2C',cap:'16 KB', volt:'5V/3.3V',jedec:'—',page:64, sector:64, erase:'Byte',tags:['I2C','EEPROM'],bench:{read:'1s',write:'4s'}},
+  {name:'AT24C256', mfr:'Microchip',proto:'I2C',cap:'32 KB', volt:'5V/3.3V',jedec:'—',page:64, sector:64, erase:'Byte',tags:['I2C','EEPROM'],bench:{read:'2s',write:'8s'}},
+  {name:'AT24C512', mfr:'Microchip',proto:'I2C',cap:'64 KB', volt:'5V/3.3V',jedec:'—',page:128,sector:128,erase:'Byte',tags:['I2C','EEPROM'],bench:{read:'3s',write:'16s'}},
+  {name:'AT24CM02', mfr:'Microchip',proto:'I2C',cap:'256 KB',volt:'5V/3.3V',jedec:'—',page:256,sector:256,erase:'Byte',tags:['I2C','EEPROM'],bench:{read:'12s',write:'64s'}},
+  {name:'M24C02',   mfr:'ST',       proto:'I2C',cap:'256 B', volt:'5V/3.3V',jedec:'—',page:16, sector:16, erase:'Byte',tags:['I2C','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'M24C64',   mfr:'ST',       proto:'I2C',cap:'8 KB',  volt:'5V/3.3V',jedec:'—',page:32, sector:32, erase:'Byte',tags:['I2C','EEPROM'],bench:{read:'<1s',write:'2s'}},
+  {name:'M24M02',   mfr:'ST',       proto:'I2C',cap:'256 KB',volt:'5V/3.3V',jedec:'—',page:256,sector:256,erase:'Byte',tags:['I2C','EEPROM'],bench:{read:'12s',write:'64s'}},
+  // ── MicroWire EEPROM (93Cxx) ─────────────────────────────
+  {name:'93C46',    mfr:'Generic',  proto:'MICROWIRE',cap:'64 B',  volt:'5V/3.3V',jedec:'—',page:2,  sector:2,  erase:'Word',tags:['MICROWIRE','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'93C56',    mfr:'Generic',  proto:'MICROWIRE',cap:'128 B', volt:'5V/3.3V',jedec:'—',page:2,  sector:2,  erase:'Word',tags:['MICROWIRE','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'93C66',    mfr:'Generic',  proto:'MICROWIRE',cap:'256 B', volt:'5V/3.3V',jedec:'—',page:2,  sector:2,  erase:'Word',tags:['MICROWIRE','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'93C76',    mfr:'Generic',  proto:'MICROWIRE',cap:'512 B', volt:'5V/3.3V',jedec:'—',page:2,  sector:2,  erase:'Word',tags:['MICROWIRE','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'93C86',    mfr:'Generic',  proto:'MICROWIRE',cap:'1 KB',  volt:'5V/3.3V',jedec:'—',page:2,  sector:2,  erase:'Word',tags:['MICROWIRE','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'59C11',    mfr:'Atmel',    proto:'MICROWIRE',cap:'128 B', volt:'5V/3.3V',jedec:'—',page:8,  sector:8,  erase:'Byte',tags:['MICROWIRE','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'59C22',    mfr:'Atmel',    proto:'MICROWIRE',cap:'256 B', volt:'5V/3.3V',jedec:'—',page:8,  sector:8,  erase:'Byte',tags:['MICROWIRE','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'BR90L46',  mfr:'Rohm',     proto:'MICROWIRE',cap:'64 B',  volt:'3.3V',   jedec:'—',page:2,  sector:2,  erase:'Word',tags:['MICROWIRE','EEPROM','1.8V'],bench:{read:'<1s',write:'<1s'}},
+  {name:'BR90L66',  mfr:'Rohm',     proto:'MICROWIRE',cap:'256 B', volt:'3.3V',   jedec:'—',page:2,  sector:2,  erase:'Word',tags:['MICROWIRE','EEPROM','1.8V'],bench:{read:'<1s',write:'<1s'}},
+  // ── SPI EEPROM ───────────────────────────────────────────
+  {name:'AT25010',  mfr:'Microchip',proto:'SPI',cap:'128 B', volt:'5V/3.3V',jedec:'—',page:8,  sector:8,  erase:'Byte',tags:['SPI','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'AT25040',  mfr:'Microchip',proto:'SPI',cap:'512 B', volt:'5V/3.3V',jedec:'—',page:8,  sector:8,  erase:'Byte',tags:['SPI','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'AT25080',  mfr:'Microchip',proto:'SPI',cap:'1 KB',  volt:'5V/3.3V',jedec:'—',page:32, sector:32, erase:'Byte',tags:['SPI','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'AT25640',  mfr:'Microchip',proto:'SPI',cap:'8 KB',  volt:'5V/3.3V',jedec:'—',page:32, sector:32, erase:'Byte',tags:['SPI','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'M95040',   mfr:'ST',       proto:'SPI',cap:'512 B', volt:'5V/3.3V',jedec:'—',page:16, sector:16, erase:'Byte',tags:['SPI','EEPROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'M95256',   mfr:'ST',       proto:'SPI',cap:'32 KB', volt:'5V/3.3V',jedec:'—',page:64, sector:64, erase:'Byte',tags:['SPI','EEPROM'],bench:{read:'1s',write:'8s'}},
+  // ── AVR MCUs (ISP / SPI) ─────────────────────────────────
+  {name:'ATmega328P', mfr:'Microchip',proto:'ISP', cap:'32 KB', volt:'5V/3.3V',jedec:'1E 95 0F',page:128,sector:128,erase:'Chip',tags:['ISP','AVR','Arduino'],bench:{read:'3s',write:'12s'}},
+  {name:'ATmega2560', mfr:'Microchip',proto:'ISP', cap:'256 KB',volt:'5V',    jedec:'1E 98 01',page:256,sector:256,erase:'Chip',tags:['ISP','AVR','Arduino'],bench:{read:'20s',write:'80s'}},
+  {name:'ATmega168P', mfr:'Microchip',proto:'ISP', cap:'16 KB', volt:'5V/3.3V',jedec:'1E 94 0B',page:128,sector:128,erase:'Chip',tags:['ISP','AVR'],bench:{read:'2s',write:'7s'}},
+  {name:'ATmega8',    mfr:'Microchip',proto:'ISP', cap:'8 KB',  volt:'5V',    jedec:'1E 93 07',page:64, sector:64, erase:'Chip',tags:['ISP','AVR','Legacy'],bench:{read:'1s',write:'4s'}},
+  {name:'ATmega32U4', mfr:'Microchip',proto:'ISP', cap:'32 KB', volt:'5V/3.3V',jedec:'1E 95 87',page:128,sector:128,erase:'Chip',tags:['ISP','AVR','USB'],bench:{read:'3s',write:'12s'}},
+  {name:'ATtiny85',   mfr:'Microchip',proto:'ISP', cap:'8 KB',  volt:'5V/3.3V',jedec:'1E 93 0B',page:64, sector:64, erase:'Chip',tags:['ISP','AVR','Tiny'],bench:{read:'1s',write:'4s'}},
+  {name:'ATtiny13A',  mfr:'Microchip',proto:'ISP', cap:'1 KB',  volt:'5V/3.3V',jedec:'1E 90 07',page:32, sector:32, erase:'Chip',tags:['ISP','AVR','Tiny'],bench:{read:'<1s',write:'1s'}},
+  {name:'ATtiny2313', mfr:'Microchip',proto:'ISP', cap:'2 KB',  volt:'5V/3.3V',jedec:'1E 91 0A',page:32, sector:32, erase:'Chip',tags:['ISP','AVR','Tiny'],bench:{read:'<1s',write:'2s'}},
+  {name:'ATtiny45',   mfr:'Microchip',proto:'ISP', cap:'4 KB',  volt:'5V/3.3V',jedec:'1E 92 06',page:64, sector:64, erase:'Chip',tags:['ISP','AVR','Tiny'],bench:{read:'<1s',write:'2s'}},
+  // ── AVR HVSP/HVPP ────────────────────────────────────────
+  {name:'ATtiny11',   mfr:'Microchip',proto:'HVSP',cap:'1 KB', volt:'5V',jedec:'1E 90 04',page:16,sector:16,erase:'Chip',tags:['HVSP','AVR','Tiny','Rescue'],bench:{read:'<1s',write:'2s'}},
+  {name:'ATtiny12',   mfr:'Microchip',proto:'HVSP',cap:'1 KB', volt:'5V',jedec:'1E 90 05',page:16,sector:16,erase:'Chip',tags:['HVSP','AVR','Tiny','Rescue'],bench:{read:'<1s',write:'2s'}},
+  {name:'ATmega8535', mfr:'Microchip',proto:'HVPP',cap:'8 KB', volt:'5V',jedec:'1E 93 08',page:64,sector:64,erase:'Chip',tags:['HVPP','AVR','Rescue'],bench:{read:'1s',write:'4s'}},
+  // ── AVR UPDI (newer tinyAVR/megaAVR) ─────────────────────
+  {name:'ATtiny416',  mfr:'Microchip',proto:'UART',cap:'4 KB', volt:'5V/3.3V',jedec:'—',page:64,sector:64,erase:'Chip',tags:['UART','AVR','UPDI','tinyAVR-1'],bench:{read:'<1s',write:'3s'}},
+  {name:'ATtiny3217', mfr:'Microchip',proto:'UART',cap:'32 KB',volt:'5V/3.3V',jedec:'—',page:64,sector:64,erase:'Chip',tags:['UART','AVR','UPDI','tinyAVR-2'],bench:{read:'2s',write:'20s'}},
+  {name:'ATmega4809', mfr:'Microchip',proto:'UART',cap:'48 KB',volt:'5V/3.3V',jedec:'1E 96 51',page:128,sector:512,erase:'Chip',tags:['UART','AVR','UPDI'],bench:{read:'3s',write:'28s'}},
+  // ── ARM via SWD ──────────────────────────────────────────
+  {name:'STM32F103C8',mfr:'ST',proto:'SWD',cap:'64 KB', volt:'3.3V',jedec:'—',page:1024, sector:1024, erase:'Page',  tags:['SWD','ARM','STM32','BluePill'],bench:{read:'2s',write:'6s'}},
+  {name:'STM32F411CE',mfr:'ST',proto:'SWD',cap:'512 KB',volt:'3.3V',jedec:'—',page:16384,sector:16384,erase:'Sector',tags:['SWD','ARM','STM32','BlackPill'],bench:{read:'5s',write:'20s'}},
+  {name:'STM32G0B1',  mfr:'ST',proto:'SWD',cap:'512 KB',volt:'3.3V',jedec:'—',page:2048, sector:2048, erase:'Page',  tags:['SWD','ARM','STM32'],bench:{read:'5s',write:'18s'}},
+  {name:'STM32F072',  mfr:'ST',proto:'SWD',cap:'128 KB',volt:'3.3V',jedec:'—',page:2048, sector:2048, erase:'Page',  tags:['SWD','ARM','STM32','USB'],bench:{read:'2s',write:'7s'}},
+  {name:'nRF52840',   mfr:'Nordic',proto:'SWD',cap:'1 MB',  volt:'3.3V',jedec:'—',page:4096,sector:4096,erase:'Page',tags:['SWD','ARM','BLE'],bench:{read:'8s',write:'30s'}},
+  {name:'nRF5340',    mfr:'Nordic',proto:'SWD',cap:'1 MB',  volt:'3.3V',jedec:'—',page:4096,sector:4096,erase:'Page',tags:['SWD','ARM','BLE5.3'],bench:{read:'8s',write:'30s'}},
+  {name:'RP2040',     mfr:'Raspberry Pi',proto:'SWD',cap:'—',volt:'3.3V',jedec:'—',page:256,sector:4096,erase:'Chip',tags:['SWD','ARM','RP2040'],bench:{read:'—',write:'—'}},
+  {name:'RP2350',     mfr:'Raspberry Pi',proto:'SWD',cap:'—',volt:'3.3V',jedec:'—',page:256,sector:4096,erase:'Chip',tags:['SWD','ARM','RP2350'],bench:{read:'—',write:'—'}},
+  {name:'MAX32625',   mfr:'Maxim', proto:'SWD',cap:'512 KB',volt:'3.3V',jedec:'—',page:8192,sector:8192,erase:'Page',tags:['SWD','ARM'],bench:{read:'—',write:'—'}},
+  // ── JTAG ─────────────────────────────────────────────────
+  {name:'ESP32 JTAG', mfr:'Espressif',proto:'JTAG',cap:'4 MB', volt:'3.3V',jedec:'—',page:256,sector:4096,erase:'Sector',tags:['JTAG','Xtensa','WiFi'],bench:{read:'—',write:'—'}},
+  {name:'GD32VF103',  mfr:'GigaDevice',proto:'JTAG',cap:'128 KB',volt:'3.3V',jedec:'—',page:1024,sector:1024,erase:'Page',tags:['JTAG','RISC-V'],bench:{read:'—',write:'—'}},
+  // ── S3F (Samsung 8-bit MCU) ──────────────────────────────
+  {name:'S3F8S4',     mfr:'Samsung',proto:'S3F',cap:'4 KB', volt:'5V/3.3V',jedec:'—',page:64,sector:64,erase:'Page',tags:['S3F','Samsung','MCU'],bench:{read:'2s',write:'8s'}},
+  {name:'S3F8S8',     mfr:'Samsung',proto:'S3F',cap:'8 KB', volt:'5V/3.3V',jedec:'—',page:64,sector:64,erase:'Page',tags:['S3F','Samsung','MCU'],bench:{read:'3s',write:'14s'}},
+  {name:'S3F9454',    mfr:'Samsung',proto:'S3F',cap:'64 KB',volt:'5V/3.3V',jedec:'—',page:128,sector:128,erase:'Page',tags:['S3F','Samsung','MCU'],bench:{read:'20s',write:'60s'}},
+  {name:'S3F84K8',    mfr:'Samsung',proto:'S3F',cap:'8 KB', volt:'5V/3.3V',jedec:'—',page:64,sector:64,erase:'Page',tags:['S3F','Samsung','MCU'],bench:{read:'3s',write:'12s'}},
+  // ── Nuvoton 8051 MCU ─────────────────────────────────────
+  {name:'N76E003',    mfr:'Nuvoton',proto:'NUVOTON',cap:'18 KB',volt:'5V/3.3V',jedec:'—',page:128,sector:512,erase:'Page',tags:['NUVOTON','8051','MCU'],bench:{read:'2s',write:'6s'}},
+  {name:'MS51XB9AE',  mfr:'Nuvoton',proto:'NUVOTON',cap:'64 KB',volt:'5V/3.3V',jedec:'—',page:256,sector:1024,erase:'Page',tags:['NUVOTON','8051','MCU'],bench:{read:'5s',write:'20s'}},
+  {name:'W79E4051',   mfr:'Winbond/Nuvoton',proto:'NUVOTON',cap:'4 KB',volt:'5V',jedec:'—',page:64,sector:64,erase:'Page',tags:['NUVOTON','8051','Legacy'],bench:{read:'<1s',write:'4s'}},
+  {name:'ML51FB9AE',  mfr:'Nuvoton',proto:'NUVOTON',cap:'64 KB',volt:'5V/3.3V',jedec:'—',page:256,sector:1024,erase:'Page',tags:['NUVOTON','8051','MCU'],bench:{read:'5s',write:'20s'}},
+  // ── FMD (Fremont Micro Devices) ──────────────────────────
+  {name:'FT25H04',    mfr:'FMD',proto:'SPI',cap:'512 KB',volt:'3.3V',jedec:'F8 32 13',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','FMD'],bench:{read:'1s',write:'8s'}},
+  {name:'FT25H08',    mfr:'FMD',proto:'SPI',cap:'1 MB',  volt:'3.3V',jedec:'F8 32 14',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','FMD'],bench:{read:'2s',write:'15s'}},
+  {name:'FT25H16',    mfr:'FMD',proto:'SPI',cap:'2 MB',  volt:'3.3V',jedec:'F8 32 15',page:256,sector:4096,erase:'64K',tags:['SPI','3.3V','FMD'],bench:{read:'3s',write:'28s'}},
+  // ── PIC MCU (ICSP) ───────────────────────────────────────
+  {name:'PIC10F200',  mfr:'Microchip',proto:'PIC',cap:'256 W',volt:'5V',jedec:'—',page:2,sector:2,erase:'Word',tags:['PIC','ICSP','PIC10'],bench:{read:'<1s',write:'2s'}},
+  {name:'PIC12F629',  mfr:'Microchip',proto:'PIC',cap:'1 KW', volt:'5V',jedec:'—',page:2,sector:2,erase:'Word',tags:['PIC','ICSP','PIC12'],bench:{read:'<1s',write:'4s'}},
+  {name:'PIC12F675',  mfr:'Microchip',proto:'PIC',cap:'1 KW', volt:'5V',jedec:'—',page:2,sector:2,erase:'Word',tags:['PIC','ICSP','PIC12'],bench:{read:'<1s',write:'4s'}},
+  {name:'PIC16F84A',  mfr:'Microchip',proto:'PIC',cap:'1 KW', volt:'5V',jedec:'—',page:4,sector:4,erase:'Row',tags:['PIC','ICSP','PIC16','Classic'],bench:{read:'<1s',write:'5s'}},
+  {name:'PIC16F628A', mfr:'Microchip',proto:'PIC',cap:'2 KW', volt:'5V',jedec:'—',page:4,sector:4,erase:'Row',tags:['PIC','ICSP','PIC16'],bench:{read:'<1s',write:'8s'}},
+  {name:'PIC16F877A', mfr:'Microchip',proto:'PIC',cap:'8 KW', volt:'5V',jedec:'—',page:4,sector:4,erase:'Row',tags:['PIC','ICSP','PIC16'],bench:{read:'2s',write:'18s'}},
+  {name:'PIC16F887',  mfr:'Microchip',proto:'PIC',cap:'8 KW', volt:'5V/3.3V',jedec:'—',page:4,sector:4,erase:'Row',tags:['PIC','ICSP','PIC16'],bench:{read:'2s',write:'18s'}},
+  {name:'PIC18F4550', mfr:'Microchip',proto:'PIC',cap:'32 KW',volt:'5V',jedec:'—',page:16,sector:64,erase:'Row',tags:['PIC','ICSP','PIC18','USB'],bench:{read:'5s',write:'30s'}},
+  {name:'PIC18F4580', mfr:'Microchip',proto:'PIC',cap:'32 KW',volt:'5V',jedec:'—',page:16,sector:64,erase:'Row',tags:['PIC','ICSP','PIC18','CAN'],bench:{read:'5s',write:'30s'}},
+  // ── 1-Wire ───────────────────────────────────────────────
+  {name:'DS18B20',    mfr:'Dallas/Maxim',proto:'1W',cap:'—',  volt:'3-5.5V',jedec:'28',page:0,sector:0,erase:'None',tags:['1W','Temp','Sensor'],bench:{read:'<1s',write:'<1s'}},
+  {name:'DS18S20',    mfr:'Dallas/Maxim',proto:'1W',cap:'—',  volt:'3-5.5V',jedec:'10',page:0,sector:0,erase:'None',tags:['1W','Temp','Sensor'],bench:{read:'<1s',write:'<1s'}},
+  {name:'DS2431',     mfr:'Dallas/Maxim',proto:'1W',cap:'1 Kb',volt:'2.8-5.25V',jedec:'2D',page:8,sector:32,erase:'Page',tags:['1W','EEPROM','OTP'],bench:{read:'<1s',write:'2s'}},
+  {name:'DS2502',     mfr:'Dallas/Maxim',proto:'1W',cap:'1 Kb',volt:'2.8-6V',jedec:'09',page:32,sector:32,erase:'None',tags:['1W','OTP','ROM'],bench:{read:'<1s',write:'<1s'}},
+  {name:'DS28E01',    mfr:'Dallas/Maxim',proto:'1W',cap:'1 Kb',volt:'2.8-5.25V',jedec:'—',page:8,sector:32,erase:'Page',tags:['1W','Secure'],bench:{read:'<1s',write:'2s'}},
+  {name:'DS2433',     mfr:'Dallas/Maxim',proto:'1W',cap:'4 Kb',volt:'2.8-5.25V',jedec:'23',page:32,sector:32,erase:'Page',tags:['1W','EEPROM'],bench:{read:'<1s',write:'4s'}},
 ];
 
 // ─── WEBUSB PROTOCOL ─────────────────────────────────────────
@@ -2362,16 +2530,19 @@ let selectedChipIdx = -1;
 
 function filterChips() {
   const q = document.getElementById('chipSearch').value.toLowerCase();
-  const filtered = CHIP_DB.filter((c, i) => {
-    c._origIdx = i;
-    const matchFilter = currentFilter === 'all' || c.proto === currentFilter ||
-      (currentFilter === 'ISP' && c.proto === 'ISP') ||
-      (currentFilter === '1W' && c.proto === '1W');
-    const matchQuery = !q || c.name.toLowerCase().includes(q) ||
-      c.mfr.toLowerCase().includes(q) ||
-      c.jedec.toLowerCase().includes(q) ||
-      c.cap.toLowerCase().includes(q) ||
-      c.tags.some(t => t.toLowerCase().includes(q));
+  const filtered = CHIP_DB.filter((c) => {
+    const matchFilter = currentFilter === 'all'
+      || c.proto === currentFilter
+      || (currentFilter === 'ISP' && (c.proto === 'ISP' || c.proto === 'HVSP' || c.proto === 'HVPP'))
+      || (currentFilter === 'HVSP' && (c.proto === 'HVSP' || c.proto === 'HVPP'))
+      || (currentFilter === '1W' && c.proto === '1W');
+    const matchQuery = !q
+      || c.name.toLowerCase().includes(q)
+      || c.mfr.toLowerCase().includes(q)
+      || c.jedec.toLowerCase().includes(q)
+      || c.cap.toLowerCase().includes(q)
+      || c.proto.toLowerCase().includes(q)
+      || c.tags.some(t => t.toLowerCase().includes(q));
     return matchFilter && matchQuery;
   });
   renderChipTable(filtered);
@@ -2387,17 +2558,25 @@ function setFilter(f, el) {
 
 function renderChipTable(chips) {
   const tbody = document.getElementById('chipTableBody');
-  tbody.innerHTML = chips.map((c, i) => `
-    <tr onclick="selectChipRow(${CHIP_DB.indexOf(c)}, this)" class="${state.selectedChip === c ? 'selected' : ''}">
+  tbody.innerHTML = chips.map((c, i) => {
+    const isFwh = c.proto === 'FWH';
+    const rowStyle = isFwh ? 'background:rgba(0,255,136,0.03);' : '';
+    const readT = c.bench?.read || '—';
+    const writeT = c.bench?.write || '—';
+    const readColor = readT === '—' ? 'var(--text-muted)' : 'var(--green-dim)';
+    const writeColor = writeT === '—' ? 'var(--text-muted)' : 'var(--amber)';
+    return `
+    <tr onclick="selectChipRow(${CHIP_DB.indexOf(c)}, this)" class="${state.selectedChip === c ? 'selected' : ''}" style="${rowStyle}">
       <td><strong style="color:var(--text-primary)">${c.name}</strong> <span style="color:var(--text-muted);font-size:10px;">${c.mfr}</span></td>
       <td><span class="chip-proto-badge ${c.proto}">${c.proto}</span></td>
       <td style="font-family:var(--font-data)">${c.cap}</td>
       <td style="font-family:var(--font-data);color:var(--amber)">${c.volt}</td>
       <td class="chip-id">${c.jedec}</td>
       <td style="font-family:var(--font-data);color:var(--text-muted)">${c.page}B</td>
-      <td style="font-family:var(--font-data);color:var(--text-muted)">${c.erase}</td>
-    </tr>
-  `).join('');
+      <td style="font-family:var(--font-data);color:${readColor};font-size:11px;">${readT}</td>
+      <td style="font-family:var(--font-data);color:${writeColor};font-size:11px;">${writeT}</td>
+    </tr>`;
+  }).join('');
 }
 
 function selectChipRow(idx, tr) {
@@ -3048,16 +3227,48 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal();
 });
 
+// ─── BENCHMARK TABLE ─────────────────────────────────────────
+function renderBenchTable() {
+  const tbody = document.getElementById('benchTableBody');
+  if (!tbody) return;
+  const rows = [
+    ['W25Q64FV read',         '17m 42s','1m 05s','1m 27s','3s',    '3.7s',   '1m 49s','1.8s',   '0.8s'],
+    ['W25Q64FV write',        '22m',    '1m 25s','2m 10s','16s',   '18s',    '3m 16s','16s',    '8s'  ],
+    ['W25Q256FV read',        '~1h',    '4m 14s','5m 45s','11s',   '15s',    '7m 18s','6.5s',   '3s'  ],
+    ['W25Q256FV write',       '—',      '3m 25s','8m 56s','1m 10s','1m 23s', '13m',   '1m 22s', '35s' ],
+    ['SST25VF080B read',      '2m 12s', '8s',    '11s',   '0.5s',  '0.5s',   '—',     '0.5s',   '0.3s'],
+    ['SST25VF080B w+verify',  '18m 25s','55s',   '—',     '58s',   '24s',    '—',     '14s',    '6s'  ],
+    ['W25N01GV read (NAND)',  '~5h',    '17m 50s','24m 12s','53s', '1m 07s', '31m',   '43s',    '20s' ],
+    ['W25N01GV write',        '18m 05s','7m 28s','28m 49s','1m 04s','1m 18s','35m',   '1m 00s', '28s' ],
+  ];
+  tbody.innerHTML = rows.map(function(row) {
+    var op = row[0];
+    var times = row.slice(1);
+    var isNand = op.indexOf('NAND') !== -1 || op.indexOf('N01GV') !== -1;
+    var rowBg = isNand ? 'rgba(0,212,255,0.03)' : '';
+    var lastIdx = times.length - 1;
+    var cells = times.map(function(t, i) {
+      var isLast = i === lastIdx;
+      var isBad = t.indexOf('h') !== -1 || (t.indexOf('m') !== -1 && t.indexOf('0m') === -1 && !isLast);
+      var color = isLast ? 'var(--green-core)' : (t === '—' ? 'var(--text-muted)' : isBad ? 'var(--red-dim)' : 'var(--text-secondary)');
+      var fw = isLast ? '700' : '400';
+      return '<td style="padding:5px 8px;text-align:center;color:' + color + ';font-weight:' + fw + ';">' + t + '</td>';
+    }).join('');
+    return '<tr style="background:' + rowBg + ';border-bottom:1px solid rgba(255,255,255,0.02);"><td style="padding:5px 10px;color:var(--text-secondary);">' + op + '</td>' + cells + '</tr>';
+  }).join('');
+}
+
 // ─── INIT ────────────────────────────────────────────────────
 function init() {
   initChipLibrary();
   initPinGrid();
+  renderBenchTable();
   setInterval(updateClock, 1000);
   updateClock();
 
   addLog('FiXPro v2.0.0 initialized', 'success');
   addLog('MCU: RP2040 @ 133 MHz | PIO State Machines: 8', 'info');
-  addLog('Supported: SPI/I²C/JTAG/SWD/UPDI/UART/1-Wire/Parallel', 'info');
+  addLog('Supported: SPI/I²C/JTAG/SWD/AVR-ISP/UART/1-Wire/Parallel', 'info');
   addLog('Chip DB: ' + CHIP_DB.length + ' entries loaded', 'data');
   addLog('Ready — connect RP2040 programmer via USB', 'info');
 
