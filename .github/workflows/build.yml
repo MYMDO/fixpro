@@ -11,17 +11,12 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        run: |
-          python3 --version
-          pip3 --version
-
-      - name: Install PlatformIO
+      - name: Set up Python
         run: pip3 install platformio
 
       - name: Build
@@ -30,19 +25,18 @@ jobs:
           pio run
 
       - name: Show output
-        run: |
-          ls -la firmware/platformio/.pio/build/rpipico/*.uf2
+        run: ls -la firmware/platformio/.pio/build/pico/*.uf2
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: fixpro-firmware
-          path: firmware/platformio/.pio/build/rpipico/*.uf2
+          path: firmware/platformio/.pio/build/pico/*.uf2
 
       - name: Create Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: firmware/platformio/.pio/build/rpipico/*.uf2
+          files: firmware/platformio/.pio/build/pico/*.uf2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
