@@ -1,0 +1,70 @@
+name: Quality Checks
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install lint tools
+        run: pip install black flake8 isort
+
+      - name: Run black
+        run: black --check --diff host/
+
+      - name: Run flake8
+        run: flake8 host/ --max-line-length=100 --ignore=E501,W503
+
+      - name: Run isort
+        run: isort --check-only --diff host/
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependencies
+        run: pip install pytest
+
+      - name: Run tests
+        run: pytest tests/protocol/ -v
+
+  json-validate:
+    name: JSON Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate JSON files
+        run: |
+          python3 -c "
+          import json
+          import glob
+          for f in glob.glob('chipdb/*.json'):
+              with open(f) as file:
+                  json.load(file)
+                  print(f'Valid: {f}')
+          "
