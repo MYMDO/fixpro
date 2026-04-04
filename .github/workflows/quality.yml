@@ -44,8 +44,14 @@ jobs:
       - name: Install test dependencies
         run: pip install pytest
 
+      - name: Debug - list files
+        run: ls -la && ls -la tests/
+
+      - name: Debug - Python version
+        run: python3 --version && which python3
+
       - name: Run tests
-        run: pytest tests/protocol/ -v
+        run: python3 -m pytest tests/protocol/ -v --tb=short
 
   json-validate:
     name: JSON Validation
