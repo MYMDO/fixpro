@@ -38,16 +38,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: fixpro-firmware
-          path: ./release
+          path: .
 
-      - name: List files
+      - name: Prepare files
         run: |
-          echo "=== Release directory ==="
-          ls -la release/
-          echo ""
-          echo "=== Current directory ==="
-          pwd
-          ls -la
+          mv firmware.uf2 FiXPro.uf2
+          sha256sum FiXPro.uf2 > SHA256SUMS.txt
 
       - name: Get version
         id: version
@@ -55,18 +51,14 @@ jobs:
           VERSION="v2.0.$(date +%Y%m%d%H%M%S)"
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Copy firmware
-        run: |
-          cp release/firmware.uf2 FiXPro.uf2
-          sha256sum FiXPro.uf2 > SHA256SUMS.txt
-          ls -la FiXPro.uf2 SHA256SUMS.txt
-
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.VERSION }}
           name: FiXPro ${{ steps.version.outputs.VERSION }}
-          files: FiXPro.uf2 SHA256SUMS.txt
+          files: |
+            FiXPro.uf2
+            SHA256SUMS.txt
           draft: false
           prerelease: false
         env:
