@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiXPro - Debug Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #1a1a1a;
+            color: #0f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { color: #0af; margin-bottom: 20px; }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        #log {
+            background: #000;
+            border: 1px solid #333;
+            padding: 15px;
+            width: 100%;
+            max-width: 700px;
+            height: 350px;
+            overflow-y: auto;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+        .tx { color: #fa0; }
+        .rx { color: #0f0; }
+        .err { color: #f00; }
+        .info { color: #0af; }
+    </style>
+</head>
+<body>
+    <h1>FiXPro - Debug Test</h1>
+    <button id="btn" onclick="toggle()">CONNECT</button>
+    <div id="log"></div>
+    
+    <script>
+        let port = null;
+        let reading = false;
+        const log = document.getElementById('log');
+        const btn = document.getElementById('btn');
+        
+        function add(msg, cls='') {
+            const d = document.createElement('div');
+            d.className = cls;
+            d.textContent = `[${new Date().toISOString().substr(11,12)}] ${msg}`;
+            log.appendChild(d);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        async function toggle() {
+            if (port) {
+                reading = false;
+                if (port.readable) {
+                    try { port.readable.getReader().cancel(); } catch(e) {}
+                }
+                await port.close();
+                port = null;
+                btn.textContent = 'CONNECT';
+                add('Disconnected', 'err');
+            } else {
+                try {
+                    add('Requesting port...', 'info');
+                    port = await navigator.serial.requestPort({});
+                    await port.open({ baudRate: 115200 });
+                    btn.textContent = 'DISCONNECT';
+                    add('Connected!', 'info');
+                    readLoop();
+                } catch(e) {
+                    add(`Error: ${e.message}`, 'err');
+                }
+            }
+        }
+        
+        async function readLoop() {
+            if (!port || !port.readable) return;
+            reading = true;
+            const reader = port.readable.getReader();
+            
+            while (reading) {
+                try {
+                    const { value, done } = await reader.read();
+                    if (done) {
+                        add('Stream done', 'err');
+                        break;
+                    }
+                    if (value) {
+                        const hex = Array.from(value).map(b => b.toString(16).padStart(2,'0')).join(' ');
+                        const txt = new TextDecoder().decode(value).replace(/\r/g,'⏎').replace(/\n/g,'⏎\n');
+                        add(`RX hex: ${hex}`, 'rx');
+                        add(`RX txt: ${txt}`, 'rx');
+                    }
+                } catch(e) {
+                    if (e.name !== 'AbortError') {
+                        add(`Read error: ${e.message}`, 'err');
+                    }
+                    break;
+                }
+            }
+            reading = false;
+            reader.releaseLock();
+        }
+        
+        async function send(text) {
+            if (!port || !port.writable) return;
+            try {
+                const enc = new TextEncoder();
+                const writer = port.writable.getWriter();
+                await writer.write(enc.encode(text));
+                writer.releaseLock();
+                add(`TX: ${text}`, 'tx');
+            } catch(e) {
+                add(`Write error: ${e.message}`, 'err');
+            }
+        }
+        
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter') send('PING\n');
+            if (e.key === ' ') send('TEST\n');
+        });
+        
+        if (!('serial' in navigator)) {
+            document.body.innerHTML = '<h1>Web Serial NOT supported</h1>';
+        }
+    </script>
+</body>
+</html>
