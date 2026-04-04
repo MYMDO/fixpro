@@ -2365,50 +2365,30 @@ class OPUPClient {
     
     try {
       this.reader = this.port.readable.getReader();
-      let buffer = new Uint8Array(0);
+      let buffer = '';
       
       while (this.connected) {
         const { value, done } = await this.reader.read();
         if (done) break;
         
-        // Append to buffer
-        const newBuf = new Uint8Array(buffer.length + value.length);
-        newBuf.set(buffer);
-        newBuf.set(value, buffer.length);
-        buffer = newBuf;
+        // Decode and append
+        const text = new TextDecoder().decode(value);
+        buffer += text;
         
-        // Process complete packets
-        while (buffer.length >= 10) {
-          if (buffer[0] !== OPUP_SOF) {
-            buffer = buffer.slice(1);
-            continue;
-          }
+        // Process complete lines
+        while (buffer.includes('\n')) {
+          const idx = buffer.indexOf('\n');
+          const line = buffer.substring(0, idx).trim();
+          buffer = buffer.substring(idx + 1);
           
-          const seq = buffer[1];
-          const cmd = buffer[2];
-          const flags = buffer[3];
-          const len = buffer[4] | (buffer[5] << 8);
-          
-          const packetLen = 10 + len + 4;
-          if (buffer.length < packetLen) break;
-          
-          const payload = buffer.slice(6, 6 + len);
-          const crc = buffer[6 + len] | (buffer[6 + len + 1] << 8) | (buffer[6 + len + 2] << 16) | (buffer[6 + len + 3] << 24);
-          
-          // Find pending request
-          if (this.pending.has(seq)) {
-            const { resolve, reject, timeout } = this.pending.get(seq);
-            clearTimeout(timeout);
-            this.pending.delete(seq);
+          if (line) {
+            addLog('RX: ' + line, 'data');
             
-            if (flags & 0x01) {
-              reject(new Error('Error response'));
-            } else {
-              resolve({ cmd, payload, seq });
+            // Handle responses
+            if (line === 'CAFE') {
+              addLog('PING successful!', 'success');
             }
           }
-          
-          buffer = buffer.slice(packetLen);
         }
       }
     } catch (e) {
@@ -2416,56 +2396,6 @@ class OPUPClient {
         console.error('Read error:', e);
       }
     }
-  }
-
-  async sendCommand(cmd, data = new Uint8Array(0), timeout = 1000) {
-    if (!this.port || !this.connected) {
-      throw new Error('Not connected');
-    }
-    
-    const seq = ++this.seq & 0xFF;
-    const len = data.length;
-    
-    // Build header
-    const header = new Uint8Array(6);
-    header[0] = OPUP_SOF;
-    header[1] = seq;
-    header[2] = cmd;
-    header[3] = 0;
-    header[4] = len & 0xFF;
-    header[5] = (len >> 8) & 0xFF;
-    
-    // Build packet data for CRC (header + payload)
-    const crcData = new Uint8Array(6 + len);
-    crcData.set(header);
-    crcData.set(data, 6);
-    
-    // Calculate CRC32
-    const crc = crc32(crcData);
-    
-    // Build packet
-    const packet = new Uint8Array(10 + len);
-    packet.set(header);
-    packet.set(data, 6);
-    packet[6 + len] = crc & 0xFF;
-    packet[6 + len + 1] = (crc >> 8) & 0xFF;
-    packet[6 + len + 2] = (crc >> 16) & 0xFF;
-    packet[6 + len + 3] = (crc >> 24) & 0xFF;
-    
-    // Send
-    const writer = this.port.writable.getWriter();
-    await writer.write(packet);
-    writer.releaseLock();
-    
-    // Wait for response
-    return new Promise((resolve, reject) => {
-      const t = setTimeout(() => {
-        this.pending.delete(seq);
-        reject(new Error('Timeout'));
-      }, timeout);
-      
-      this.pending.set(seq, { resolve, reject, timeout: t });
-    });
   }
 
   async ping() {
