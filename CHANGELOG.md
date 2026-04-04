@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 #### Web Interface
+- **Modular JavaScript Architecture** (`docs/assets/fixpro-core.js`)
+  - Logger module with DEBUG/INFO/WARN/ERROR levels
+  - Serial module for Web Serial API communication
+  - Events module for pub/sub communication
+  - Protocol module with command/response handling
+  - UI module for connection status updates
+  - Actions module for high-level operations
+
 - **FiXPro Hardware Control Panel** (`docs/index.html`)
   - Real-time device control buttons
   - PING, CAPS, GPIO, SPI_ID, I2C_SCAN commands
@@ -49,10 +57,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Troubleshooting section
 
 ### Changed
-- Firmware renamed to FiXPro v2.0.0
+- Firmware bumped to v2.1.0
+- Web interface updated to v2.1.0
 - Pre-built UF2: `FiXPro_platformio.uf2`
 - Web interface now supports real device communication
 - Updated chip database with 200+ entries
+- FiXPro hardware buttons now use modular architecture
 
 ### Fixed
 - USB descriptor compatibility

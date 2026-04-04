@@ -6,7 +6,8 @@
 <title>FiXPro — Flash iX Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=JetBrains+Mono:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-<style>
+<link rel="stylesheet" href="assets/fixpro-styles.css">
+
 :root {
   --bg-void: #020408;
   --bg-deep: #050c14;
@@ -1007,7 +1008,7 @@ body::before {
       </div>
       <div>
         <div class="logo-text">FiXPro</div>
-        <div class="logo-sub">Flash iX Pro v2.0.0</div>
+        <div class="logo-sub">Flash iX Pro v2.1.0</div>
       </div>
     </div>
 
@@ -1089,7 +1090,7 @@ body::before {
     </div>
 
     <div class="sidebar-footer">
-      FiXPro v2.0.0 • Open Source • MIT<br>
+      FiXPro v2.1.0 • Open Source • MIT<br>
       <a href="#">github.com/fixpro</a>
     </div>
   </nav>
@@ -1616,7 +1617,7 @@ body::before {
       <div class="panel-body" style="display:grid;grid-template-rows:1fr 180px;gap:10px;height:100%;overflow:hidden;">
         <div style="display:flex;flex-direction:column;gap:6px;overflow:hidden;">
           <div style="font-size:9px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;">SCRIPT // JavaScript API</div>
-          <textarea class="script-editor" id="scriptEditor" spellcheck="false" style="flex:1;height:100%;">// FiXPro Script Engine v2.0.0
+          <textarea class="script-editor" id="scriptEditor" spellcheck="false" style="flex:1;height:100%;">// FiXPro Script Engine v2.1.0
 // Available API:
 //   fixpro.spi.transfer(bytes[])  → Uint8Array
 //   fixpro.spi.readId()           → {mfr, type, cap}
@@ -1838,7 +1839,7 @@ main().catch(e => log('ERROR: ' + e.message));
                 </div>
                 <div class="config-row">
                   <span class="config-label">Firmware</span>
-                  <span style="font-family:var(--font-data);font-size:11px;color:var(--green-core);">FiXPro-FW v2.0.0.1</span>
+                  <span style="font-family:var(--font-data);font-size:11px;color:var(--green-core);">FiXPro-FW v2.1.0</span>
                 </div>
                 <div class="config-row">
                   <button class="btn btn-sm btn-cyan" onclick="updateFirmware()">⬆ Update Firmware</button>
@@ -2095,9 +2096,10 @@ main().catch(e => log('ERROR: ' + e.message));
 
 </div>
 
+<script src="assets/fixpro-core.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════════
-// FiXPro — Flash iX Pro v2.0.0
+// FiXPro — Flash iX Pro v2.1.0
 // (c) Open Source — MIT License
 // MCU: RP2040 (Recommended) — PIO-based universal programmer
 // ═══════════════════════════════════════════════════════════════
@@ -3328,51 +3330,6 @@ function showToast(msg, type = 'info') {
   setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
-// ─── FiXPro API ─────────────────────────────────────────────
-async function fixproPing() {
-  if (!state.connected) { addLog('Not connected', 'error'); return; }
-  try {
-    await opup.ping();
-    addLog('PING successful', 'success');
-  } catch (e) { addLog('PING failed: ' + e.message, 'error'); }
-}
-
-async function fixproCaps() {
-  if (!state.connected) { addLog('Not connected', 'error'); return; }
-  try {
-    await opup.getCaps();
-    addLog('CAPS requested', 'info');
-  } catch (e) { addLog('CAPS failed: ' + e.message, 'error'); }
-}
-
-async function fixproGpioTest() {
-  if (!state.connected) { addLog('Not connected', 'error'); return; }
-  try {
-    await opup.gpioTest();
-    addLog('GPIO test requested', 'info');
-  } catch (e) { addLog('GPIO test failed: ' + e.message, 'error'); }
-}
-
-async function fixproSpiReadId() {
-  if (!state.connected) { addLog('Not connected', 'error'); return; }
-  addLog('Reading SPI Flash ID...', 'cmd');
-  try {
-    await opup.spiReadId();
-  } catch (e) { addLog('SPI read ID failed: ' + e.message, 'error'); }
-}
-
-async function fixproI2cScan() {
-  if (!state.connected) { addLog('Not connected', 'error'); return; }
-  addLog('Scanning I2C bus...', 'cmd');
-  try {
-    await opup.i2cScan();
-  } catch (e) { addLog('I2C scan failed: ' + e.message, 'error'); }
-}
-
-async function fixproHelp() {
-  addLog('FiXPro Commands: PING, CAPS, GPIO_TEST, SPI_ID, I2C_SCAN', 'info');
-}
-
 function simulateDeviceStats() {
   if (!state.connected) return;
   let uptimeSec = 0;
@@ -3455,7 +3412,7 @@ function init() {
   setInterval(updateClock, 1000);
   updateClock();
 
-  addLog('FiXPro v2.0.0 initialized', 'success');
+  addLog('FiXPro v2.1.0 initialized (modular)', 'success');
   addLog('MCU: RP2040 @ 133 MHz | PIO State Machines: 8', 'info');
   addLog('Supported: SPI/I²C/JTAG/SWD/AVR-ISP/UART/1-Wire/Parallel', 'info');
   addLog('Chip DB: ' + CHIP_DB.length + ' entries loaded', 'data');
@@ -3475,10 +3432,65 @@ function init() {
     addLog('Web Serial API ready — click Connect to start', 'info');
   }
 
-  showToast('FiXPro v2.0.0 ready — connect your RP2040 programmer', 'success');
+  showToast('FiXPro v2.1.0 ready — connect your RP2040 programmer', 'success');
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+// ─── FiXPro Modular Integration ─────────────────────────────────
+if (typeof FiXPro !== 'undefined') {
+    FiXPro.Events.on('data', (line) => {
+        addLog('RX: ' + line, 'data');
+        if (line === 'CAFE') addLog('PING successful!', 'success');
+    });
+}
+
+async function fixproPing() {
+  if (!state.connected) { addLog('Not connected', 'error'); return; }
+  try {
+    const response = await FiXPro.Protocol.ping();
+    addLog('PING → ' + response, 'success');
+  } catch (e) { addLog('PING failed: ' + e.message, 'error'); }
+}
+
+async function fixproCaps() {
+  if (!state.connected) { addLog('Not connected', 'error'); return; }
+  try {
+    const response = await FiXPro.Protocol.getCaps();
+    addLog('CAPS → ' + response, 'data');
+  } catch (e) { addLog('CAPS failed: ' + e.message, 'error'); }
+}
+
+async function fixproGpioTest() {
+  if (!state.connected) { addLog('Not connected', 'error'); return; }
+  try {
+    const response = await FiXPro.Protocol.getGpio();
+    addLog('GPIO → ' + response, 'data');
+  } catch (e) { addLog('GPIO failed: ' + e.message, 'error'); }
+}
+
+async function fixproSpiReadId() {
+  if (!state.connected) { addLog('Not connected', 'error'); return; }
+  addLog('Reading SPI Flash ID...', 'cmd');
+  try {
+    const response = await FiXPro.Protocol.getSpiId();
+    addLog('SPI_ID → ' + response, 'data');
+  } catch (e) { addLog('SPI read ID failed: ' + e.message, 'error'); }
+}
+
+async function fixproI2cScan() {
+  if (!state.connected) { addLog('Not connected', 'error'); return; }
+  addLog('Scanning I2C bus...', 'cmd');
+  try {
+    const response = await FiXPro.Protocol.scanI2c();
+    addLog('I2C_SCAN → ' + response, 'data');
+  } catch (e) { addLog('I2C scan failed: ' + e.message, 'error'); }
+}
+
+function fixproHelp() {
+  addLog('FiXPro Commands: PING, CAPS, GPIO, SPI_ID, I2C_SCAN, STATUS, INFO, HELP', 'info');
+  addLog('Module version: ' + (FiXPro.VERSION || 'loaded'), 'data');
+}
 </script>
 </body>
 </html>

@@ -1,10 +1,11 @@
 # FiXPro Protocol Tests
 # Tests for the OPUP text protocol
 
-import unittest
-from unittest.mock import Mock, patch, MagicMock
-import serial
 import time
+import unittest
+from unittest.mock import Mock
+
+import serial
 
 
 class TestProtocolResponses(unittest.TestCase):
@@ -72,9 +73,19 @@ class TestCommandParsing(unittest.TestCase):
     def test_valid_commands(self):
         """List of valid commands"""
         valid_commands = [
-            "PING", "CAPS", "VERSION", "GPIO", "GPIO_TEST",
-            "GPIO_SET", "GPIO_CLR", "SPI_ID", "I2C_SCAN",
-            "STATUS", "INFO", "HELP", "?"
+            "PING",
+            "CAPS",
+            "VERSION",
+            "GPIO",
+            "GPIO_TEST",
+            "GPIO_SET",
+            "GPIO_CLR",
+            "SPI_ID",
+            "I2C_SCAN",
+            "STATUS",
+            "INFO",
+            "HELP",
+            "?",
         ]
         for cmd in valid_commands:
             self.assertEqual(cmd, cmd.strip())
@@ -138,6 +149,7 @@ class TestChipDetection(unittest.TestCase):
     def test_jedec_id_pattern(self):
         """JEDEC ID should match expected pattern"""
         import re
+
         pattern = r"^SPI:[0-9A-F]{6}$"
         spi_id = "SPI:EF4017"
         self.assertIsNotNone(re.match(pattern, spi_id))
@@ -149,7 +161,7 @@ class TestChipDetection(unittest.TestCase):
             "C8": "GigaDevice",
             "20": "Micron",
             "1C": "eON",
-            "1F": "Atmel"
+            "1F": "Atmel",
         }
         self.assertIn("EF", manufacturers)
         self.assertEqual("Winbond", manufacturers["EF"])

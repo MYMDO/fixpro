@@ -1,0 +1,173 @@
+/**
+ * FiXPro Web Interface - Styles
+ */
+
+/* Responsive breakpoints */
+@media (max-width: 1200px) {
+    .app-shell {
+        grid-template-columns: 200px 1fr 240px;
+    }
+}
+
+@media (max-width: 992px) {
+    .app-shell {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+    
+    .sidebar {
+        display: none;
+    }
+    
+    .panel-right {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 300px;
+        transform: translateY(calc(100% - 44px));
+        transition: transform 0.3s ease;
+    }
+    
+    .panel-right.expanded {
+        transform: translateY(0);
+    }
+}
+
+/* Animations */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 5px var(--green-core); }
+    50% { box-shadow: 0 0 20px var(--green-core); }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+.glow {
+    animation: glow 2s infinite;
+}
+
+/* Button states */
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Log entries */
+.log-debug { color: var(--text-muted); }
+.log-info { color: var(--cyan-core); }
+.log-warn { color: var(--amber); }
+.log-error { color: var(--red); }
+.log-cmd { padding: 4px 0; border-bottom: 1px solid var(--border); }
+
+.cmd-time { color: var(--text-muted); font-size: 11px; }
+.cmd-name { color: var(--green-core); }
+.cmd-response { color: var(--cyan-core); }
+
+/* Progress bar */
+.progress-bar {
+    height: 4px;
+    background: var(--bg-elevated);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green-core), var(--cyan-core));
+    transition: width 0.3s ease;
+}
+
+/* Tooltips */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+}
+
+/* Keyboard shortcuts */
+.kbd {
+    display: inline-block;
+    padding: 2px 6px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+}
+
+/* Loading spinner */
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--green-core);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.status-badge.success {
+    background: var(--green-ghost);
+    color: var(--green-core);
+}
+
+.status-badge.warning {
+    background: rgba(255, 170, 0, 0.1);
+    color: var(--amber);
+}
+
+.status-badge.error {
+    background: rgba(255, 51, 85, 0.1);
+    color: var(--red);
+}
+
+/* Dark mode toggle (future) */
+@media (prefers-color-scheme: light) {
+    :root {
+        /* Light mode variables - future enhancement */
+    }
+}
