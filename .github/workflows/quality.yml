@@ -42,16 +42,10 @@ jobs:
           python-version: '3.11'
 
       - name: Install test dependencies
-        run: pip install pytest
-
-      - name: Debug - list files
-        run: ls -la && ls -la tests/
-
-      - name: Debug - Python version
-        run: python3 --version && which python3
+        run: pip install pytest pyserial
 
       - name: Run tests
-        run: python3 -m pytest tests/protocol/ -v --tb=short
+        run: python3 -m pytest tests/protocol/ -v
 
   json-validate:
     name: JSON Validation
