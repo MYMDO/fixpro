@@ -17,10 +17,7 @@
             margin: 0;
             padding: 20px;
         }
-        h1 {
-            color: #00d4ff;
-            margin-bottom: 30px;
-        }
+        h1 { color: #00d4ff; margin-bottom: 30px; }
         button {
             background: #00ff88;
             color: #0a0a0a;
@@ -32,36 +29,26 @@
             border-radius: 5px;
             margin: 10px;
         }
-        button:hover {
-            background: #00cc6a;
-        }
-        button:disabled {
-            background: #333;
-            color: #666;
-            cursor: not-allowed;
-        }
+        button:hover { background: #00cc6a; }
+        button:disabled { background: #333; color: #666; cursor: not-allowed; }
         #log {
             background: #111;
             border: 1px solid #333;
             padding: 20px;
             width: 100%;
-            max-width: 500px;
-            height: 300px;
+            max-width: 600px;
+            height: 400px;
             overflow-y: auto;
             margin-top: 20px;
             border-radius: 5px;
+            font-size: 14px;
         }
-        .log-line {
-            margin: 5px 0;
-            padding: 5px;
-        }
-        .success { color: #00ff88; }
-        .error { color: #ff3355; }
+        .log-line { margin: 5px 0; padding: 3px; }
+        .tx { color: #ffaa00; }
+        .rx { color: #00ff88; }
         .info { color: #00d4ff; }
-        #status {
-            font-size: 24px;
-            margin: 20px 0;
-        }
+        .error { color: #ff3355; }
+        #status { font-size: 24px; margin: 20px 0; }
         .connected { color: #00ff88; }
         .disconnected { color: #ff3355; }
     </style>
@@ -73,6 +60,7 @@
     
     <button id="connectBtn" onclick="connect()">CONNECT</button>
     <button id="pingBtn" onclick="sendPing()" disabled>PING</button>
+    <button id="testBtn" onclick="sendTest()" disabled>TEST</button>
     
     <div id="log"></div>
     
@@ -83,6 +71,7 @@
         const status = document.getElementById('status');
         const connectBtn = document.getElementById('connectBtn');
         const pingBtn = document.getElementById('pingBtn');
+        const testBtn = document.getElementById('testBtn');
         
         function addLog(msg, type = 'info') {
             const line = document.createElement('div');
@@ -101,13 +90,19 @@
             try {
                 addLog('Requesting serial port...', 'info');
                 port = await navigator.serial.requestPort({});
-                await port.open({ baudRate: 115200 });
+                await port.open({ 
+                    baudRate: 115200,
+                    dataBits: 8,
+                    stopBits: 1,
+                    parity: "none"
+                });
                 
-                addLog('Connected!', 'success');
+                addLog('Port opened!', 'success');
                 status.textContent = 'CONNECTED';
                 status.className = 'connected';
                 connectBtn.textContent = 'DISCONNECT';
                 pingBtn.disabled = false;
+                testBtn.disabled = false;
                 
                 readLoop();
             } catch (err) {
@@ -119,7 +114,7 @@
         
         async function disconnect() {
             if (reader) {
-                reader.cancel();
+                await reader.cancel();
                 reader = null;
             }
             if (port) {
@@ -131,25 +126,38 @@
             status.className = 'disconnected';
             connectBtn.textContent = 'CONNECT';
             pingBtn.disabled = true;
+            testBtn.disabled = true;
         }
         
         async function readLoop() {
-            if (!port) return;
+            if (!port || !port.readable) return;
             
             try {
                 reader = port.readable.getReader();
                 const decoder = new TextDecoder();
+                let buffer = '';
                 
                 while (true) {
                     const { value, done } = await reader.read();
                     if (done) break;
                     
-                    const text = decoder.decode(value);
-                    const lines = text.split('\n');
+                    // Show raw bytes
+                    const hex = Array.from(new Uint8Array(value))
+                        .map(b => b.toString(16).padStart(2, '0'))
+                        .join(' ');
+                    addLog(`RX raw: ${hex}`, 'rx');
                     
-                    for (const line of lines) {
+                    // Decode and show text
+                    const text = decoder.decode(value);
+                    buffer += text;
+                    
+                    // Process complete lines
+                    while (buffer.includes('\n')) {
+                        const idx = buffer.indexOf('\n');
+                        const line = buffer.substring(0, idx);
+                        buffer = buffer.substring(idx + 1);
                         if (line.trim()) {
-                            addLog(`RX: ${line}`, 'success');
+                            addLog(`RX: ${line}`, 'rx');
                         }
                     }
                 }
@@ -164,7 +172,7 @@
             if (!port) return;
             
             try {
-                addLog('TX: PING', 'info');
+                addLog('TX: PING', 'tx');
                 const writer = port.writable.getWriter();
                 await writer.write(new TextEncoder().encode('PING\n'));
                 writer.releaseLock();
@@ -173,7 +181,20 @@
             }
         }
         
-        // Check Web Serial support
+        async function sendTest() {
+            if (!port) return;
+            
+            try {
+                const msg = 'TEST-123';
+                addLog(`TX: ${msg}`, 'tx');
+                const writer = port.writable.getWriter();
+                await writer.write(new TextEncoder().encode(msg + '\n'));
+                writer.releaseLock();
+            } catch (err) {
+                addLog(`Write error: ${err.message}`, 'error');
+            }
+        }
+        
         if (!('serial' in navigator)) {
             document.body.innerHTML = '<h1>Web Serial API not supported</h1><p>Please use Chrome, Edge, or Opera</p>';
         }
