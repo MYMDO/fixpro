@@ -22,13 +22,13 @@ jobs:
         run: pip install black flake8 isort
 
       - name: Run black
-        run: black --check --diff host/
+        run: black --check --diff tests/
 
       - name: Run flake8
-        run: flake8 host/ --max-line-length=100 --ignore=E501,W503
+        run: flake8 tests/ --max-line-length=100 --ignore=E501,W503
 
       - name: Run isort
-        run: isort --check-only --diff host/
+        run: isort --check-only --diff tests/
 
   test:
     name: Tests
