@@ -5,6 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-04-04
+
+### Added
+
+#### Web Interface
+- **FiXPro Hardware Control Panel** (`docs/index.html`)
+  - Real-time device control buttons
+  - PING, CAPS, GPIO, SPI_ID, I2C_SCAN commands
+  - Connection status indicator
+  - Activity log display
+  - System monitor panel
+
+- **Web Serial API Integration**
+  - Full browser-to-device communication
+  - No drivers required
+  - Works on Windows, macOS, Linux
+
+- **Chip Database**
+  - 200+ supported chips
+  - Real-time search and filtering
+  - JEDEC ID auto-detection
+  - Performance benchmarks
+
+#### Firmware
+- **PlatformIO Build System** (`firmware/platformio/`)
+  - Arduino framework support
+  - Earle Philhower RP2040 core
+  - Simplified build process
+  - USB CDC with TinyUSB
+
+- **Text OPUP Protocol**
+  - Human-readable commands
+  - Line-based responses
+  - Easy debugging
+
+#### Documentation
+- **Professional README.md**
+  - Complete feature documentation
+  - Quick start guide
+  - Hardware requirements
+  - Pin connections reference
+  - Troubleshooting section
+
+### Changed
+- Firmware renamed to FiXPro v2.0.0
+- Pre-built UF2: `FiXPro_platformio.uf2`
+- Web interface now supports real device communication
+- Updated chip database with 200+ entries
+
+### Fixed
+- USB descriptor compatibility
+- Build system configuration
+- String descriptor handling
+
 ## [2.0.0] - 2026-04-03
 
 ### Added
@@ -33,16 +87,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `CMD_UPDI_READ_INFO` (0x73) - Read device info
   - `CMD_UPDI_READ_FLASH` (0x74) - Read flash memory
   - `CMD_UPDI_WRITE_FLASH` (0x75) - Write flash memory
-  - `CMD_UPDI_READ_EEPROM` (0x76) - Read EEPROM
-  - `CMD_UPDI_WRITE_EEPROM` (0x77) - Write EEPROM
-  - `CMD_UPDI_READ_FUSE` (0x78) - Read fuse
-  - `CMD_UPDI_WRITE_FUSE` (0x79) - Write fuse
-  - `CMD_UPDI_ERASE_CHIP` (0x7A) - Chip erase
   - `CMD_1WIRE_INIT` (0x80) - Initialize 1-Wire
-  - `CMD_1WIRE_DEINIT` (0x81) - Deinitialize 1-Wire
   - `CMD_1WIRE_RESET` (0x82) - Reset 1-Wire bus
   - `CMD_1WIRE_SEARCH` (0x83) - Search devices
-  - `CMD_1WIRE_READ_ROM` (0x84) - Read ROM code
   - `CMD_1WIRE_READ_TEMP` (0x85) - Read DS18B20 temperature
 
 - **Capability Flags** in device info
@@ -61,14 +108,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `1wire-scan` - Scan for 1-Wire devices
   - `1wire-temp` - Read DS18B20 temperature
 
-- **CLI Methods** (`device.py`)
-  - `updi_read_eeprom()` - Read EEPROM
-  - `updi_write_eeprom()` - Write EEPROM
-
-- **New Protocol Constants** (`protocols/__init__.py`)
-  - All UPDI and 1-Wire command codes
-  - `CAP_UPDI`, `CAP_1WIRE` capability flags
-
 #### Database
 - **AVR UPDI Chip Database** (`chipdb/avr.json`)
   - 54 supported AVR devices
@@ -76,37 +115,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ATmega series (8KB-256KB Flash)
   - AVR-DA series (32KB-128KB Flash)
   - Signature-based chip identification
-
-#### Documentation
-- **README.md**
-  - Added UPDI and 1-Wire to protocol support table
-  - Added UPDI and 1-Wire CLI command examples
-  - Updated project structure
-
-- **USB_Protocol.md**
-  - Full UPDI command documentation (0x70-0x7A)
-  - Full 1-Wire command documentation (0x80-0x85)
-  - Request/response format specifications
-
-- **SPEC.md**
-  - UPDI/1-Wire pin assignments
-  - Command reference tables
-  - Capability flag definitions
-  - Timing specifications for UPDI and 1-Wire
-
-### Changed
-- Firmware version: 1.0.0 → 2.0.0
-- CLI version: 2.0.0 (unchanged)
-- Updated `CMakeLists.txt` to include new source files
-- Updated device capabilities in `cmd_handle_get_info()`
-
-### Fixed
-- Removed duplicate `#define UPDI_CMD_LDCS` in updi.c
-- Removed unused baud calculation in updi_uart_init()
-- Fixed missing includes for UPDI/1-Wire types
-
-### Dependencies
-- Added `hardware_uart` to firmware link libraries
 
 ## [1.0.0] - 2026-03-XX
 
@@ -121,5 +129,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Raspberry Pi Pico RP2040 support
 - GitHub Actions CI/CD
 
+---
+
+[2.1.0]: https://github.com/MYMDO/fixpro/releases/tag/v2.1.0
 [2.0.0]: https://github.com/MYMDO/fixpro/releases/tag/v2.0.0
 [1.0.0]: https://github.com/MYMDO/fixpro/releases/tag/v1.0.0
