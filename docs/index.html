@@ -2401,6 +2401,11 @@ class OPUPClient {
           if (line) {
             addLog('RX: ' + line, 'data');
             
+            // Emit event for FiXPro module
+            if (typeof FiXPro !== 'undefined' && FiXPro.Events) {
+              FiXPro.Events.emit('data', line);
+            }
+            
             // Handle responses
             if (line === 'CAFE') {
               addLog('PING successful!', 'success');
@@ -2434,9 +2439,14 @@ class OPUPClient {
   async i2cScan() {
     return this.sendText('I2C_SCAN\n');
   }
+
+  async send(data) {
+    return this.sendText(data + '\n');
+  }
 }
 
 const opup = new OPUPClient();
+FiXPro.Serial = opup;
 
 async function connectDevice() {
   try {
