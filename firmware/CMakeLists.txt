@@ -41,14 +41,6 @@ include_directories(
 
 set(FIRMWARE_SOURCES
     src/main.c
-    src/hal/hal.c
-    src/hal/jtag.c
-    src/hal/swd.c
-    src/hal/updi.c
-    src/hal/onewire.c
-    src/safety/safety.c
-    src/usb/usb_protocol.c
-    src/flash/spi_flash.c
 )
 
 add_executable(${FIRMWARE_NAME}
@@ -60,24 +52,9 @@ target_compile_definitions(${FIRMWARE_NAME} PRIVATE
     CFG_TUD_CDC=1
 )
 
-pico_generate_pio_header(${FIRMWARE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/pio/spi.pio)
-pico_generate_pio_header(${FIRMWARE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/pio/i2c.pio)
-pico_generate_pio_header(${FIRMWARE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/pio/jtag.pio)
-pico_generate_pio_header(${FIRMWARE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/pio/swd.pio)
-
 target_link_libraries(${FIRMWARE_NAME}
     pico_stdlib
     hardware_gpio
-    hardware_spi
-    hardware_i2c
-    hardware_adc
-    hardware_pwm
-    hardware_clocks
-    hardware_pll
-    hardware_irq
-    hardware_pio
-    hardware_uart
-    pico_multicore
     tinyusb_device
     tinyusb_board
 )
@@ -86,10 +63,6 @@ pico_set_program_name(${FIRMWARE_NAME} "FiXPro")
 pico_set_program_version(${FIRMWARE_NAME} "${FIRMWARE_VERSION}")
 
 pico_add_extra_outputs(${FIRMWARE_NAME})
-
-add_custom_command(TARGET ${FIRMWARE_NAME} POST_BUILD
-    COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${FIRMWARE_NAME}> ${CMAKE_CURRENT_BINARY_DIR}/${FIRMWARE_NAME}.hex
-)
 
 pico_enable_stdio_uart(${FIRMWARE_NAME} 0)
 pico_enable_stdio_usb(${FIRMWARE_NAME} 1)

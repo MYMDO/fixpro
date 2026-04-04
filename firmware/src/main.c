@@ -1,270 +1,119 @@
 /**
  * @file main.c
- * @brief FiXPro Flash iX Pro - Main Entry Point
- * @author FiXPro Contributors
- * @version 1.0.0
- * @license GPL-3.0
- *
- * @mainpage FiXPro
- *
- * Universal Hardware Programmer Engine built on Raspberry Pi RP2040
- *
- * Features:
- * - High-speed SPI Flash programming (up to 50MHz)
- * - I2C EEPROM support (up to 1MHz)
- * - Comprehensive safety monitoring
- * - USB CDC communication
- *
- * @see https://fx.in.ua
+ * @brief FiXPro - Using pico_stdio_usb with descriptors
  */
 
 #include <stdio.h>
 #include <string.h>
 #include "pico/stdlib.h"
-#include "pico/multicore.h"
 #include "pico/unique_id.h"
-#include "hardware/clocks.h"
-#include "hardware/pll.h"
-#include "hardware/structs/clocks.h"
+#include "tusb.h"
 
-#include "usb/usb_protocol.h"
-#include "safety/safety.h"
-#include "hal/hal.h"
+#define LED_PIN 25
 
-#include "flash/spi_flash.h"
+// USB Vendor/Product IDs
+#define USBD_VID           0x2E8A
+#define USBD_PID           0x000A
+#define USBD_MANUFACTURER  "FiXPro"
+#define USBD_PRODUCT       "FiXPro Universal Programmer"
 
-/*============================================================================
- * CONFIGURATION
- *============================================================================*/
+// Device descriptor
+tusb_desc_device_t const desc_device = {
+    .bLength = sizeof(tusb_desc_device_t),
+    .bDescriptorType = TUSB_DESC_DEVICE,
+    .bcdUSB = 0x0200,
+    .bDeviceClass = TUSB_CLASS_MISC,
+    .bDeviceSubClass = MISC_SUBCLASS_COMMON,
+    .bDeviceProtocol = MISC_PROTOCOL_IAD,
+    .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
+    .idVendor = USBD_VID,
+    .idProduct = USBD_PID,
+    .bcdDevice = 0x0100,
+    .iManufacturer = 0x01,
+    .iProduct = 0x02,
+    .iSerialNumber = 0x03,
+    .bNumConfigurations = 0x01
+};
 
-/**
- * @brief System clock configuration
- */
-#ifndef SYS_CLK_KHZ
-#define SYS_CLK_KHZ 125000
-#endif
+// Configuration descriptor
+#define CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN)
 
-/**
- * @brief USB task priority
- */
-#define USB_TASK_PRIORITY 8
+uint8_t const desc_cfg[CONFIG_TOTAL_LEN] = {
+    TUD_CONFIG_DESCRIPTOR(1, 1, 0, CONFIG_TOTAL_LEN, 0, 100),
+    TUD_CDC_DESCRIPTOR(0, 0, 0x81, 8, 0x02, 0x82, 64),
+};
 
-/**
- * @brief Core1 stack size
- */
-#define CORE1_STACK_SIZE 2048
+// String descriptors
+static char serial_str[32];
 
-/**
- * @brief Core1 stack (must be 8-byte aligned)
- */
-static uint32_t core1_stack[CORE1_STACK_SIZE / sizeof(uint32_t)];
+char const* string_desc_arr[] = {
+    (const char[]) { 0x09, 0x04 },
+    USBD_MANUFACTURER,
+    USBD_PRODUCT,
+    serial_str,
+};
 
-/*============================================================================
- * PRIVATE VARIABLES
- *============================================================================*/
-
-/**
- * @brief Device serial number (from OTP)
- */
-static char device_serial[13];
-
-/**
- * @brief Firmware version string
- */
-static const char firmware_version[] = "1.0.0";
-
-/**
- * @brief Flag indicating device is ready
- */
-static volatile bool device_ready = false;
-
-/**
- * @brief Blinking state for LED
- */
-static volatile uint32_t led_blink_count = 0;
-
-/*============================================================================
- * FUNCTION PROTOTYPES
- *============================================================================*/
-
-static void core1_entry(void);
-static void system_clock_init(void);
-static void led_set_state(bool on);
-static void led_blink(void);
-
-/*============================================================================
- * CALLBACK IMPLEMENTATIONS
- *============================================================================*/
-
-/**
- * @brief Safety warning callback
- */
-void safety_on_warning(safety_status_flags_t warning)
-{
-    printf("[SAFETY] Warning: %s\n", safety_status_string(warning));
+// TinyUSB callbacks
+uint8_t const* tud_descriptor_device_cb(void) {
+    return (uint8_t const*) &desc_device;
 }
 
-/**
- * @brief Safety error callback
- */
-void safety_on_error(safety_status_flags_t error)
-{
-    printf("[SAFETY] Error: %s\n", safety_status_string(error));
-    led_set_state(false);
+uint8_t const* tud_descriptor_configuration_cb(uint8_t index) {
+    (void) index;
+    return desc_cfg;
 }
 
-/**
- * @brief Safety power disabled callback
- */
-void safety_on_power_disabled(void)
-{
-    printf("[SAFETY] Power disabled due to safety condition\n");
-    led_set_state(false);
-}
-
-/*============================================================================
- * SYSTEM INITIALIZATION
- *============================================================================*/
-
-/**
- * @brief Initialize system clock
- */
-static void system_clock_init(void)
-{
-    set_sys_clock_khz(SYS_CLK_KHZ, true);
+uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
+    (void) langid;
+    static uint16_t desc_str[32];
     
-    uint32_t f_clk_sys = clock_get_hz(clk_sys) / 1000;
-    
-    printf("[SYS] System clock: %u kHz\n", (unsigned int)f_clk_sys);
-}
-
-/**
- * @brief Initialize LED
- */
-static void led_init(void)
-{
-    hal_led_init();
-    hal_led_set_brightness(0);
-}
-
-/**
- * @brief Set LED state
- */
-static void led_set_state(bool on)
-{
-    if (on) {
-        hal_led_set_brightness(255);
-    } else {
-        hal_led_set_brightness(0);
+    if (index == 0) {
+        memcpy(&desc_str[1], string_desc_arr[0], 2);
+        desc_str[0] = (TUSB_DESC_STRING << 8) | (2 + 2);
+        return desc_str;
     }
-}
-
-/**
- * @brief Blink LED once
- */
-static void led_blink(void)
-{
-    led_set_state(true);
-    sleep_ms(50);
-    led_set_state(false);
-}
-
-/**
- * @brief Read device serial number
- */
-static void read_device_serial(void)
-{
-    pico_unique_board_id_t board_id;
-    pico_get_unique_board_id(&board_id);
     
-    snprintf(device_serial, sizeof(device_serial), 
-             "%02X%02X%02X%02X",
-             board_id.id[0], board_id.id[1],
-             board_id.id[2], board_id.id[3]);
+    if (index >= 4) return NULL;
     
-    printf("[SYS] Device serial: %s\n", device_serial);
-}
-
-/*============================================================================
- * CORE1 HANDLING
- *============================================================================*/
-
-/**
- * @brief Core1 entry point
- * Handles background tasks
- */
-static void core1_entry(void)
-{
-    printf("[CORE1] Started on core 1\n");
+    const char* str = string_desc_arr[index];
+    uint8_t len = strlen(str);
     
-    while (true) {
-        safety_poll();
-        
-        sleep_ms(10);
+    for (uint8_t i = 0; i < len && i < 31; i++) {
+        desc_str[1 + i] = str[i];
     }
+    desc_str[0] = (TUSB_DESC_STRING << 8) | (2 * len + 2);
+    return desc_str;
 }
 
-/*============================================================================
- * MAIN ENTRY POINT
- *============================================================================*/
-
-/**
- * @brief Main entry point
- */
-int main(void)
-{
+int main() {
+    // Get unique serial
+    pico_get_unique_board_id_string(serial_str, sizeof(serial_str));
+    
+    gpio_init(LED_PIN);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
+    
+    // Blink 3 times - start
+    for(int i=0; i<3; i++) {
+        gpio_put(LED_PIN, 1);
+        sleep_ms(100);
+        gpio_put(LED_PIN, 0);
+        sleep_ms(100);
+    }
+    
     stdio_init_all();
     
-    printf("\n");
-    printf("=================================================\n");
-    printf("  FiXPro - Flash iX Pro\n");
-    printf("  Version: %s\n", firmware_version);
-    printf("  Build: %s %s\n", __DATE__, __TIME__);
-    printf("=================================================\n");
-    printf("\n");
-    
-    system_clock_init();
-    read_device_serial();
-    
-    printf("[INIT] Initializing hardware...\n");
-    hal_gpio_init();
-    led_init();
-    
-    printf("[INIT] Initializing safety system...\n");
-    safety_init();
-    
-    printf("[INIT] Initializing USB...\n");
-    usb_protocol_init();
-    
-    printf("[INIT] Initializing SPI Flash driver...\n");
-    spi_flash_init();
-    
-    printf("[INIT] Starting core1 background task...\n");
-    multicore_launch_core1_with_stack(core1_entry, core1_stack, sizeof(core1_stack));
-    
-    printf("[INIT] System ready!\n");
-    printf("\n");
-    printf("FiXPro ready. Connect via USB CDC to begin.\n");
-    printf("\n");
-    
-    device_ready = true;
-    led_set_state(true);
-    
-    while (true) {
-        usb_packet_t packet;
-        
-        safety_poll();
-        
-        if (usb_receive_packet(&packet, 100)) {
-            led_blink();
-            usb_protocol_dispatch(&packet);
-        }
-        
-        if (led_blink_count > 0) {
-            led_blink_count--;
-            led_blink();
-        }
+    // Blink 3 times - after init
+    for(int i=0; i<3; i++) {
+        gpio_put(LED_PIN, 1);
+        sleep_ms(100);
+        gpio_put(LED_PIN, 0);
+        sleep_ms(100);
     }
     
-    return 0;
+    printf("FiXPro USB Test v2.0.0\n");
+    
+    while (true) {
+        tud_task();
+        gpio_put(LED_PIN, tud_cdc_connected() ? 1 : 0);
+    }
 }
