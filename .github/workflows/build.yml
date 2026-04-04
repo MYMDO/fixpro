@@ -9,30 +9,21 @@ on:
     branches: [main, master, develop]
   workflow_dispatch:
 
-env:
-  FW_VERSION: "2.1.0"
-
 jobs:
   build:
     name: Build Firmware
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      packages: write
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Get version
-        id: version
-        run: |
-          if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
-            VERSION="${{ github.ref_name }}"
-          else
-            VERSION="v${{ env.FW_VERSION }}"
-          fi
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pio
+            .pio
+          key: ${{ runner.os }}-pio-${{ hashFiles('firmware/platformio/**') }}
+          restore-keys: |
+            ${{ runner.os }}-pio-
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -42,21 +33,15 @@ jobs:
       - name: Install PlatformIO
         run: pip install platformio
 
-      - name: Build with PlatformIO
+      - name: Build PlatformIO
         working-directory: firmware/platformio
         run: pio run
 
-      - name: List firmware files
-        run: |
-          echo "=== Build Output ==="
-          find firmware/platformio/.pio -name "*.uf2" -type f
-
-      - name: Upload firmware
+      - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
-          name: FiXPro-firmware-${{ steps.version.outputs.VERSION }}
+          name: FiXPro-firmware
           path: firmware/platformio/.pio/build/rpipico/*.uf2
-          retention-days: 30
 
   release:
     name: Create Release
@@ -65,34 +50,22 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Download firmware
         uses: actions/download-artifact@v4
         with:
-          name: FiXPro-firmware-${{ github.ref_name }}
+          name: FiXPro-firmware
           path: firmware
 
-      - name: List files
-        run: |
-          echo "=== Release Files ==="
-          ls -lh firmware/
-
-      - name: Create SHA256 checksums
-        run: |
-          sha256sum firmware/*.uf2 > SHA256SUMS.txt
-          cat SHA256SUMS.txt
+      - name: Create checksums
+        run: sha256sum firmware/*.uf2 > SHA256SUMS.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: firmware/*.uf2 SHA256SUMS.txt
           body_path: CHANGELOG.md
-          draft: false
-          prerelease: false
-          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
