@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiXPro - Connection Test</title>
+    <style>
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: #0a0a0a;
+            color: #00ff88;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #00d4ff;
+            margin-bottom: 30px;
+        }
+        button {
+            background: #00ff88;
+            color: #0a0a0a;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-family: inherit;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px;
+        }
+        button:hover {
+            background: #00cc6a;
+        }
+        button:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+        #log {
+            background: #111;
+            border: 1px solid #333;
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        .log-line {
+            margin: 5px 0;
+            padding: 5px;
+        }
+        .success { color: #00ff88; }
+        .error { color: #ff3355; }
+        .info { color: #00d4ff; }
+        #status {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        .connected { color: #00ff88; }
+        .disconnected { color: #ff3355; }
+    </style>
+</head>
+<body>
+    <h1>FiXPro - Connection Test</h1>
+    
+    <div id="status" class="disconnected">DISCONNECTED</div>
+    
+    <button id="connectBtn" onclick="connect()">CONNECT</button>
+    <button id="pingBtn" onclick="sendPing()" disabled>PING</button>
+    
+    <div id="log"></div>
+    
+    <script>
+        let port = null;
+        let reader = null;
+        const log = document.getElementById('log');
+        const status = document.getElementById('status');
+        const connectBtn = document.getElementById('connectBtn');
+        const pingBtn = document.getElementById('pingBtn');
+        
+        function addLog(msg, type = 'info') {
+            const line = document.createElement('div');
+            line.className = `log-line ${type}`;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            log.appendChild(line);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        async function connect() {
+            if (port) {
+                await disconnect();
+                return;
+            }
+            
+            try {
+                addLog('Requesting serial port...', 'info');
+                port = await navigator.serial.requestPort({});
+                await port.open({ baudRate: 115200 });
+                
+                addLog('Connected!', 'success');
+                status.textContent = 'CONNECTED';
+                status.className = 'connected';
+                connectBtn.textContent = 'DISCONNECT';
+                pingBtn.disabled = false;
+                
+                readLoop();
+            } catch (err) {
+                addLog(`Error: ${err.message}`, 'error');
+                status.textContent = 'ERROR';
+                status.className = 'disconnected';
+            }
+        }
+        
+        async function disconnect() {
+            if (reader) {
+                reader.cancel();
+                reader = null;
+            }
+            if (port) {
+                await port.close();
+                port = null;
+            }
+            addLog('Disconnected', 'info');
+            status.textContent = 'DISCONNECTED';
+            status.className = 'disconnected';
+            connectBtn.textContent = 'CONNECT';
+            pingBtn.disabled = true;
+        }
+        
+        async function readLoop() {
+            if (!port) return;
+            
+            try {
+                reader = port.readable.getReader();
+                const decoder = new TextDecoder();
+                
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    
+                    const text = decoder.decode(value);
+                    const lines = text.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.trim()) {
+                            addLog(`RX: ${line}`, 'success');
+                        }
+                    }
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    addLog(`Read error: ${err.message}`, 'error');
+                }
+            }
+        }
+        
+        async function sendPing() {
+            if (!port) return;
+            
+            try {
+                addLog('TX: PING', 'info');
+                const writer = port.writable.getWriter();
+                await writer.write(new TextEncoder().encode('PING\n'));
+                writer.releaseLock();
+            } catch (err) {
+                addLog(`Write error: ${err.message}`, 'error');
+            }
+        }
+        
+        // Check Web Serial support
+        if (!('serial' in navigator)) {
+            document.body.innerHTML = '<h1>Web Serial API not supported</h1><p>Please use Chrome, Edge, or Opera</p>';
+        }
+    </script>
+</body>
+</html>
