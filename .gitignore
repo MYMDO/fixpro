@@ -1,5 +1,6 @@
 # Build outputs
 firmware/build/
+firmware/platformio/.pio/
 build/
 *.o
 *.a
@@ -8,6 +9,9 @@ build/
 *.hex
 *.uf2
 *.map
+
+# Note: Pre-built UF2 firmware is available in GitHub Releases
+# Download from: https://github.com/MYMDO/fixpro/releases
 
 # IDE
 .vscode/
