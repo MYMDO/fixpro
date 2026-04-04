@@ -19,82 +19,9 @@ env:
   PICO_SDK_VERSION: "2.0.0"
 
 jobs:
-  build-pico-sdk:
-    name: Build (Pico SDK)
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: read
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install ARM toolchain and dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            gcc-arm-none-eabi binutils-arm-none-eabi \
-            cmake make g++ ninja-build \
-            libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib \
-            libusb-1.0-0-dev
-
-      - name: Clone Pico SDK
-        run: |
-          git clone --depth 1 --branch ${{ env.PICO_SDK_VERSION }} https://github.com/raspberrypi/pico-sdk.git
-          cd pico-sdk
-          git submodule update --init --depth 1
-
-      - name: Get version
-        id: version
-        run: |
-          if [[ "${{ github.event.inputs.version }}" != "" ]]; then
-            VERSION="${{ github.event.inputs.version }}"
-          elif [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
-            VERSION="${{ github.ref_name }}"
-          else
-            VERSION="build-${{ github.run_number }}"
-          fi
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "Building FiXPro firmware version: $VERSION"
-
-      - name: Configure CMake
-        working-directory: firmware
-        env:
-          PICO_SDK_PATH: ${{ github.workspace }}/pico-sdk
-          CC: arm-none-eabi-gcc
-          CXX: arm-none-eabi-g++
-        run: |
-          cmake -S . -B build \
-            -DCMAKE_TOOLCHAIN_FILE=$PICO_SDK_PATH/cmake/preload/toolchains/pico_arm_cortex_m0plus_gcc.cmake \
-            -DPICO_SDK_PATH=$PICO_SDK_PATH \
-            -DPICO_BOARD=pico \
-            -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build firmware
-        working-directory: firmware
-        run: cmake --build build -j$(nproc)
-
-      - name: List build outputs
-        working-directory: firmware/build
-        run: |
-          echo "=== Firmware Artifacts ==="
-          ls -lh FiXPro.* 2>/dev/null || ls -lh *.uf2 *.bin *.elf *.hex 2>/dev/null || echo "Checking files..."
-          ls -la *.uf2 *.bin *.elf *.hex 2>/dev/null || true
-
-      - name: Upload firmware artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: FiXPro-firmware-picosdk-${{ steps.version.outputs.VERSION }}
-          path: |
-            firmware/build/*.uf2
-            firmware/build/*.bin
-            firmware/build/*.hex
-            firmware/build/*.elf
-          retention-days: 30
-
   build-platformio:
     name: Build (PlatformIO)
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
 
@@ -128,24 +55,84 @@ jobs:
         run: pio run
 
       - name: List build outputs
-        working-directory: firmware/platformio/.pio/build/rpipico
         run: |
           echo "=== PlatformIO Firmware ==="
-          ls -lh *.uf2 *.bin *.elf 2>/dev/null || echo "Checking files..."
-          ls -la *.uf2 2>/dev/null || true
+          ls -lh firmware/platformio/.pio/build/rpipico/*.uf2 2>/dev/null || true
 
       - name: Upload PlatformIO firmware
         uses: actions/upload-artifact@v4
         with:
           name: FiXPro-firmware-platformio-${{ steps.version.outputs.VERSION }}
-          path: |
-            firmware/platformio/.pio/build/rpipico/*.uf2
-            firmware/platformio/.pio/build/rpipico/*.bin
+          path: firmware/platformio/.pio/build/rpipico/*.uf2
+          retention-days: 30
+
+  build-pico-sdk:
+    name: Build (Pico SDK)
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install ARM toolchain
+        run: |
+          wget -q https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz -O /tmp/arm-none-eabi.tar.xz
+          sudo tar -xf /tmp/arm-none-eabi.tar.xz -C /opt
+          echo "/opt/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi/bin" >> $GITHUB_PATH
+          arm-none-eabi-gcc --version
+
+      - name: Clone Pico SDK
+        run: |
+          git clone --depth 1 --branch ${{ env.PICO_SDK_VERSION }} https://github.com/raspberrypi/pico-sdk.git ~/pico-sdk
+          cd ~/pico-sdk && git submodule update --init --depth 1
+
+      - name: Get version
+        id: version
+        run: |
+          if [[ "${{ github.event.inputs.version }}" != "" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          elif [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            VERSION="${{ github.ref_name }}"
+          else
+            VERSION="build-${{ github.run_number }}"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building FiXPro firmware version: $VERSION"
+
+      - name: Configure CMake
+        working-directory: firmware
+        env:
+          PICO_SDK_PATH: ~/pico-sdk
+          CC: /opt/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc
+          CXX: /opt/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-g++
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_TOOLCHAIN_FILE=$PICO_SDK_PATH/cmake/preload/toolchains/pico_arm_cortex_m0plus_gcc.cmake \
+            -DPICO_SDK_PATH=$PICO_SDK_PATH \
+            -DPICO_BOARD=pico \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build firmware
+        working-directory: firmware
+        run: cmake --build build -j$(nproc)
+
+      - name: List build outputs
+        run: |
+          echo "=== Firmware Artifacts ==="
+          ls -lh firmware/build/*.uf2 2>/dev/null || true
+
+      - name: Upload Pico SDK firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: FiXPro-firmware-picosdk-${{ steps.version.outputs.VERSION }}
+          path: firmware/build/*.uf2
           retention-days: 30
 
   release:
     name: Create Release
-    needs: [build-pico-sdk, build-platformio]
+    needs: [build-platformio, build-pico-sdk]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
@@ -155,34 +142,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download Pico SDK firmware
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: FiXPro-firmware-picosdk-${{ github.ref_name }}
-          path: release/picosdk
-
-      - name: Download PlatformIO firmware
-        uses: actions/download-artifact@v4
-        with:
-          name: FiXPro-firmware-platformio-${{ github.ref_name }}
-          path: release/platformio
+          path: release
 
       - name: Prepare release
-        working-directory: release
         run: |
           echo "=== Release Contents ==="
           mkdir -p firmware
-          cp picosdk/*.uf2 firmware/ 2>/dev/null || true
-          cp picosdk/*.bin firmware/ 2>/dev/null || true
-          cp platformio/*.uf2 firmware/ 2>/dev/null || true
+          find release -name "*.uf2" -exec cp {} firmware/ \; 2>/dev/null || true
           ls -lh firmware/
-          sha256sum firmware/*.{uf2,bin} > SHA256SUMS.txt
+          sha256sum firmware/*.uf2 > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: release/firmware/*
+          files: firmware/*.uf2 SHA256SUMS.txt
           body_path: CHANGELOG.md
           draft: false
           prerelease: false
