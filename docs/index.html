@@ -2270,6 +2270,24 @@ const CHIP_DB = [
 // ─── OPUP Protocol (Web Serial API) ───────────────────────────────────────
 const OPUP_SOF = 0xA5;
 
+// CRC32 table
+const CRC32_TABLE = new Uint32Array(256);
+for (let i = 0; i < 256; i++) {
+  let c = i;
+  for (let j = 0; j < 8; j++) {
+    c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+  }
+  CRC32_TABLE[i] = c;
+}
+
+function crc32(data) {
+  let crc = 0xFFFFFFFF;
+  for (const b of data) {
+    crc = CRC32_TABLE[(crc ^ b) & 0xFF] ^ (crc >>> 8);
+  }
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+
 const OPUP_CMD = {
   SYS_PING: 0x01,
   SYS_GET_CAPS: 0x02,
@@ -2409,10 +2427,13 @@ class OPUPClient {
     header[4] = len & 0xFF;
     header[5] = (len >> 8) & 0xFF;
     
-    // Calculate CRC
-    let crc = 0;
-    for (const b of header) crc = (crc + b) & 0xFFFFFFFF;
-    for (const b of data) crc = (crc + b) & 0xFFFFFFFF;
+    // Build packet data for CRC (header + payload)
+    const crcData = new Uint8Array(6 + len);
+    crcData.set(header);
+    crcData.set(data, 6);
+    
+    // Calculate CRC32
+    const crc = crc32(crcData);
     
     // Build packet
     const packet = new Uint8Array(10 + len);
