@@ -51,6 +51,7 @@
     
     <script>
         let port = null;
+        let reader = null;
         let reading = false;
         const log = document.getElementById('log');
         const btn = document.getElementById('btn');
@@ -66,10 +67,15 @@
         async function toggle() {
             if (port) {
                 reading = false;
-                if (port.readable) {
-                    try { port.readable.getReader().cancel(); } catch(e) {}
+                if (reader) {
+                    try { await reader.cancel(); } catch(e) {}
+                    reader = null;
                 }
-                await port.close();
+                try {
+                    await port.close();
+                } catch(e) {
+                    add(`Close: ${e.message}`, 'err');
+                }
                 port = null;
                 btn.textContent = 'CONNECT';
                 add('Disconnected', 'err');
@@ -80,6 +86,7 @@
                     await port.open({ baudRate: 115200 });
                     btn.textContent = 'DISCONNECT';
                     add('Connected!', 'info');
+                    reading = true;
                     readLoop();
                 } catch(e) {
                     add(`Error: ${e.message}`, 'err');
@@ -89,21 +96,21 @@
         
         async function readLoop() {
             if (!port || !port.readable) return;
-            reading = true;
-            const reader = port.readable.getReader();
             
             while (reading) {
                 try {
+                    reader = port.readable.getReader();
                     const { value, done } = await reader.read();
+                    reader.releaseLock();
+                    reader = null;
+                    
                     if (done) {
                         add('Stream done', 'err');
                         break;
                     }
-                    if (value) {
+                    if (value && value.length > 0) {
                         const hex = Array.from(value).map(b => b.toString(16).padStart(2,'0')).join(' ');
-                        const txt = new TextDecoder().decode(value).replace(/\r/g,'⏎').replace(/\n/g,'⏎\n');
                         add(`RX hex: ${hex}`, 'rx');
-                        add(`RX txt: ${txt}`, 'rx');
                     }
                 } catch(e) {
                     if (e.name !== 'AbortError') {
@@ -112,8 +119,6 @@
                     break;
                 }
             }
-            reading = false;
-            reader.releaseLock();
         }
         
         async function send(text) {
@@ -123,7 +128,7 @@
                 const writer = port.writable.getWriter();
                 await writer.write(enc.encode(text));
                 writer.releaseLock();
-                add(`TX: ${text}`, 'tx');
+                add(`TX: ${text.trim()}`, 'tx');
             } catch(e) {
                 add(`Write error: ${e.message}`, 'err');
             }
