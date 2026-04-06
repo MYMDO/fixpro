@@ -12,7 +12,6 @@ from .protocols import (
     CMD_RESET,
     CMD_GET_STATUS,
     CMD_SPI_INIT,
-    CMD_SPI_DEINIT,
     CMD_SPI_TRANSFER,
     CMD_SPI_WRITE,
     CMD_SPI_READ,
@@ -55,9 +54,6 @@ class FiXProDevice:
     """Communication class for FiXPro device"""
 
     def __init__(self, port: Optional[str] = None, baudrate: int = 115200, timeout: float = 1.0):
-        import serial
-        import serial.tools.list_ports
-
         self.port = port
         self.baudrate = baudrate
         self.timeout = timeout
@@ -86,7 +82,7 @@ class FiXProDevice:
                     test_port = serial.Serial(p.device, 115200, timeout=0.1)
                     test_port.close()
                     return p.device
-                except:
+                except Exception:
                     pass
 
         if ports:

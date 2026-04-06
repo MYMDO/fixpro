@@ -21,7 +21,6 @@ import sys
 import os
 import argparse
 import hashlib
-import json
 from typing import Optional, Dict, Any, List
 
 # Add parent to path for standalone execution
@@ -94,8 +93,6 @@ def print_success(msg: str) -> None:
 def load_chip_databases() -> None:
     """Load chip databases from JSON files"""
     import json
-
-    global SPI_FLASH_DB, I2C_EEPROM_DB, MCU_DB, AVR_DB
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     base_dir = os.path.dirname(os.path.dirname(script_dir))
