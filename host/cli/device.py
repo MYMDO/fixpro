@@ -448,7 +448,7 @@ class FiXProDevice:
         if status == STAT_OK_WITH_DATA and data:
             offset = 0
             while offset + 8 <= len(data):
-                rom = list(data[offset:offset + 8])
+                rom = list(data[offset : offset + 8])
                 crc = sum(rom) & 0xFF
                 devices.append(
                     {

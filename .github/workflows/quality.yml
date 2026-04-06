@@ -25,7 +25,7 @@ jobs:
         run: black --check --diff host/ tests/
 
       - name: Run flake8
-        run: flake8 host/ tests/ --max-line-length=100 --ignore=E501,W503
+        run: flake8 host/ tests/ --max-line-length=100 --ignore=E501,W503,E203
 
       - name: Run isort
         run: isort --check-only --diff host/ tests/
