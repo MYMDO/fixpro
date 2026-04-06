@@ -6,6 +6,6 @@ Usage:
     fixpro [options] command [args]
 """
 
-from .main import main, FiXProDevice, __version__
+from .main import FiXProDevice, __version__, main
 
 __all__ = ["main", "FiXProDevice", "__version__"]

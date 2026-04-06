@@ -17,11 +17,11 @@ Author: FiXPro Contributors
 License: GPL-3.0
 """
 
-import sys
-import os
 import argparse
 import hashlib
-from typing import Optional, Dict, Any, List
+import os
+import sys
+from typing import Any, Dict, List, Optional
 
 # Add parent to path for standalone execution
 if __name__ == "__main__":
@@ -29,41 +29,19 @@ if __name__ == "__main__":
 
 try:
     from cli.device import FiXProDevice
-    from cli.protocols import (
-        CAP_SPI,
-        CAP_I2C,
-        CAP_JTAG,
-        CAP_SWD,
-        CAP_UPDI,
-        CAP_1WIRE,
-        CAP_FLASH_READ,
-        CAP_FLASH_WRITE,
-    )
+    from cli.protocols import (CAP_1WIRE, CAP_FLASH_READ, CAP_FLASH_WRITE,
+                               CAP_I2C, CAP_JTAG, CAP_SPI, CAP_SWD, CAP_UPDI)
 except ImportError:
     try:
         from fixpro.cli.device import FiXProDevice
-        from fixpro.cli.protocols import (
-            CAP_SPI,
-            CAP_I2C,
-            CAP_JTAG,
-            CAP_SWD,
-            CAP_UPDI,
-            CAP_1WIRE,
-            CAP_FLASH_READ,
-            CAP_FLASH_WRITE,
-        )
+        from fixpro.cli.protocols import (CAP_1WIRE, CAP_FLASH_READ,
+                                          CAP_FLASH_WRITE, CAP_I2C, CAP_JTAG,
+                                          CAP_SPI, CAP_SWD, CAP_UPDI)
     except ImportError:
         from fixpro.cli.device import FiXProDevice
-        from fixpro.cli.protocols import (
-            CAP_SPI,
-            CAP_I2C,
-            CAP_JTAG,
-            CAP_SWD,
-            CAP_UPDI,
-            CAP_1WIRE,
-            CAP_FLASH_READ,
-            CAP_FLASH_WRITE,
-        )
+        from fixpro.cli.protocols import (CAP_1WIRE, CAP_FLASH_READ,
+                                          CAP_FLASH_WRITE, CAP_I2C, CAP_JTAG,
+                                          CAP_SPI, CAP_SWD, CAP_UPDI)
 
 __version__ = "2.0.0"
 __author__ = "FiXPro Contributors"
