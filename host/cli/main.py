@@ -274,7 +274,7 @@ def cmd_write(args) -> int:
         total_chunks = (len(data) + chunk_size - 1) // chunk_size
 
         for i in range(total_chunks):
-            chunk = data[i * chunk_size : (i + 1) * chunk_size]
+            chunk = data[i * chunk_size:(i + 1) * chunk_size]
             chunk_addr = address + i * chunk_size
             if not dev.spi_write(chunk_addr, chunk):
                 print_error(f"Write failed at address 0x{chunk_addr:08X}")
