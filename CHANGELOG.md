@@ -5,126 +5,102 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.1.0] - 2026-04-04
+## [2.1.0] - 2026-04-06
 
 ### Added
+
+#### Firmware (PlatformIO)
+- **Full SPI Flash Operations**
+  - `SPI_READ <addr> <len>` - Read data from SPI flash
+  - `SPI_WRITE <addr> <hexdata>` - Write data to SPI flash
+  - `SPI_ERASE <addr> [len]` - Erase SPI sector (default 4KB)
+  - `SPI_ERASE_CHIP` - Full chip erase
+  - `SPI_ID` - Read JEDEC ID
+
+- **Full I2C Operations**
+  - `I2C_READ <addr> <reg> [len]` - Read from I2C register
+  - `I2C_WRITE <addr> <reg> <data>` - Write to I2C register
+  - `I2C_SCAN` - Scan I2C bus for devices
+
+- **GPIO Operations**
+  - `GPIO` - Read GPIO states (GP10-GP17)
+  - `GPIO_SET` - Set LED on (GP25)
+  - `GPIO_CLR` - Set LED off
+
+- **System Commands**
+  - `STATUS` - System status with version, GPIO, capabilities
+  - `INFO` - Detailed device information
+  - `HELP` - Command reference
 
 #### Web Interface
 - **Modular JavaScript Architecture** (`docs/assets/fixpro-core.js`)
   - Logger module with DEBUG/INFO/WARN/ERROR levels
   - Serial module for Web Serial API communication
   - Events module for pub/sub communication
-  - Protocol module with command/response handling
+  - Protocol module with all command implementations
   - UI module for connection status updates
   - Actions module for high-level operations
 
-- **FiXPro Hardware Control Panel** (`docs/index.html`)
-  - Real-time device control buttons
+- **FiXPro Hardware Control Panel**
   - PING, CAPS, GPIO, SPI_ID, I2C_SCAN commands
   - Connection status indicator
   - Activity log display
-  - System monitor panel
-
-- **Web Serial API Integration**
-  - Full browser-to-device communication
-  - No drivers required
-  - Works on Windows, macOS, Linux
-
-- **Chip Database**
-  - 200+ supported chips
-  - Real-time search and filtering
-  - JEDEC ID auto-detection
-  - Performance benchmarks
-
-#### Firmware
-- **PlatformIO Build System** (`firmware/platformio/`)
-  - Arduino framework support
-  - Earle Philhower RP2040 core
-  - Simplified build process
-  - USB CDC with TinyUSB
-
-- **Text OPUP Protocol**
-  - Human-readable commands
-  - Line-based responses
-  - Easy debugging
 
 #### Documentation
-- **Professional README.md**
-  - Complete feature documentation
-  - Quick start guide
-  - Hardware requirements
-  - Pin connections reference
-  - Troubleshooting section
+- Complete protocol reference
+- Pin configuration reference
+- Troubleshooting section
 
 ### Changed
-- Firmware bumped to v2.1.0
-- Web interface updated to v2.1.0
-- Pre-built UF2: `FiXPro_platformio.uf2`
-- Web interface now supports real device communication
-- Updated chip database with 200+ entries
-- FiXPro hardware buttons now use modular architecture
+- Firmware version: 2.1.0
+- Web interface version: 2.1.0
+- pyproject.toml version: 2.1.0
+- build.yml release tag: v2.1.0
+- README updated with correct CAPS response format
+- CLI imports fixed (removed duplicate try/except blocks)
+- Makefile test-cli target fixed
 
 ### Fixed
-- USB descriptor compatibility
-- Build system configuration
-- String descriptor handling
+- Version consistency across all files
+- Duplicate log entries (removed extra event handler)
+- License reference in README (GPL-3.0 vs MIT)
+- Project structure in README (removed openocd/)
+- Duplicate `tests/` directory entry in README
+- pyproject.toml entry point (`fixpro.cli.main:main`)
+- Makefile CLI test path
+
+### Refactored
+- `config.h` - Added board info, architecture, max frequencies
+- `commands.cpp` - Added full SPI_WRITE, improved error handling
+- `fixpro-core.js` - Complete rewrite with all commands
+- `.github/workflows/build.yml` - Improved release naming
+- `.github/workflows/quality.yml` - Added JS lint, HTML validation
 
 ## [2.0.0] - 2026-04-03
 
 ### Added
 
 #### Firmware
-- **UPDI (AVR) Driver** (`src/hal/updi.c`, `src/hal/updi.h`)
+- **UPDI (AVR) Driver**
   - UART-based UPDI communication for AVR microcontrollers
-  - Device info reading (signature, flash size, EEPROM size)
-  - Flash read/write operations
-  - EEPROM read/write operations
+  - Device info reading, Flash read/write, EEPROM operations
   - Fuse read/write operations
   - Chip erase functionality
-  - Support for 115200/230400/460800 baud rates
 
-- **1-Wire Driver** (`src/hal/onewire.c`, `src/hal/onewire.h`)
+- **1-Wire Driver**
   - Bit-banged 1-Wire protocol implementation
-  - Device search (ROM code discovery)
-  - ROM code reading
-  - DS18B20 temperature sensor support
-  - CRC8 verification
+  - Device search, DS18B20 temperature sensor support
 
-- **USB Protocol Commands** (`src/usb/usb_protocol.c`, `src/usb/usb_protocol.h`)
-  - `CMD_UPDI_INIT` (0x70) - Initialize UPDI interface
-  - `CMD_UPDI_DEINIT` (0x71) - Deinitialize UPDI
-  - `CMD_UPDI_RESET` (0x72) - Reset UPDI target
-  - `CMD_UPDI_READ_INFO` (0x73) - Read device info
-  - `CMD_UPDI_READ_FLASH` (0x74) - Read flash memory
-  - `CMD_UPDI_WRITE_FLASH` (0x75) - Write flash memory
-  - `CMD_1WIRE_INIT` (0x80) - Initialize 1-Wire
-  - `CMD_1WIRE_RESET` (0x82) - Reset 1-Wire bus
-  - `CMD_1WIRE_SEARCH` (0x83) - Search devices
-  - `CMD_1WIRE_READ_TEMP` (0x85) - Read DS18B20 temperature
-
-- **Capability Flags** in device info
-  - `CAP_UPDI` (0x20) - AVR UPDI support
-  - `CAP_1WIRE` (0x40) - 1-Wire support
-  - `CAP_ISP` (0x10) - In-system programming
+- **USB Protocol Commands**
+  - UPDI commands (0x70-0x7F)
+  - 1-Wire commands (0x80-0x8F)
 
 #### CLI
-- **UPDI Commands**
-  - `updi-info` - Read device info and identify chip
-  - `updi-erase` - Erase target chip
-  - `updi-read-fuse` - Read fuse value
-  - `updi-write-fuse` - Write fuse value
-
-- **1-Wire Commands**
-  - `1wire-scan` - Scan for 1-Wire devices
-  - `1wire-temp` - Read DS18B20 temperature
+- UPDI commands: `updi-info`, `updi-erase`, `updi-read-fuse`, `updi-write-fuse`
+- 1-Wire commands: `1wire-scan`, `1wire-temp`
 
 #### Database
-- **AVR UPDI Chip Database** (`chipdb/avr.json`)
-  - 54 supported AVR devices
-  - ATtiny series (2KB-16KB Flash)
-  - ATmega series (8KB-256KB Flash)
-  - AVR-DA series (32KB-128KB Flash)
-  - Signature-based chip identification
+- AVR UPDI Chip Database (`chipdb/avr.json`) - 54 devices
 
 ## [1.0.0] - 2026-03-XX
 

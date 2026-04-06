@@ -261,8 +261,8 @@ FiXPro uses a simple text-based protocol over USB CDC.
 | Command | Response | Description |
 |---------|----------|-------------|
 | `PING` | `CAFE` | Connection test |
-| `CAPS` | `CAPS:i2c,spi,gpio,isp,swd` | Supported protocols |
-| `VERSION` | `FiXPro v2.0.0` | Firmware version |
+| `CAPS` | `CAPS:spi,i2c,gpio,...` | Supported protocols |
+| `VERSION` | `FiXPro v2.1.0` | Firmware version |
 | `GPIO` | `GPIO:000000` | GPIO states (6 bits) |
 | `SPI_ID` | `SPI:EF4017` | SPI flash JEDEC ID |
 | `I2C_SCAN` | `I2C:50 68` | Found I2C addresses |
@@ -377,7 +377,6 @@ FiXPro/
 │   ├── index.html        # Web interface
 │   └── *.uf2            # Pre-built firmware
 ├── tests/               # Test files
-├── openocd/             # OpenOCD config
 ├── LICENSE              # GPLv3
 ├── README.md           # This file
 └── CHANGELOG.md       # Version history

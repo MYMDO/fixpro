@@ -1,6 +1,7 @@
 /**
  * @file commands.h
  * @brief FiXPro Command Handler
+ * @version 2.1.0
  */
 #ifndef FIXPRO_COMMANDS_H
 #define FIXPRO_COMMANDS_H
@@ -9,6 +10,8 @@
 #include <stdbool.h>
 
 #define CMD_BUFFER_SIZE 256
+
+#define CMD_TIMEOUT_MS 5000
 
 typedef void (*CommandHandler)(void);
 
@@ -25,7 +28,7 @@ void cmd_gpio_set(void);
 void cmd_gpio_clr(void);
 void cmd_spi_id(void);
 void cmd_spi_read(uint32_t addr, uint32_t len);
-void cmd_spi_write(uint32_t addr, uint32_t len);
+void cmd_spi_write(uint32_t addr, const uint8_t* data, uint32_t len);
 void cmd_spi_erase(uint32_t addr, uint32_t len);
 void cmd_spi_erase_chip(void);
 void cmd_i2c_scan(void);

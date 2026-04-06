@@ -70,7 +70,7 @@ test: test-cli
 
 test-cli:
 	@echo "Testing CLI..."
-	@python3 $(FIRMWARE_DIR)/../host/cli/fixpro.py --help
+	@python3 -m fixpro.cli.main --help 2>/dev/null || python3 host/cli/main.py --help
 
 #==============================================================================
 # INSTALLATION

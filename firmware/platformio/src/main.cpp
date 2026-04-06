@@ -2,13 +2,6 @@
  * @file main.cpp
  * @brief FiXPro Universal Programmer
  * @version 2.1.0
- * 
- * Features:
- * - SPI Flash programming
- * - I2C EEPROM support
- * - GPIO control
- * - Web Serial API compatible
- * - Text OPUP Protocol
  */
 
 #include <Arduino.h>
@@ -53,7 +46,7 @@ void setup() {
     Serial.println();
     Serial.println("==========================================");
     Serial.println("  FiXPro Universal Programmer v" FIXPRO_VERSION);
-    Serial.println("  RP2040 + Arduino Framework");
+    Serial.println("  Board: " FIXPRO_BOARD);
     Serial.println("  Web Serial API ready");
     Serial.println("==========================================");
     Serial.println("Type HELP for commands");

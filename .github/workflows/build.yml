@@ -17,49 +17,69 @@ jobs:
       - name: Set up Python
         run: pip3 install platformio
 
-      - name: Build
+      - name: Build firmware
         run: |
           cd firmware/platformio
           pio run
 
+      - name: Verify build output
+        run: |
+          ls -la firmware/platformio/.pio/build/pico/
+          test -f firmware/platformio/.pio/build/pico/firmware.uf2 || exit 1
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: fixpro-firmware
-          path: firmware/platformio/.pio/build/pico/firmware.uf2
+          name: fixpro-firmware-${{ github.sha }}
+          path: |
+            firmware/platformio/.pio/build/pico/firmware.uf2
+            firmware/platformio/.pio/build/pico/*.map
+          retention-days: 30
 
   release:
     needs: build
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: write
     steps:
       - name: Download firmware
         uses: actions/download-artifact@v4
         with:
-          name: fixpro-firmware
+          name: fixpro-firmware-${{ github.sha }}
           path: .
 
-      - name: Prepare files
+      - name: Prepare release files
         run: |
-          mv firmware.uf2 FiXPro.uf2
-          sha256sum FiXPro.uf2 > SHA256SUMS.txt
-
-      - name: Get version
-        id: version
-        run: |
-          VERSION="v2.0.$(date +%Y%m%d%H%M%S)"
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          mv firmware.uf2 FiXPro_v2.1.0.uf2
+          sha256sum FiXPro_v2.1.0.uf2 > SHA256SUMS.txt
+          cat SHA256SUMS.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.version.outputs.VERSION }}
-          name: FiXPro ${{ steps.version.outputs.VERSION }}
-          files: |
-            FiXPro.uf2
-            SHA256SUMS.txt
+          tag_name: v2.1.0
+          name: FiXPro v2.1.0
           draft: false
           prerelease: false
+          files: |
+            FiXPro_v2.1.0.uf2
+            SHA256SUMS.txt
+          body: |
+            ## FiXPro v2.1.0
+            
+            Universal RP2040-based hardware programmer with Web Serial API support.
+            
+            ### Features
+            - SPI Flash programming
+            - I2C EEPROM support
+            - GPIO control
+            - Web Serial API compatible
+            - Text OPUP Protocol
+            
+            ### Installation
+            1. Hold BOOTSEL button on Pico
+            2. Connect USB while holding BOOTSEL
+            3. Copy `FiXPro_v2.1.0.uf2` to the drive
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

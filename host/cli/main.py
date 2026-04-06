@@ -32,11 +32,12 @@ try:
     from cli.device import FiXProDevice
     from cli.protocols import CAP_SPI, CAP_I2C, CAP_JTAG, CAP_SWD, CAP_UPDI, CAP_1WIRE, CAP_FLASH_READ, CAP_FLASH_WRITE
 except ImportError:
-    from fixpro.cli.device import FiXProDevice
-    from fixpro.cli.protocols import CAP_SPI, CAP_I2C, CAP_JTAG, CAP_SWD, CAP_UPDI, CAP_1WIRE, CAP_FLASH_READ, CAP_FLASH_WRITE
-except ImportError:
-    from fixpro.cli.device import FiXProDevice
-    from fixpro.cli.protocols import CAP_SPI, CAP_I2C, CAP_JTAG, CAP_SWD, CAP_UPDI, CAP_1WIRE, CAP_FLASH_READ, CAP_FLASH_WRITE
+    try:
+        from fixpro.cli.device import FiXProDevice
+        from fixpro.cli.protocols import CAP_SPI, CAP_I2C, CAP_JTAG, CAP_SWD, CAP_UPDI, CAP_1WIRE, CAP_FLASH_READ, CAP_FLASH_WRITE
+    except ImportError:
+        from fixpro.cli.device import FiXProDevice
+        from fixpro.cli.protocols import CAP_SPI, CAP_I2C, CAP_JTAG, CAP_SWD, CAP_UPDI, CAP_1WIRE, CAP_FLASH_READ, CAP_FLASH_WRITE
 
 __version__ = "2.0.0"
 __author__ = "FiXPro Contributors"

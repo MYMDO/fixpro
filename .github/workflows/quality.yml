@@ -7,8 +7,8 @@ on:
     branches: [main, develop]
 
 jobs:
-  lint:
-    name: Lint
+  lint-python:
+    name: Lint Python
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,16 +22,33 @@ jobs:
         run: pip install black flake8 isort
 
       - name: Run black
-        run: black --check --diff tests/
+        run: black --check --diff host/ tests/
 
       - name: Run flake8
-        run: flake8 tests/ --max-line-length=100 --ignore=E501,W503
+        run: flake8 host/ tests/ --max-line-length=100 --ignore=E501,W503
 
       - name: Run isort
-        run: isort --check-only --diff tests/
+        run: isort --check-only --diff host/ tests/
+
+  lint-js:
+    name: Lint JavaScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ESLint
+        run: npm install -g eslint
+
+      - name: Run ESLint
+        run: eslint docs/assets/fixpro-core.js || true
 
   test:
-    name: Tests
+    name: Python Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -45,7 +62,7 @@ jobs:
         run: pip install pytest pyserial
 
       - name: Run tests
-        run: python3 -m pytest tests/protocol/ -v
+        run: python3 -m pytest tests/ -v
 
   json-validate:
     name: JSON Validation
@@ -53,18 +70,68 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
       - name: Validate JSON files
         run: |
           python3 -c "
           import json
           import glob
-          for f in glob.glob('chipdb/*.json'):
-              with open(f) as file:
-                  json.load(file)
-                  print(f'Valid: {f}')
+          for f in sorted(glob.glob('chipdb/*.json')):
+              try:
+                  with open(f) as file:
+                      data = json.load(file)
+                      chip_count = len(data.get('chips', []))
+                      print(f'Valid: {f} ({chip_count} chips)')
+              except Exception as e:
+                  print(f'ERROR: {f}: {e}')
+                  exit(1)
+          print('All chip databases are valid!')
+          "
+
+  firmware-check:
+    name: Firmware Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check firmware files exist
+        run: |
+          echo "Checking PlatformIO firmware..."
+          test -f firmware/platformio/src/main.cpp || exit 1
+          test -f firmware/platformio/src/commands.cpp || exit 1
+          test -f firmware/platformio/src/config.h || exit 1
+          test -f firmware/platformio/platformio.ini || exit 1
+          echo "All firmware files present!"
+
+  html-validate:
+    name: HTML Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check HTML structure
+        run: |
+          python3 -c "
+          import re
+          with open('docs/index.html') as f:
+              content = f.read()
+          
+          checks = [
+              ('DOCTYPE', '<!DOCTYPE html>' in content),
+              ('charset', 'charset=\"UTF-8\"' in content),
+              ('viewport', 'viewport' in content),
+              ('Web Serial', 'navigator.serial' in content),
+              ('FiXPro branding', 'FiXPro' in content),
+          ]
+          
+          all_passed = True
+          for name, passed in checks:
+              status = 'OK' if passed else 'FAIL'
+              print(f'{name}: {status}')
+              if not passed:
+                  all_passed = False
+          
+          if all_passed:
+              print('All HTML checks passed!')
+          else:
+              exit(1)
           "

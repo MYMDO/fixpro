@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fixpro"
-version = "2.0.0"
+version = "2.1.0"
 description = "FiXPro - Universal Hardware Programmer CLI Tool"
 readme = "README.md"
 license = {text = "GPL-3.0"}
@@ -43,7 +43,7 @@ dev = [
 ]
 
 [project.scripts]
-fixpro = "fixpro.cli:main:main"
+fixpro = "fixpro.cli.main:main"
 
 [project.urls]
 Homepage = "https://github.com/MYMDO/fixpro"

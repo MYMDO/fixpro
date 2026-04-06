@@ -1,6 +1,7 @@
 /**
  * @file commands.cpp
  * @brief FiXPro Command Implementation
+ * @version 2.1.0
  */
 
 #include <Arduino.h>
@@ -8,18 +9,22 @@
 #include <Wire.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include "config.h"
 #include "commands.h"
 
 static char cmdBuffer[CMD_BUFFER_SIZE];
 static int cmdPos = 0;
 
+static void spi_write_enable(void);
+static void spi_wait_ready(void);
+
 static void sendResponse(const char* msg) {
     Serial.println(msg);
 }
 
 static void sendResponsef(const char* fmt, ...) {
-    char buf[256];
+    char buf[512];
     va_list args;
     va_start(args, fmt);
     vsnprintf(buf, sizeof(buf), fmt, args);
@@ -76,6 +81,7 @@ void cmd_spi_id(void) {
 
 void cmd_spi_read(uint32_t addr, uint32_t len) {
     if (len > 256) len = 256;
+    if (len == 0) len = 256;
     
     digitalWrite(FIXPRO_SPI_CS, LOW);
     
@@ -91,11 +97,40 @@ void cmd_spi_read(uint32_t addr, uint32_t len) {
     
     char response[512];
     char* p = response;
-    p += snprintf(p, sizeof(response), "SPI_READ:%08lX:", addr);
-    for (uint32_t i = 0; i < len && (p - response) < (int)(sizeof(response) - 3); i++) {
+    p += snprintf(p, sizeof(response), "SPI_READ:%08lX:", (unsigned long)addr);
+    for (uint32_t i = 0; i < len && (size_t)(p - response) < (sizeof(response) - 4); i++) {
         p += snprintf(p, 4, "%02X ", rxBuf[i]);
     }
     sendResponse(response);
+}
+
+void cmd_spi_write(uint32_t addr, const uint8_t* data, uint32_t len) {
+    if (len == 0 || data == NULL) {
+        sendResponse("ERR:No data");
+        return;
+    }
+    
+    for (uint32_t i = 0; i < len; i += 256) {
+        uint32_t chunk = min((uint32_t)256, len - i);
+        uint32_t chunkAddr = addr + i;
+        
+        spi_write_enable();
+        
+        digitalWrite(FIXPRO_SPI_CS, LOW);
+        SPI.transfer(0x02);
+        SPI.transfer((uint8_t)(chunkAddr >> 16));
+        SPI.transfer((uint8_t)(chunkAddr >> 8));
+        SPI.transfer((uint8_t)chunkAddr);
+        
+        for (uint32_t j = 0; j < chunk; j++) {
+            SPI.transfer(data[i + j]);
+        }
+        
+        digitalWrite(FIXPRO_SPI_CS, HIGH);
+        spi_wait_ready();
+    }
+    
+    sendResponsef("SPI_WRITE:%08lX %lu", (unsigned long)addr, (unsigned long)len);
 }
 
 static void spi_write_enable(void) {
@@ -124,8 +159,9 @@ static void spi_wait_ready(void) {
 
 void cmd_spi_erase(uint32_t addr, uint32_t len) {
     if (len > 4096) len = 4096;
+    if (len == 0) len = 4096;
     
-    sendResponsef("SPI_ERASE:%08lX %lu", addr, len);
+    sendResponsef("SPI_ERASE:%08lX %lu", (unsigned long)addr, (unsigned long)len);
     
     spi_write_enable();
     
@@ -150,13 +186,7 @@ void cmd_spi_erase_chip(void) {
     SPI.transfer(0xC7);
     digitalWrite(FIXPRO_SPI_CS, HIGH);
     
-    spi_wait_ready();
-    
     sendResponse("SPI_ERASE_CHIP:OK");
-}
-
-void cmd_spi_write(uint32_t addr, uint32_t len) {
-    sendResponsef("SPI_WRITE:Use SPI_WRITE <addr> <hexdata>");
 }
 
 void cmd_i2c_scan(void) {
@@ -173,16 +203,25 @@ void cmd_i2c_scan(void) {
 }
 
 void cmd_i2c_read(uint8_t addr, uint8_t reg, uint8_t len) {
+    if (len == 0) len = 1;
+    if (len > 32) len = 32;
+    
     Wire.beginTransmission(addr);
     Wire.write(reg);
-    Wire.endTransmission(false);
+    if (Wire.endTransmission(false) != 0) {
+        sendResponsef("I2C_READ:ERR_%d", 1);
+        return;
+    }
+    
     Wire.requestFrom(addr, len);
     
     String result = "I2C_READ:";
-    while (Wire.available() && len-- > 0) {
+    uint8_t count = 0;
+    while (Wire.available() && count < len) {
         char buf[4];
         snprintf(buf, sizeof(buf), "%02X ", Wire.read());
         result += buf;
+        count++;
     }
     sendResponse(result.c_str());
 }
@@ -201,35 +240,74 @@ void cmd_i2c_write(uint8_t addr, uint8_t reg, uint8_t data) {
 }
 
 void cmd_status(void) {
-    sendResponsef("STATUS:v%s,sys=133MHz", FIXPRO_VERSION);
+    uint32_t gpioState = 0;
+    for (int i = 0; i < 8; i++) {
+        int pin = 10 + i;
+        if (digitalRead(pin) == HIGH) {
+            gpioState |= (1 << i);
+        }
+    }
+    sendResponsef("STATUS:v%s,sys=133MHz,gpio=%08lX,caps=0x%02X",
+                  FIXPRO_VERSION, (unsigned long)gpioState, FIXPRO_CAPABILITIES);
 }
 
 void cmd_info(void) {
     Serial.println("FiXPro Universal Programmer");
     Serial.print("Version: ");
     Serial.println(FIXPRO_VERSION);
-    Serial.println("Platform: RP2040 Arduino");
+    Serial.print("Board: ");
+    Serial.println(FIXPRO_BOARD);
+    Serial.print("Architecture: ");
+    Serial.println(FIXPRO_ARCH);
     Serial.println("Capabilities: SPI, I2C, GPIO");
+    Serial.println();
+    Serial.println("Pin Configuration:");
+    Serial.print("  LED: GP");
+    Serial.println(FIXPRO_LED_PIN - 20);
+    Serial.print("  SPI: GP");
+    Serial.print(FIXPRO_SPI_MISO);
+    Serial.print(", GP");
+    Serial.print(FIXPRO_SPI_MOSI);
+    Serial.print(", GP");
+    Serial.print(FIXPRO_SPI_SCK);
+    Serial.print(", CS=GP");
+    Serial.println(FIXPRO_SPI_CS);
+    Serial.print("  I2C: GP");
+    Serial.print(FIXPRO_I2C_SDA);
+    Serial.print(", GP");
+    Serial.println(FIXPRO_I2C_SCL);
 }
 
 void cmd_help(void) {
     Serial.println("FiXPro Commands:");
-    Serial.println("  PING         - Connection test (returns CAFE)");
-    Serial.println("  CAPS         - Get device capabilities");
-    Serial.println("  VERSION      - Firmware version");
-    Serial.println("  GPIO         - Read GPIO states");
-    Serial.println("  GPIO_SET     - Set LED on");
-    Serial.println("  GPIO_CLR     - Set LED off");
-    Serial.println("  SPI_ID       - Read SPI flash JEDEC ID");
-    Serial.println("  SPI_READ     - Read SPI flash <addr> <len>");
-    Serial.println("  SPI_ERASE    - Erase SPI sector <addr> <len>");
+    Serial.println("  PING           - Connection test (returns CAFE)");
+    Serial.println("  CAPS           - Get device capabilities");
+    Serial.println("  VERSION        - Firmware version");
+    Serial.println("  GPIO           - Read GPIO states (GP10-GP17)");
+    Serial.println("  GPIO_SET       - Set LED on");
+    Serial.println("  GPIO_CLR       - Set LED off");
+    Serial.println("  SPI_ID         - Read SPI flash JEDEC ID");
+    Serial.println("  SPI_READ       - Read SPI flash <addr> <len>");
+    Serial.println("  SPI_WRITE      - Write SPI flash <addr> <hexdata>");
+    Serial.println("  SPI_ERASE      - Erase SPI sector <addr> [len]");
     Serial.println("  SPI_ERASE_CHIP - Full chip erase");
-    Serial.println("  I2C_SCAN     - Scan I2C bus for devices");
-    Serial.println("  I2C_READ     - Read I2C <addr> <reg> <len>");
-    Serial.println("  I2C_WRITE    - Write I2C <addr> <reg> <data>");
-    Serial.println("  STATUS       - System status");
-    Serial.println("  INFO         - Device information");
-    Serial.println("  HELP         - Show this help");
+    Serial.println("  I2C_SCAN       - Scan I2C bus for devices");
+    Serial.println("  I2C_READ       - Read I2C <addr> <reg> [len]");
+    Serial.println("  I2C_WRITE      - Write I2C <addr> <reg> <data>");
+    Serial.println("  STATUS         - System status");
+    Serial.println("  INFO           - Device information");
+    Serial.println("  HELP           - Show this help");
+}
+
+static uint8_t hexNibbleToUint8(char c) {
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    return 0;
+}
+
+static uint8_t hexPairToUint8(const char* str) {
+    return (hexNibbleToUint8(str[0]) << 4) | hexNibbleToUint8(str[1]);
 }
 
 void process_command(const char* cmd) {
@@ -253,7 +331,7 @@ void process_command(const char* cmd) {
         cmd_caps();
     } else if (strcmp(args[0], "VERSION") == 0) {
         cmd_version();
-    } else if (strcmp(args[0], "GPIO") == 0 || strcmp(args[0], "GPIO_TEST") == 0) {
+    } else if (strcmp(args[0], "GPIO") == 0) {
         cmd_gpio();
     } else if (strcmp(args[0], "GPIO_SET") == 0) {
         cmd_gpio_set();
@@ -265,18 +343,31 @@ void process_command(const char* cmd) {
         uint32_t addr = strtoul(args[1], NULL, 0);
         uint32_t len = strtoul(args[2], NULL, 0);
         cmd_spi_read(addr, len);
-    } else if (strcmp(args[0], "SPI_ERASE") == 0 && argc >= 3) {
+    } else if (strcmp(args[0], "SPI_WRITE") == 0 && argc >= 3) {
         uint32_t addr = strtoul(args[1], NULL, 0);
-        uint32_t len = strtoul(args[2], NULL, 0);
+        size_t hexLen = strlen(args[2]);
+        if (hexLen >= 2 && (hexLen % 2) == 0) {
+            uint8_t data[256];
+            size_t dataLen = min(hexLen / 2, sizeof(data));
+            for (size_t i = 0; i < dataLen; i++) {
+                data[i] = hexPairToUint8(args[2] + i * 2);
+            }
+            cmd_spi_write(addr, data, dataLen);
+        } else {
+            sendResponse("ERR:Invalid hex data");
+        }
+    } else if (strcmp(args[0], "SPI_ERASE") == 0 && argc >= 2) {
+        uint32_t addr = strtoul(args[1], NULL, 0);
+        uint32_t len = (argc >= 3) ? strtoul(args[2], NULL, 0) : 4096;
         cmd_spi_erase(addr, len);
     } else if (strcmp(args[0], "SPI_ERASE_CHIP") == 0) {
         cmd_spi_erase_chip();
     } else if (strcmp(args[0], "I2C_SCAN") == 0) {
         cmd_i2c_scan();
-    } else if (strcmp(args[0], "I2C_READ") == 0 && argc >= 4) {
+    } else if (strcmp(args[0], "I2C_READ") == 0 && argc >= 3) {
         uint8_t addr = strtoul(args[1], NULL, 0);
         uint8_t reg = strtoul(args[2], NULL, 0);
-        uint8_t len = strtoul(args[3], NULL, 0);
+        uint8_t len = (argc >= 4) ? strtoul(args[3], NULL, 0) : 1;
         cmd_i2c_read(addr, reg, len);
     } else if (strcmp(args[0], "I2C_WRITE") == 0 && argc >= 4) {
         uint8_t addr = strtoul(args[1], NULL, 0);
