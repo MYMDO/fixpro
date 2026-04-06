@@ -8,4 +8,4 @@ Usage:
 
 from .main import main, FiXProDevice, __version__
 
-__all__ = ['main', 'FiXProDevice', '__version__']
+__all__ = ["main", "FiXProDevice", "__version__"]
